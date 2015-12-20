@@ -48,5 +48,11 @@ class BotDefaults
 	const SESSION_NAME = 'JoshixBot';
 	
 	const VERSION = '1.0.0';
+	
+	
+	public static function load_configuration()
+	{
+		
+	}
 }
 

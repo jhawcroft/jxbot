@@ -33,7 +33,7 @@
 
 function jxbot_config()
 {
-	global $jxbot_config;
+	global $jxbot_config, $jxbot_db;
 	$jxbot_config = array();
 
 	require_once('defaults.php');
@@ -58,6 +58,14 @@ function jxbot_config()
 	}
 	
 	jxbot_connect_db() or jxbot_die("Couldn't connect to database.");
+	
+	if (!jxbot_is_installed())
+	{
+		require_once('install.php');
+		exit;
+	}
+	
+	BotDefaults::load_configuration();  // timezone, etc.
 	
 	
 	if (isset($jxbot_config['timezone']))

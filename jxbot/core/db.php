@@ -31,6 +31,23 @@
  *******************************************************************************/
  
 
+function jxbot_is_installed()
+{
+	global $jxbot_db;
+	
+	try
+	{
+		$stmt = $jxbot_db->prepare('SELECT * FROM category LIMIT 1');
+		$stmt->execute();
+		return true;
+	}
+	catch (Exception $err)
+	{}
+	
+	return false;
+}
+ 
+
 function jxbot_connect_db()
 {
 	global $jxbot_db, $jxbot_config;
@@ -60,9 +77,6 @@ function jxbot_connect_db()
 	{
 		return false;
 	}
-	
-	// should also load certain configuration settings here, like timezone
-	
 	
 	return true;
 }

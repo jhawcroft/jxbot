@@ -45,6 +45,9 @@ $params['db_prefix'] = (isset($_REQUEST['db_prefix']) ? $_REQUEST['db_prefix'] :
 $params['db_username'] = (isset($_REQUEST['db_username']) ? $_REQUEST['db_username'] : '');
 $params['db_password'] = (isset($_REQUEST['db_password']) ? $_REQUEST['db_password'] : '');
 
+$params['bot_name'] = (isset($_REQUEST['bot_name']) ? $_REQUEST['bot_name'] : '');
+$params['bot_tz'] = (isset($_REQUEST['bot_tz']) ? $_REQUEST['bot_tz'] : '');
+
 
 
 function install_head()
@@ -159,6 +162,9 @@ textarea
 function install_foot()
 {
 ?>
+
+<div class="clear"></div>
+
 </form>
 </div>
 </div>
@@ -217,10 +223,22 @@ function try_write_config()
 
 function print_config()
 {
+	global $params;
 ?>
-<h1>Installation Completed</h1>
+<input name="stage" type="hidden" value="1">
+<input name="already-tried" type="hidden" value="1">
+<input type="hidden" name="db_host" value="<?php print $params['db_host']; ?>">
+<input type="hidden" name="db_name" value="<?php print $params['db_name']; ?>">
+<input type="hidden" name="db_prefix" value="<?php print $params['db_prefix']; ?>">
+<input type="hidden" name="db_username" value="<?php print $params['db_username']; ?>">
+<input type="hidden" name="db_password" value="<?php print $params['db_password']; ?>">
 
-<p>Unfortunately JxBot doesn't seem to have permission to write the configuration file.</p>
+
+<h1>Manual Configuration Required</h1>
+
+<p>Unfortunately JxBot doesn't seem to have permission to write the configuration file:</p>
+
+<blockquote>jxbot/config.php</blockquote>
 
 <p>Please create the file config.php in the jxbot directory on your server.  You can copy and paste the configuration as follows:</p>
 
@@ -228,7 +246,15 @@ function print_config()
 print generate_config();
 ?></textarea></p>
 
-<p>When you've created the configuration file, you can <a href="">login to your new bot</a>.</p>
+<p>When you've created the configuration file, you can continue with the installation.</p>
+
+<?php if (isset($_POST['already-tried'])) { ?>
+<p class="error" onclick="this.style.display = 'none';">
+<span class="error">Error: </span>Please ensure you install the configuration file before continuing with the installation.
+</p>
+<?php } ?>
+
+<p class="right" id="buttons"><input type="submit" value="Continue" class="blue"></p>
 
 <?php
 }
@@ -289,26 +315,77 @@ function install_welcome($in_did_error)
 
 
 <p class="right" id="buttons"><input type="submit" value="Continue" class="blue"></p>
-<div class="clear"></div>
+
 <?php
+}
+
+
+function install_setup()
+{
+	global $params;
+?>
+
+<input type="hidden" name="stage" value="2">
+
+<h1>Configure Robot</h1>
+
+<p>Database configuration was successful.</p>
+
+<p>Please provide a few details so your chat bot can be configured.</p>
+
+<p class="field"><label for="bot_name">Bot Name: </label>
+<input type="text" name="bot_name" id="bot_name" size="40" value="<?php print $params['bot_name']; ?>"></p>
+
+<p class="field"><label for="bot_tz">Timezone: </label>
+<select name="bot_tz" id="bot_tz" class="focusable">
+<option value=""></option>
+<?php
+$timezone_identifiers = DateTimeZone::listIdentifiers();
+foreach ($timezone_identifiers as $tz)
+{
+	print '<option value="'.$tz.'">'.$tz.'</option>';
+}
+?>
+</select></p>
+
+
+
+<p class="right" id="buttons"><input type="submit" value="Continue" class="blue"></p>
+
+
+<?php
+}
+
+
+function do_configure()
+{
+
 }
 
 
 install_head();
 
-if (!isset($_POST['stage'])) install_welcome(false);
+
+if (!isset($_POST['stage'])) 
+{
+	if (isset($jxbot_db)) install_setup();
+	else install_welcome(false);
+}
 
 else if ($_POST['stage'] == 1)
 {
 	if (!try_connect()) install_welcome(true);
-	else 
-	{
-		do_install();
-		
-		if (!try_write_config()) print_config();
-		else print_done();
-	}
+	else if (!try_write_config()) print_config();
+	else install_setup();
 }
+	
+else if ($_POST['stage'] == 2)
+{
+	do_install();
+	do_configure();
+	print_done();
+}
+		
 
 install_foot();
 
