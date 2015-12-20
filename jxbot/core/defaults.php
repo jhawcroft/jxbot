@@ -71,6 +71,7 @@ class BotDefaults
 			if (substr($key, 0, 3) == 'db_') continue;
 			if (substr($key, 0, 7) == 'config_') continue;
 			if ($key == 'debug') continue;
+			if ($key == 'bot_url') continue;
 			try
 			{
 				$stmt = $jxbot_db->prepare('INSERT INTO opt (opt_value, opt_key) VALUES (?, ?)');

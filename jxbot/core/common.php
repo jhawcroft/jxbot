@@ -42,6 +42,7 @@ function jxbot_config()
 	require_once('db.php');
 	
 	$jxbot_config['config_dir'] = dirname(dirname(__FILE__)).'/';
+	$jxbot_config['bot_url'] = JxBotUtil::request_url();
 	
 	$config_file = $jxbot_config['config_dir'] . 'config.php';
 	if (!is_readable($config_file))

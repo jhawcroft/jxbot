@@ -57,11 +57,8 @@ function install_head()
 <html>
 <head>
 <title>JxBot: Install</title>
+<link rel="stylesheet" type="text/css" href="<?php print BotDefaults::bot_url(); ?>jxbot/core/styles.css">
 <style>
-
-<?php
-include('styles.css');
-?>
 
 
 div#outer
@@ -183,7 +180,9 @@ function generate_config()
 	$config .= '$jxbot_config[\'db_username\'] = "' . $params['db_username']."\";\n";
 	$config .= '$jxbot_config[\'db_password\'] = "' . $params['db_password']."\";\n\n";
 	
-	$config .= '$jxbot_config[\'bot_url\'] = "' . JxBotUtil::request_url() . "\";\n";
+	$config .= '$jxbot_config[\'bot_url\'] = "' . JxBotUtil::request_url() . "\";\n\n";
+	
+	$config .= '$jxbot_config[\'debug\'] = false;'."\n";
 	
 	return $config;
 }
@@ -252,7 +251,7 @@ function print_done()
 
 <p>Installation completed successfully!</p>
 
-<p>You can now <a href="">login to your new bot</a>.</p>
+<p>You can now <a href="<?php print BotDefaults::bot_url(); ?>jxbot/">login to your new bot</a>.</p>
 <?php
 }
 
@@ -275,7 +274,7 @@ function install_welcome($in_did_error)
 
 <p>To begin the JxBot installation, please provide your MySql database details.</p>
 
-<p>For assistance creating and configuring a database, speak to your hosting provider or <a href="">try these simple instructions</a> if you have a cPanel account.</p>
+<p>For assistance creating and configuring a database, speak to your hosting provider.</p>
 
 <?php if ($in_did_error) { ?>
 <p class="error" onclick="this.style.display = 'none';">
@@ -347,8 +346,15 @@ foreach ($timezone_identifiers as $tz)
 
 function do_configure()
 {
-
+	BotDefaults::set_option('admin_hash', hash('sha256', $_POST['bot_password']));
+	BotDefaults::set_option('bot_name', $_POST['bot_name']);
+	BotDefaults::set_option('bot_tz', $_POST['bot_tz']);
+	BotDefaults::set_option('bot_active', 0);
+	
+	BotDefaults::save_configuration();
 }
+
+
 
 
 install_head();
