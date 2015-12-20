@@ -70,7 +70,7 @@ function jxbot_config()
 }
 
 
-function jxbot_resume_session()
+function jxbot_start_session()
 {
 	session_id(BotDefaults::SESSION_NAME);
 	session_start();
@@ -84,7 +84,7 @@ function jxbot_finish_session()
 
 
 jxbot_config();
-jxbot_resume_session();
+
 
 
 

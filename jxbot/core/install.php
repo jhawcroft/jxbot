@@ -34,6 +34,8 @@ require_once('defaults.php');
 require_once('util.php');
 require_once('db.php');
 
+jxbot_start_session();
+
 
 global $params;
 $params = array();

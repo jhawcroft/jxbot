@@ -2,6 +2,10 @@
 
 require_once(dirname(__FILE__) . '/jxbot/core/common.php');
 
+
+jxbot_start_session();
+
+
 // will need to be careful about sessions if this ends up being a plug-in on wordpress
 // for example, will need the ability to use the wordpress session to store relevant data
 // or some other means, and not start a session automatically
