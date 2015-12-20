@@ -101,9 +101,11 @@ public static function admin_generate()
 <head>
 <meta charset="UTF-8">
 <title>JxBot: Administration</title>
+<link rel="base" href="<?php print BotDefaults::bot_url(); ?>">
+<link rel="stylesheet" type="text/css" href="<?php print BotDefaults::bot_url(); ?>jxbot/core/styles.css">
+<link rel="stylesheet" type="text/css" href="<?php print BotDefaults::bot_url(); ?>jxbot/core/phpinfo.css">
+<script type="text/javascript" src="<?php print BotDefaults::bot_url(); ?>jxbot/core/js/admin.js"></script>
 <style>
-<?php include('styles.css'); ?>
-<?php include('phpinfo.css'); ?>
 
 
 div#nav
@@ -151,6 +153,7 @@ div#container h1
 	font-size: 24pt;
 	font-weight: normal;
 	margin: 0;
+	margin-bottom: 1em;
 }
 
 
@@ -244,11 +247,13 @@ public static function admin_page()
 {
 ?>
 <h1><?php print JxBotAdmin::$page[1]; ?></h1>
+<form method="post" action="">
 
 <?php 
 require_once(dirname(__FILE__).'/admin_'.JxBotAdmin::$page[0].'.php');
 ?>
 
+</form>
 <?php
 }
 

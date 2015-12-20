@@ -100,24 +100,7 @@ h1
 	font-weight: normal;
 }
 
-p.field
-{
-	font-family: serif;
-	font-size: 12pt;
-	clear: both;
-	margin: 0;
-	margin-bottom: 0.5em;
-}
 
-
-label
-{
-	float: left;
-	width: 10em;
-	margin: 0;
-	margin-right: 1em;
-	
-}
 
 
 p#buttons
@@ -198,7 +181,9 @@ function generate_config()
 	$config .= '$jxbot_config[\'db_name\'] = "' . $params['db_name']."\";\n";
 	$config .= '$jxbot_config[\'db_prefix\'] = "' . $params['db_prefix']."\";\n";
 	$config .= '$jxbot_config[\'db_username\'] = "' . $params['db_username']."\";\n";
-	$config .= '$jxbot_config[\'db_password\'] = "' . $params['db_password']."\";\n";
+	$config .= '$jxbot_config[\'db_password\'] = "' . $params['db_password']."\";\n\n";
+	
+	$config .= '$jxbot_config[\'bot_url\'] = "' . JxBotUtil::request_url() . "\";\n";
 	
 	return $config;
 }
@@ -208,7 +193,7 @@ function try_write_config()
 {
 	global $jxbot_config;
 	
-	$config_file = $jxbot_config['base_dir'] . 'config.php';
+	$config_file = $jxbot_config['config_dir'] . 'config.php';
 	
 	//print $config_file;
 	
@@ -332,6 +317,9 @@ function install_setup()
 <p>Database configuration was successful.</p>
 
 <p>Please provide a few details so your chat bot can be configured.</p>
+
+<p class="field"><label for="bot_password">Admin Password: </label>
+<input type="text" name="bot_password" id="bot_password" size="20"></p>
 
 <p class="field"><label for="bot_name">Bot Name: </label>
 <input type="text" name="bot_name" id="bot_name" size="40" value="<?php print $params['bot_name']; ?>"></p>

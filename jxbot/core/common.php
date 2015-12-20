@@ -38,11 +38,12 @@ function jxbot_config()
 
 	require_once('defaults.php');
 	require_once('util.php');
+	require_once('widget.php');
 	require_once('db.php');
 	
-	$jxbot_config['base_dir'] = dirname(dirname(__FILE__)).'/';
+	$jxbot_config['config_dir'] = dirname(dirname(__FILE__)).'/';
 	
-	$config_file = $jxbot_config['base_dir'] . 'config.php';
+	$config_file = $jxbot_config['config_dir'] . 'config.php';
 	if (!is_readable($config_file))
 	{
 		require_once('install.php');
@@ -50,6 +51,9 @@ function jxbot_config()
 	}
 	
 	require_once($config_file);
+	
+	if (!isset($jxbot_config['bot_url']))
+		jxbot_die("Bot configuraton is missing bot_url.");
 	
 	if (isset($jxbot_config['debug']) && $jxbot_config['debug'])
 	{

@@ -52,7 +52,60 @@ class BotDefaults
 	
 	public static function load_configuration()
 	{
-		
+		global $jxbot_db, $jxbot_config;
+		$stmt = $jxbot_db->prepare('SELECT opt_key, opt_value FROM opt');
+		$stmt->execute();
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		foreach ($rows as $row)
+		{
+			$jxbot_config[$row[0]] = $row[1];
+		}
+	}
+	
+	
+	public static function save_configuration()
+	{
+		global $jxbot_db, $jxbot_config;
+		foreach ($jxbot_config as $key => $value)
+		{
+			if (substr($key, 0, 3) == 'db_') continue;
+			if (substr($key, 0, 7) == 'config_') continue;
+			if ($key == 'debug') continue;
+			try
+			{
+				$stmt = $jxbot_db->prepare('INSERT INTO opt (opt_value, opt_key) VALUES (?, ?)');
+				$stmt->execute(array($value, $key));
+			}
+			catch (Exception $err) {}
+			try
+			{
+				$stmt = $jxbot_db->prepare('UPDATE opt SET opt_value=? WHERE opt_key=?');
+				$stmt->execute(array($value, $key));
+			}
+			catch (Exception $err) {}
+		}    
+	}
+	
+	
+	public static function bot_url()
+	{
+		global $jxbot_config;
+		return $jxbot_config['bot_url'];
+	}
+
+
+	public static function option($in_key)
+	{
+		global $jxbot_config;
+		if (isset($jxbot_config[$in_key])) return $jxbot_config[$in_key];
+		return null;
+	}	
+	
+	
+	public static function set_option($in_key, $in_value)
+	{
+		global $jxbot_config;
+		$jxbot_config[$in_key] = $in_value;
 	}
 }
 

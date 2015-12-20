@@ -1,4 +1,3 @@
-<?php
 /********************************************************************************
  *  JxBot - conversational agent for the web
  *  Copyright (c) 2015 Joshua Hawcroft
@@ -30,81 +29,90 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
  
+ 
 
-function jxbot_die($in_error)
+
+
+/*
+Toggle Bar & Toggle Switch
+*/
+
+function switch_was_toggled(in_switch, in_new_state)
 {
-	print $in_error;
-	exit;
-}
-
-
-
-if (!function_exists("array_column"))
-{
-    function array_column($array, $column_name)
-    {
-        return array_map(function($element) use($column_name) {
-        	return $element[$column_name];
-        }, $array);
-    }
-}
-
-
-function strip_accents($in_utf8)
-{
-	return strtr($in_utf8, array(
-		'À' => 'A',
-		'Á' => 'A',
-		'Â' => 'A',
-		'Ã' => 'A',
-		'Ä' => 'A',
-		'Å' => 'A',
-		'Ç' => 'C',
-		'È' => 'E',
-		'É' => 'E',
-		'Ê' => 'E',
-		'Ë' => 'E',
-		'Ì' => 'I',
-		'Í' => 'I',
-		'Î' => 'I',
-		'Ï' => 'I',
-		'Ñ' => 'N',
-		'Ò' => 'O',
-		'Ó' => 'O',
-		'Ô' => 'O',
-		'Õ' => 'O',
-		'Ö' => 'O',
-		'Ù' => 'U',
-		'Ú' => 'U',
-		'Û' => 'U',
-		'Ü' => 'U',
-		'Ý' => 'Y'
-	));
-}
-
-
-
-class JxBotUtil
-{
-	public static function phpinfo()
-	{
-		ob_start();
-		phpinfo();
-		$pinfo = ob_get_contents();
-		ob_end_clean();
-
-		$pinfo = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$pinfo);
-		echo '<div id="phpinfo">'.$pinfo.'</div>';
-	}
+	//var handler_name = in_switch.getAttribute('data-handler');
+	//if (handler_name !== undefined)
+	//	eval( handler_name + '(' + in_new_state + ')' );
 	
-	
-	public static function request_url()
-	{
-		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != 'off')
-			$protocol = 'https';
-		else $protocol = 'http';
-		return $protocol . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER["REQUEST_URI"],'?');
-	}
+	in_switch.nextElementSibling.checked = (in_new_state == 0);
 }
 
 
+function toggle_switch(in_switch)
+{
+	var state = 0;
+	var opts = in_switch.children;
+	for (var o = 0; o < opts.length; o++)
+	{
+		if (opts[o].className != 'off') state = o;
+		opts[o].className = 'off';
+	}
+	state ++;
+	if (state >= opts.length) state = 0;
+	if (!in_switch.classList.contains('toggle-bar'))
+	{
+		if (state == 0) opts[0].className = 'yes';
+		else opts[1].className = 'no';
+	}
+	else opts[state].className = 'on';
+	
+	switch_was_toggled(in_switch, state);
+}
+
+
+function init_wui()
+{
+	window.addEventListener('click', 
+	function(in_event)
+	{
+		var tgt = in_event.target;
+		if ((tgt.tagName == 'DIV') && (tgt.parentElement)
+		&& (tgt.parentElement.classList.contains('widget-toggle')))
+		{
+			var toggle = tgt.parentElement;
+			var state = 0;
+			var opts = toggle.children;
+			for (var o = 0; o < opts.length; o++)
+			{
+				if (opts[o] === tgt) state = o;
+				//if (opts[o].className != 'off') state = o;
+				opts[o].className = 'off';
+			}
+			if (!toggle.classList.contains('toggle-bar'))
+			{
+				if (tgt === toggle.children[0]) tgt.className = 'yes';
+				else tgt.className = 'no';
+			}
+			else tgt.className = 'on';
+			switch_was_toggled(toggle, state);
+		}
+	});
+	
+	window.addEventListener('keydown',
+	function(in_event)
+	{
+		var tgt = document.activeElement;
+		if (!tgt) return;
+		if ((tgt.tagName == 'DIV')
+		&& (tgt.classList.contains('widget-toggle')))
+		{
+			if (in_event.keyCode === 0 || in_event.keyCode === 32)
+			{
+				toggle_switch(tgt);
+				in_event.preventDefault();
+			}
+		}
+	});
+}
+
+
+init_wui();

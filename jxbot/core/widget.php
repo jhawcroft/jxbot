@@ -31,80 +31,16 @@
  *******************************************************************************/
  
 
-function jxbot_die($in_error)
+class JxWidget
 {
-	print $in_error;
-	exit;
-}
-
-
-
-if (!function_exists("array_column"))
-{
-    function array_column($array, $column_name)
-    {
-        return array_map(function($element) use($column_name) {
-        	return $element[$column_name];
-        }, $array);
-    }
-}
-
-
-function strip_accents($in_utf8)
-{
-	return strtr($in_utf8, array(
-		'À' => 'A',
-		'Á' => 'A',
-		'Â' => 'A',
-		'Ã' => 'A',
-		'Ä' => 'A',
-		'Å' => 'A',
-		'Ç' => 'C',
-		'È' => 'E',
-		'É' => 'E',
-		'Ê' => 'E',
-		'Ë' => 'E',
-		'Ì' => 'I',
-		'Í' => 'I',
-		'Î' => 'I',
-		'Ï' => 'I',
-		'Ñ' => 'N',
-		'Ò' => 'O',
-		'Ó' => 'O',
-		'Ô' => 'O',
-		'Õ' => 'O',
-		'Ö' => 'O',
-		'Ù' => 'U',
-		'Ú' => 'U',
-		'Û' => 'U',
-		'Ü' => 'U',
-		'Ý' => 'Y'
-	));
-}
-
-
-
-class JxBotUtil
-{
-	public static function phpinfo()
+	public static function toggle_switch($in_name, $in_state)
 	{
-		ob_start();
-		phpinfo();
-		$pinfo = ob_get_contents();
-		ob_end_clean();
-
-		$pinfo = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$pinfo);
-		echo '<div id="phpinfo">'.$pinfo.'</div>';
-	}
-	
-	
-	public static function request_url()
-	{
-		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != 'off')
-			$protocol = 'https';
-		else $protocol = 'http';
-		return $protocol . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER["REQUEST_URI"],'?');
+		print '<div class="widget-toggle focusable toggle-switch" tabindex="0" data-name="'.$in_name.'">';
+		print '<div class="'.($in_state ? 'yes' : 'off').'">Yes</div>';
+		print '<div class="'.(!$in_state ? 'no' : 'off').'">No</div>';
+		print '</div>';
+		print '<input type="checkbox" name="'.$in_name.'" class="widget-toggle">';
+		print '<div class="clear"></div>';
 	}
 }
-
 

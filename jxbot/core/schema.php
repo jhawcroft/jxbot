@@ -74,6 +74,24 @@ CREATE TABLE template (
 )
 ');
 
+$jxbot_db->exec('
+CREATE TABLE log (
+	id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	input TEXT NOT NULL,
+	output TEXT NOT NULL,
+	convo_id TEXT NOT NULL,
+	stamp TIMESTAMP NOT NULL
+)
+');
+
+$jxbot_db->exec('
+CREATE TABLE opt (
+	opt_key VARCHAR(100) NOT NULL PRIMARY KEY,
+	opt_value VARCHAR(100) NOT NULL
+)
+');
+
+
 
 
 
