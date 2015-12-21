@@ -105,6 +105,20 @@ class JxBotUtil
 		else $protocol = 'http';
 		return $protocol . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER["REQUEST_URI"],'?');
 	}
+	
+	
+	public static function inputs($in_names)
+	{
+		if (is_string($in_names)) $in_names = explode(',', $in_names);
+		$result = array();
+		foreach ($in_names as $name)
+		{
+			
+			if (isset($_REQUEST[$name])) $result[$name] = $_REQUEST[$name];
+			else $result[$name] = null;
+		}
+		return $result;
+	}
 }
 
 

@@ -33,6 +33,14 @@
 
 class JxWidget
 {
+
+    const BUTTON_SUBMIT = 1;
+    
+    
+    public static $form_id = '';
+	
+
+	// replace with radio button array & re-do styles
 	public static function toggle_switch($in_name, $in_state)
 	{
 		print '<div class="widget-toggle focusable toggle-switch" tabindex="0" data-name="'.$in_name.'">';
@@ -42,5 +50,92 @@ class JxWidget
 		print '<input type="checkbox" name="'.$in_name.'" class="widget-toggle">';
 		print '<div class="clear"></div>';
 	}
+	
+	
+	// have a tiny width class for numbers et al.
+	// a medium width class for dates & times
+	// a normal width class for short text strings such as names and a few words
+	// a long width class for longer strings, like URLs, etc.
+	// and a huge width class for full-width sentences/paragraphs
+	
+	public static function textfield($in_name, $in_label, $in_value, $in_max_length)
+	{
+		print '<p class="field"><label for="'.$in_name.'">'.$in_label.': </label>';
+		print '<input type="text" name="'.$in_name.'" id="'.$in_name.'" size="40" value="';
+		print $in_value.'">';
+		print '</p>';
+	}
+	
+	// memo field could allow control over desired row count visible, scrolling, etc.
+	public static function memofield($in_name, $in_label, $in_value, $in_rows_visible, $in_scrolls)
+	{
+		print '<p class="field"><label for="'.$in_name.'">'.$in_label.': </label>';
+		print '<textarea name="'.$in_name.'" id="'.$in_name.'" rows="'.$in_rows_visible.'" cols="80">';
+		print $in_value.'</textarea>';
+		print '</p>';
+	}
+	
+	
+	public static function button($in_label, $in_name = NULL, $in_value = NULL)
+	{
+		print '<button';
+		if ($in_name) print ' name="'.$in_name.'"';
+		if ($in_value) print ' value="'.$in_value.'"';
+		print '>';
+		print $in_label.'</button>';
+	}
+	
+	/*public static function button($in_label, $in_hint = 1, $in_action = NULL)
+	{
+		print '<button';
+		if (substr($in_action, 0, 5) == 'POST:')
+		{
+			print ' form="'.JxWidget::$form_id.'"';
+			print ' formmethod="POST"';
+			print ' formaction="'.substr($in_action,5).'"';
+			$in_hint |= JxWidget::BUTTON_SUBMIT;
+		}
+		else if (substr($in_action, 0, 4) == 'GET:')
+		{
+			print ' form="'.JxWidget::$form_id.'"';
+			print ' formmethod="GET"';
+			print ' formaction="'.substr($in_action,4).'"';
+			$in_hint |= JxWidget::BUTTON_SUBMIT;
+		}
+		else
+		{
+			print ' onclick="'.$in_action.'"';
+		}
+		print ($in_hint & JxWidget::BUTTON_SUBMIT ? ' type="submit"' : '');
+		print '>'.$in_label.'</button>';
+	}*/
+	
+	
+	public static function grid($in_column_defs, &$in_data_rows)
+	{
+		print '<table>';
+		print '<tr>';
+		foreach ($in_column_defs as $col)
+		{
+			print '<th>';
+			print $col['label'];
+			print '</th>';
+		}
+		print '</tr>';
+		
+		$col_count = count($in_column_defs);
+		foreach ($in_data_rows as $row)
+		{
+			print '<tr>';
+			for ($c = 0; $c < $col_count; $c++)
+			{
+				print '<td>'.$row[$c].'</td>';
+			}
+			print '</tr>';
+		}
+		
+		print '</table>';
+	}
+	
 }
 

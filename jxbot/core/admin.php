@@ -40,7 +40,7 @@ class JxBotAdmin
 		array('dashboard', 'Dashboard'),
 		/*array('talk', 'Talk'),*/
 		/*array('personality', 'Personality'),*/
-		array('train', 'Train'),
+		array('database', 'Database'),
 		/*array('import-export', 'Import/Export'),*/
 		array('settings', 'Settings'),
 		array('logs', 'Logs'),
@@ -205,6 +205,27 @@ div#nav a.current
 
 
 
+div#right-nav
+{
+	width: 30%;
+}
+
+div#right-nav h2
+{
+	margin-top: 0;
+}
+
+div#centre-content
+{
+	width: 67%;
+}
+
+div#centre-content h2
+{
+	margin-top: 0;
+}
+
+
 </style>
 </head>
 <body>
@@ -247,7 +268,8 @@ public static function admin_page()
 {
 ?>
 <h1><?php print JxBotAdmin::$page[1]; ?></h1>
-<form method="post" action="">
+<form method="post" action="" name="admin-form" id="admin-form">
+<?php JxWidget::$form_id = 'admin-form'; ?>
 
 <?php 
 require_once(dirname(__FILE__).'/admin_'.JxBotAdmin::$page[0].'.php');
