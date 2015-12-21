@@ -1,43 +1,70 @@
 <?php
 
 
-?>
 
+// count size of dictionary
+// count number of categories
+// count number of distinct sequences (patterns)
+// count number of templates
 
-<h2>Chat</h2>
+// eventually provide some idea of load/performance (keep track of response times
+// and number of almost simultaneous sessions)
 
-<?php JxWidget::textfield(array(
-	'name'=>'input', 
-	'label'=>'Chat Input',
-	'max'=>150,
-	'autofocus'=>true
-)); ?>
-
-<p>
-<?php JxWidget::button('Talk'); ?>
-</p>
-
-
-<?php
-
-$inputs = JxBotUtil::inputs('input');
-if (trim($inputs['input']) != '')
+function compute_metrics()
 {
-	print '<p>Bot:</p>';
-	print '<blockquote>';
-	print Converse::get_response($inputs['input']);
-	print '</blockquote>';
+	$metrics = array();
+	
+	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM word');
+	$stmt->execute();
+	$metrics['dictionary_size'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM category');
+	$stmt->execute();
+	$metrics['category_count'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM sequence');
+	$stmt->execute();
+	$metrics['pattern_count'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM template');
+	$stmt->execute();
+	$metrics['template_count'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	return $metrics;
 }
 
+$metrics = compute_metrics();
+
+
+
+
 ?>
 
+<style type="text/css">
+table.dashboard-stats td:first-child
+{
+	width: 10em;
+}
+</style>
 
 
-<!--
-<hr>
+<table class="dashboard-stats">
+<tr>
+	<td>Categories</td>
+	<td><?php print $metrics['category_count']; ?></td>
+</tr>
+<tr>
+	<td>Patterns</td>
+	<td><?php print $metrics['pattern_count']; ?></td>
+</tr>
+<tr>
+	<td>Templates</td>
+	<td><?php print $metrics['template_count']; ?></td>
+</tr>
+<tr>
+	<td>Dictionary Size</td>
+	<td><?php print $metrics['dictionary_size']; ?></td>
+</tr>
 
-<-- STATS GO HERE ->
+</table>
 
-<h2>Status</h2>
-
--->

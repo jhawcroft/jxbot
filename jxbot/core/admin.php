@@ -38,6 +38,7 @@ class JxBotAdmin
 	
 	private static $all_pages = array(
 		array('dashboard', 'Dashboard'),
+		array('chat', 'Chat'),
 		/*array('talk', 'Talk'),*/
 		/*array('personality', 'Personality'),*/
 		array('database', 'Database'),
