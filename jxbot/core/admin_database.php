@@ -8,7 +8,7 @@
 
 
 $page = (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'lookup');
-if ($page == 'sequences') page_sequences();
+if ($page == 'sequences' && isset($_REQUEST['input']) && (trim($_REQUEST['input']) != '')) page_sequences();
 else if ($page == 'edit' && isset($_REQUEST['category'])) page_edit($_REQUEST['category']);
 else if ($page == 'new-cat') do_new_category();
 else if ($page == 'add-seq') do_add_seq();
@@ -85,7 +85,12 @@ function page_lookup()
 
 <input type="hidden" name="action" value="sequences">
 
-<?php JxWidget::textfield('input', 'Chat Input', '', 150, true); ?>
+<?php JxWidget::textfield(array(
+	'name'=>'input',
+	'label'=>'Chat Input',
+	'max'=>150,
+	'autofocus'=>true
+)); ?>
 
 <p>
 <?php JxWidget::button('Lookup Input'); ?>
@@ -158,7 +163,11 @@ JxWidget::grid(array(
 ), $rows); 
 ?>
 
-<p><?php JxWidget::textfield('new-seq', 'Sequence', '', 255); ?></p>
+<p><?php JxWidget::textfield(array(
+	'name'=>'new-seq', 
+	'label'=>'Sequence', 
+	'max'=>255
+)); ?></p>
 
 <p><?php JxWidget::button('Add Sequence', 'action', 'add-seq'); ?></p>
 

@@ -58,12 +58,12 @@ class JxWidget
 	// a long width class for longer strings, like URLs, etc.
 	// and a huge width class for full-width sentences/paragraphs
 	
-	public static function textfield($in_name, $in_label, $in_value, $in_max_length, $in_auto = false)
+	public static function textfield($def) //$in_name, $in_label, $in_value, $in_max_length, $in_auto = false)
 	{
-		print '<p class="field"><label for="'.$in_name.'">'.$in_label.': </label>';
-		print '<input type="text" name="'.$in_name.'" id="'.$in_name.'" size="40" value="';
-		print $in_value.'"';
-		if ($in_auto) print ' autofocus';
+		print '<p class="field"><label for="'.$def['name'].'">'.$def['label'].': </label>';
+		print '<input type="text" name="'.$def['name'].'" id="'.$def['name'].'" size="40"';
+		print ' value="'. (isset($def['value']) ? $def['value'] : '') . '"';
+		if (isset($def['autofocus']) && $def['autofocus'] === true) print ' autofocus';
 		print '>';
 		print '</p>';
 	}

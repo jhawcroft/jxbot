@@ -174,6 +174,8 @@ class NL
 	public static function matching_sequences($in_input)
 	/* find a return a list of matching sequences, in order from best match to worst match */
 	{
+		if (trim($in_input) == '') return array();
+		
 		$words = NLAux::normalise($in_input);
 		$sequences = NL::prefind_sequences($words);
 		

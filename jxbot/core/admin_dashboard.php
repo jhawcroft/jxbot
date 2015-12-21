@@ -9,7 +9,11 @@
 
 <h2>Chat</h2>
 
-<?php JxWidget::textfield('input', 'Chat Input', '', 150); ?>
+<?php JxWidget::textfield(array(
+	'name'=>'input', 
+	'label'=>'Chat Input',
+	'max'=>150
+)); ?>
 
 <p>
 <?php JxWidget::button('Talk'); ?>
