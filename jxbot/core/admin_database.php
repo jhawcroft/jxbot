@@ -11,14 +11,31 @@ $page = (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'lookup');
 if ($page == 'sequences') page_sequences();
 else if ($page == 'edit' && isset($_REQUEST['category'])) page_edit($_REQUEST['category']);
 else if ($page == 'new-cat') do_new_category();
-else if ($page == 'save-seq') do_save_seq();
+else if ($page == 'add-seq') do_add_seq();
+else if ($page == 'add-tmpl') do_add_tmpl();
+else if ($page == 'del-tmpl') do_del_tmpl();
+else if ($page == 'edit-tmpl') do_edit_tmpl();
 else page_lookup();
 
 
 
+function do_add_tmpl()
+{
+	$inputs = JxBotUtil::inputs('category,tmpl');
+	NL::register_template(intval($inputs['category']), $inputs['tmpl']);
+	page_edit($inputs['category']);
+}
 
 
-function do_save_seq()
+function do_del_tmpl()
+{
+	$inputs = JxBotUtil::inputs('template');
+	page_edit( NL::kill_template($inputs['template']) );
+}
+
+
+
+function do_add_seq()
 {
 	$inputs = JxBotUtil::inputs('category,new-seq,override');
 	
@@ -59,7 +76,7 @@ function page_lookup()
 
 <input type="hidden" name="action" value="sequences">
 
-<?php JxWidget::textfield('input', 'Chat Input', '', 150); ?>
+<?php JxWidget::textfield('input', 'Chat Input', '', 150, true); ?>
 
 <p>
 <?php JxWidget::button('Lookup Input'); ?>
@@ -134,22 +151,24 @@ JxWidget::grid(array(
 
 <p><?php JxWidget::textfield('new-seq', 'Sequence', '', 255); ?></p>
 
-<p><?php JxWidget::button('Save Sequence', 'action', 'save-seq'); ?></p>
+<p><?php JxWidget::button('Add Sequence', 'action', 'add-seq'); ?></p>
 
 
 
 <h3>Templates</h3>
 
 <?php 
-$rows = array();
+$rows = NL::fetch_templates($in_category_id);
 JxWidget::grid(array(
-	array('label'=>'Template')
+	array('label'=>'Template', 'id'=>1, 'link'=>'?page=database&action=edit-tmpl&template=$$'),
+	array('label'=>'ID', 'id'=>0, 'visible'=>false, 'key'=>true),
+	array('label'=>'Delete', 'id'=>':delete', 'link'=>'?page=database&action=del-tmpl&template=$$')
 ), $rows); 
 ?>
 
-<p><?php JxWidget::memofield('edit-tmpl', 'Template', '', 5, true); ?></p>
+<p><?php JxWidget::memofield('tmpl', 'Template', '', 5, true); ?></p>
 
-<p><?php JxWidget::button('Save Template', 'action', 'save-templ'); ?></p>
+<p><?php JxWidget::button('Add Template', 'action', 'add-tmpl'); ?></p>
 
 
 
@@ -185,7 +204,7 @@ JxWidget::grid(array(
 
 <p>Are you sure you want to add this sequence?</p>
 
-<p><?php JxWidget::button('Cancel', 'action', 'edit'); ?> <?php JxWidget::button('Add Sequence', 'action', 'save-seq'); ?></p>
+<p><?php JxWidget::button('Cancel', 'action', 'edit'); ?> <?php JxWidget::button('Add Sequence', 'action', 'add-seq'); ?></p>
 
 
 <?php

@@ -58,11 +58,13 @@ class JxWidget
 	// a long width class for longer strings, like URLs, etc.
 	// and a huge width class for full-width sentences/paragraphs
 	
-	public static function textfield($in_name, $in_label, $in_value, $in_max_length)
+	public static function textfield($in_name, $in_label, $in_value, $in_max_length, $in_auto = false)
 	{
 		print '<p class="field"><label for="'.$in_name.'">'.$in_label.': </label>';
 		print '<input type="text" name="'.$in_name.'" id="'.$in_name.'" size="40" value="';
-		print $in_value.'">';
+		print $in_value.'"';
+		if ($in_auto) print ' autofocus';
+		print '>';
 		print '</p>';
 	}
 	
@@ -122,7 +124,7 @@ class JxWidget
 		foreach ($in_column_defs as $col)
 		{
 			$index++;
-			if (isset($col['key']) && $col['key'] === true) $key_indexes[] = $index;
+			if (isset($col['key']) && $col['key'] === true) $key_indexes[] = $col['id'];
 			if (isset($col['visible']) && $col['visible'] === false) continue;
 			print '<th>';
 			print $col['label'];
@@ -138,7 +140,8 @@ class JxWidget
 			{
 				if (isset($col['visible']) && $col['visible'] === false) continue;
 				$is_link = isset($col['link']);
-				$value = $row[ $col['id'] ];
+				if ($col['id'] == ':delete') $value = 'X';
+				else $value = $row[ $col['id'] ];
 				print '<td>';
 				if ($is_link) 
 				{

@@ -60,7 +60,7 @@ class NLAux
 	{
 		$output = strip_accents(mb_strtoupper($in_input));
 		
-		$punctuation = array(',', '!', '?');
+		$punctuation = array(',', '!', '?', '\'');
   		$output = str_replace($punctuation, '', $output);
   		
   		$whitespace = array("\t", "\n", "\r");

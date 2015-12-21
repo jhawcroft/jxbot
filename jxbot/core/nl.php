@@ -72,14 +72,25 @@ class NL
 	}
 
 	
-	public static function register_template($in_template)
+	public static function register_template($in_category_id, $in_template)
 	{
-		global $jxbot_db;
-		/*if (NL::$_flag_make_cat) NL::_new_category();*/
-		assert(NL::$last_category_id != 0);
+		$stmt = JxBotDB::$db->prepare('INSERT INTO template (category_id, template) VALUES (?, ?)');
+		$stmt->execute(array($in_category_id, $in_template));
+	}
+	
+	
+	public static function kill_template($in_template_id)
+	/* deletes a template and returns the parent category id */
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT category_id FROM template WHERE template_id=?');
+		$stmt->execute(array($in_template_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		if ($row === false) return NULL;
 		
-		$stmt = $jxbot_db->prepare('INSERT INTO template (category_id, template) VALUES (?, ?)');
-		$stmt->execute(array(NL::$last_category_id, $in_template));
+		$stmt = JxBotDB::$db->prepare('DELETE FROM template WHERE template_id=?');
+		$stmt->execute(array($in_template_id));
+		
+		return $row[0][0];
 	}
 	
 	
@@ -183,11 +194,11 @@ class NL
 	{
 		global $jxbot_db;
 		
-		$stmt = $jxbot_db->prepare('SELECT template FROM template WHERE category_id=?');
+		$stmt = $jxbot_db->prepare('SELECT template_id,template FROM template WHERE category_id=?');
 		$stmt->execute(array($in_category_id));
 		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 		
-		return array_column($rows, 0);
+		return $rows;
 	}
 	
 	
@@ -197,7 +208,7 @@ class NL
 		
 		// should select templates based on various rules eventually
 		
-		return $templates[0];
+		return $templates[0][1];
 	}
 	
 }
