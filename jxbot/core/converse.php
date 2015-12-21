@@ -34,11 +34,33 @@
 class Converse
 {
 
+	private static $convo_id = '';
+	
+	
+	private static function log(&$input, &$output)
+	{
+		if (Converse::$convo_id === '') return;
+		
+		$stmt = JxBotDB::$db->prepare('INSERT INTO log (input, output, convo_id) VALUES (?, ?, ?)');
+		$stmt->execute(array($input, $output, Converse::$convo_id));
+	}
+	
+	
+	public static function resume_conversation($in_convo_id)
+	{
+		Converse::$convo_id = $in_convo_id;
+	}
+
+
 	public static function get_response($in_input)
 	{
 		$words = NLAux::normalise($in_input);
 		$category_id = NL::match_input($words);
-		return NL::make_output($category_id);
+		$output = NL::make_output($category_id);
+		
+		Converse::log($in_input, $output);
+		
+		return $output;
 	}
 	
 	
@@ -46,7 +68,12 @@ class Converse
 	/* conversation has just begun;
 	return an appropriate salutation */
 	{
-		return 'Hello.';
+		$output = 'Hello.';
+		
+		$blank = '';
+		Converse::log($blank, $output);
+		
+		return $output;
 	}
 	
 	// suggest a salutation matching phase
