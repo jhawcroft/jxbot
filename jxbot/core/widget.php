@@ -127,9 +127,10 @@ class JxWidget
 		foreach ($in_data_rows as $row)
 		{
 			print '<tr>';
-			for ($c = 0; $c < $col_count; $c++)
+			foreach ($in_column_defs as $col)
 			{
-				print '<td>'.$row[$c].'</td>';
+				$value = $row[ $col['id'] ];
+				print '<td>'.$value.'</td>';
 			}
 			print '</tr>';
 		}
@@ -137,5 +138,21 @@ class JxWidget
 		print '</table>';
 	}
 	
+	
+	public static function hidden($in_data, $in_values)
+	{
+		if (is_array($in_data))
+		{
+			if (is_string($in_values)) $in_values = explode(',', $in_values);
+			foreach ($in_values as $value_name)
+			{
+				print '<input type="hidden" name="'.$value_name.'" value="'.$in_data[$value_name].'">';
+			}
+		}
+		else
+		{
+			print '<input type="hidden" name="'.$in_data.'" value="'.$in_values.'">';
+		}
+	}
 }
 

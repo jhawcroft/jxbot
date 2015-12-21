@@ -113,7 +113,6 @@ class JxBotUtil
 		$result = array();
 		foreach ($in_names as $name)
 		{
-			
 			if (isset($_REQUEST[$name])) $result[$name] = $_REQUEST[$name];
 			else $result[$name] = null;
 		}

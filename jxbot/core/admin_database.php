@@ -1,18 +1,52 @@
 <?php
 
 
+var_dump($_REQUEST);
+
+
+//list($action) = JxBotUtil::inputs('action');
+
+
 $page = (isset($_POST['action']) ? $_POST['action'] : 'lookup');
 if ($page == 'sequences') page_sequences();
-else if ($page == 'edit') page_edit();
+else if ($page == 'edit' && isset($_POST['category'])) page_edit($_POST['category']);
 else if ($page == 'new-cat') do_new_category();
+else if ($page == 'save-seq') do_save_seq();
 else page_lookup();
 
 
 
+
+
+function do_save_seq()
+{
+	$inputs = JxBotUtil::inputs('category,new-seq,override');
+	
+	if (!$inputs['override'])
+	{
+		/* check if there are any existing sequences that match the proposed new sequence */
+		$existing = NL::exact_sequence_exists($inputs['new-seq']);
+		if ($existing !== false)
+		{
+			/* list the matches with a warning and override question */
+			page_confirm_new_seq($existing);
+			return;
+		}
+	}
+
+	/* go ahead and add the new sequence */
+	NL::register_sequence(intval($inputs['category']), $inputs['new-seq']);
+	page_edit($inputs['category']);
+}
+
+// move this to NL
+
 function do_new_category()
 {
+	JxBotDB::$db->exec('INSERT INTO category VALUES (NULL)');
+	$category_id = JxBotDB::$db->lastInsertId();
 	
-	page_edit();
+	page_edit($category_id);
 }
 
 
@@ -28,7 +62,7 @@ function page_lookup()
 <?php JxWidget::textfield('input', 'Chat Input', '', 150); ?>
 
 <p>
-<?php JxWidget::button('Lookup'); ?>
+<?php JxWidget::button('Lookup Input'); ?>
 </p>
 
 <?php
@@ -74,22 +108,28 @@ JxWidget::grid(array(
 
 
 
-function page_edit()
+function page_edit($in_category_id)
 {
 ?>
+
+<input type="hidden" name="category" value="<?php print $in_category_id; ?>">
+
 
 <h2>Edit Category</h2>
 
 <h3>Sequences</h3>
 
 <?php 
-$rows = array();
+$stmt = JxBotDB::$db->prepare('SELECT sequence_id,words FROM sequence WHERE category_id=?');
+$stmt->execute(array($in_category_id));
+$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 JxWidget::grid(array(
-	array('label'=>'Sequence')
+	array('label'=>'ID', 'id'=>0),
+	array('label'=>'Sequence', 'id'=>1)
 ), $rows); 
 ?>
 
-<p><?php JxWidget::textfield('edit-seq', 'Sequence', '', 255); ?></p>
+<p><?php JxWidget::textfield('new-seq', 'Sequence', '', 255); ?></p>
 
 <p><?php JxWidget::button('Save Sequence', 'action', 'save-seq'); ?></p>
 
@@ -115,5 +155,38 @@ JxWidget::grid(array(
 
 <?php
 }
+
+
+
+function page_confirm_new_seq(&$in_existing_seq)
+{
+	$inputs = JxBotUtil::inputs('category,new-seq');
+?>
+
+<?php 
+JxWidget::hidden($inputs, 'category,new-seq');
+JxWidget::hidden('override', 1);
+?>
+
+<h2>Confirm New Sequence</h2>
+
+<p>There are already one or more sequences in the database that exactly match the proposed new sequence.</p>
+
+<?php 
+JxWidget::grid(array(
+	array('label'=>'Category', 'id'=>0),
+	array('label'=>'Sequence', 'id'=>2)
+), $in_existing_seq); 
+?>
+
+
+<p>Are you sure you want to add this sequence?</p>
+
+<p><?php JxWidget::button('Cancel', 'action', 'edit'); ?> <?php JxWidget::button('Add Sequence', 'action', 'save-seq'); ?></p>
+
+
+<?php
+}
+
 
 

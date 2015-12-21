@@ -34,10 +34,10 @@ class NL
 {
 	public static $last_category_id = 0;
 	
-	private static $_flag_make_cat = true;
+//	private static $_flag_make_cat = true;
 
 	// whatever the last used category is should be the default
-	public static function new_category()
+	/*public static function new_category()
 	{
 		NL::$_flag_make_cat = true;
 	}
@@ -49,23 +49,24 @@ class NL
 		$jxbot_db->exec('INSERT INTO category VALUES (NULL)');
 		NL::$last_category_id = $jxbot_db->lastInsertId();
 		NL::$_flag_make_cat = false;
-	}
+	}*/
+	
+	
+	
 	
 
-	public static function register_sequence($in_words)
+	public static function register_sequence($in_category_id, $in_sequence)
 	{
-		global $jxbot_db;
-		if (NL::$_flag_make_cat) NL::_new_category();
-		assert(NL::$last_category_id != 0);
+		$words = NLAux::normalise($in_sequence);
 		
-		$stmt = $jxbot_db->prepare('INSERT INTO sequence (category_id, words) VALUES (?, ?)');
-		$stmt->execute(array( NL::$last_category_id, implode(',', $in_words) ) );
-		$sequence_id = $jxbot_db->lastInsertId();
+		$stmt = JxBotDB::$db->prepare('INSERT INTO sequence (category_id, words) VALUES (?, ?)');
+		$stmt->execute(array( $in_category_id, implode(',', $words) ) );
+		$sequence_id = JxBotDB::$db->lastInsertId();
 		
-		foreach ($in_words as $word)
+		foreach ($words as $word)
 		{
 			$word_id = NLAux::get_word_id($word);
-			$stmt = $jxbot_db->prepare('INSERT INTO sequence_word VALUES (?, ?)');
+			$stmt = JxBotDB::$db->prepare('INSERT INTO sequence_word VALUES (?, ?)');
 			$stmt->execute(array($sequence_id, $word_id));
 		}
 	}
@@ -74,7 +75,7 @@ class NL
 	public static function register_template($in_template)
 	{
 		global $jxbot_db;
-		if (NL::$_flag_make_cat) NL::_new_category();
+		/*if (NL::$_flag_make_cat) NL::_new_category();*/
 		assert(NL::$last_category_id != 0);
 		
 		$stmt = $jxbot_db->prepare('INSERT INTO template (category_id, template) VALUES (?, ?)');
@@ -105,6 +106,28 @@ class NL
 		$stmt->execute();
 		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 		
+		return $rows;
+	}
+	
+	
+	public static function exact_sequence_exists($in_sequence)
+	{
+		$words = NLAux::normalise($in_sequence);
+		$normalised = implode(',', $words);
+		array_walk($words, array('NL', 'quote_word'));
+		
+		$sql = 'SELECT category.id, sequence.sequence_id, sequence.words
+		FROM sequence JOIN sequence_word ON sequence.sequence_id=sequence_word.sequence_id
+		AND sequence_word.word_id IN (SELECT DISTINCT word_id FROM word WHERE word.word IN ('.
+		implode(',', $words).')) JOIN category ON sequence.category_id=category.id
+		WHERE sequence.words=?
+		GROUP BY sequence.sequence_id';
+		
+		$stmt = JxBotDB::$db->prepare($sql);
+		$stmt->execute(array($normalised));
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		
+		if (count($rows) == 0) return false;
 		return $rows;
 	}
 	

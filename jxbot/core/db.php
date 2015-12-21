@@ -78,7 +78,18 @@ function jxbot_connect_db()
 		return false;
 	}
 	
+	JxBotDB::$db = $jxbot_db;  // until we stop using globals from the prototype...
+	
 	return true;
 }
+
+
+class JxBotDB
+{
+	public static $db = NULL;
+}
+
+
+
 
 
