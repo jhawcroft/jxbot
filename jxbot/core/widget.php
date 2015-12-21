@@ -139,9 +139,12 @@ class JxWidget
 			foreach ($in_column_defs as $col)
 			{
 				if (isset($col['visible']) && $col['visible'] === false) continue;
+				
 				$is_link = isset($col['link']);
-				if ($col['id'] == ':delete') $value = 'X';
+				
+				if ($col['id'] === ':delete') $value = 'X';
 				else $value = $row[ $col['id'] ];
+				
 				print '<td>';
 				if ($is_link) 
 				{

@@ -72,6 +72,22 @@ class NL
 	}
 
 	
+	public static function kill_sequence($in_sequence_id)
+	/* deletes a template and returns the parent category id */
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT category_id FROM sequence WHERE sequence_id=?');
+		$stmt->execute(array($in_sequence_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		if (count($row) == 0) return NULL;
+		
+		$stmt = JxBotDB::$db->prepare('DELETE FROM sequence WHERE sequence_id=?');
+		$stmt->execute(array($in_sequence_id));
+		
+		return $row[0][0];
+	}
+
+
+	
 	public static function register_template($in_category_id, $in_template)
 	{
 		$stmt = JxBotDB::$db->prepare('INSERT INTO template (category_id, template) VALUES (?, ?)');

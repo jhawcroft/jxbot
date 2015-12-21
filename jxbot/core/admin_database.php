@@ -12,6 +12,7 @@ if ($page == 'sequences' && isset($_REQUEST['input']) && (trim($_REQUEST['input'
 else if ($page == 'edit' && isset($_REQUEST['category'])) page_edit($_REQUEST['category']);
 else if ($page == 'new-cat') do_new_category();
 else if ($page == 'add-seq') do_add_seq();
+else if ($page == 'del-seq') do_del_seq();
 else if ($page == 'add-tmpl') do_add_tmpl();
 else if ($page == 'del-tmpl') do_del_tmpl();
 else if ($page == 'edit-tmpl' && isset($_REQUEST['template'])) page_edit_tmpl($_REQUEST['template']);
@@ -65,10 +66,20 @@ function do_add_seq()
 	page_edit($inputs['category']);
 }
 
-// move this to NL
+
+function do_del_seq()
+{
+	$inputs = JxBotUtil::inputs('seq-id');
+	$category_id = NL::kill_sequence($inputs['seq-id']);
+	page_edit($category_id);
+}
+
+
+
 
 function do_new_category()
 {
+// move this to NL
 	JxBotDB::$db->exec('INSERT INTO category VALUES (NULL)');
 	$category_id = JxBotDB::$db->lastInsertId();
 	
@@ -158,8 +169,9 @@ $stmt = JxBotDB::$db->prepare('SELECT sequence_id,words FROM sequence WHERE cate
 $stmt->execute(array($in_category_id));
 $rows = $stmt->fetchAll(PDO::FETCH_NUM);
 JxWidget::grid(array(
-	array('label'=>'ID', 'id'=>0),
-	array('label'=>'Sequence', 'id'=>1)
+	array('label'=>'ID', 'id'=>0, 'visible'=>false, 'key'=>true),
+	array('label'=>'Sequence', 'id'=>1),
+	array('label'=>'Delete', 'id'=>':delete', 'link'=>'?page=database&action=del-seq&seq-id=$$')
 ), $rows); 
 ?>
 
