@@ -113,10 +113,17 @@ class JxWidget
 	
 	public static function grid($in_column_defs, &$in_data_rows)
 	{
+		$key_indexes = array();
+
 		print '<table>';
 		print '<tr>';
+
+		$index = -1;
 		foreach ($in_column_defs as $col)
 		{
+			$index++;
+			if (isset($col['key']) && $col['key'] === true) $key_indexes[] = $index;
+			if (isset($col['visible']) && $col['visible'] === false) continue;
 			print '<th>';
 			print $col['label'];
 			print '</th>';
@@ -129,8 +136,18 @@ class JxWidget
 			print '<tr>';
 			foreach ($in_column_defs as $col)
 			{
+				if (isset($col['visible']) && $col['visible'] === false) continue;
+				$is_link = isset($col['link']);
 				$value = $row[ $col['id'] ];
-				print '<td>'.$value.'</td>';
+				print '<td>';
+				if ($is_link) 
+				{
+					$key_value = $row[$key_indexes[0]];
+					print '<a href="'.str_replace('$$', $key_value, $col['link']).'">';
+				}
+				print $value;
+				if ($is_link) print '</a>';
+				print '</td>';
 			}
 			print '</tr>';
 		}

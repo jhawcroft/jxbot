@@ -91,6 +91,9 @@ class NL
 	
 	
 	public static function prefind_sequences($in_words)
+	/* narrow the search from all the sequences in the database, to no more than a hundred
+	or so, based on a handful of readily indexable criteria
+	N.B. Doesn't actually return matches - only finds all possible candidates and then some. */
 	{
 		global $jxbot_db;
 		
@@ -132,17 +135,19 @@ class NL
 	}
 	
 	
-	public static function fetch_templates($in_category_id)
+	public static function matching_sequences($in_input)
+	/* find a return a list of matching sequences, in order from best match to worst match */
 	{
-		global $jxbot_db;
+		$words = NLAux::normalise($in_input);
+		$sequences = NL::prefind_sequences($words);
 		
-		$stmt = $jxbot_db->prepare('SELECT template FROM template WHERE category_id=?');
-		$stmt->execute(array($in_category_id));
-		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		// need to do additional checks to find actual matches here; not just prefind
 		
-		return array_column($rows, 0);
+		return $sequences;
 	}
 	
+	
+
 	
 	// we should choose the longest matching sequence
 	// it would be handy to have parameterised sequences
@@ -158,6 +163,7 @@ class NL
 	// so database can sort and we can peruse from longest to shortest
 	
 	public static function best_match(&$in_words, &$in_sequences)
+	/* as with matching sequences above; only select the first (top) best match and be done with it */
 	{
 		return $in_sequences[0][0];
 		
@@ -172,9 +178,25 @@ class NL
 	}
 	
 	
+	
+	public static function fetch_templates($in_category_id)
+	{
+		global $jxbot_db;
+		
+		$stmt = $jxbot_db->prepare('SELECT template FROM template WHERE category_id=?');
+		$stmt->execute(array($in_category_id));
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		
+		return array_column($rows, 0);
+	}
+	
+	
 	public static function make_output($in_category_id)
 	{
 		$templates = NL::fetch_templates($in_category_id);
+		
+		// should select templates based on various rules eventually
+		
 		return $templates[0];
 	}
 	

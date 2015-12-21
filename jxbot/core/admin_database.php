@@ -7,9 +7,9 @@ var_dump($_REQUEST);
 //list($action) = JxBotUtil::inputs('action');
 
 
-$page = (isset($_POST['action']) ? $_POST['action'] : 'lookup');
+$page = (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'lookup');
 if ($page == 'sequences') page_sequences();
-else if ($page == 'edit' && isset($_POST['category'])) page_edit($_POST['category']);
+else if ($page == 'edit' && isset($_REQUEST['category'])) page_edit($_REQUEST['category']);
 else if ($page == 'new-cat') do_new_category();
 else if ($page == 'save-seq') do_save_seq();
 else page_lookup();
@@ -73,6 +73,8 @@ function page_sequences()
 {
 	$inputs = JxBotUtil::inputs('input');
 	
+	//$stmt = JxBotDB::$db->prepare('SELECT sequence_id,words FROM
+	
 ?>
 
 <h2>Sequences</h2>
@@ -83,9 +85,10 @@ function page_sequences()
 <h3>Matched</h3>
 
 <?php 
-$rows = array();
+$rows = NL::matching_sequences($inputs['input']);
 JxWidget::grid(array(
-	array('label'=>'Sequence')
+	array('label'=>'ID', 'id'=>0, 'key'=>true, 'visible'=>false),
+	array('label'=>'Sequence', 'id'=>2, 'link'=>'?page=database&action=edit&category=$$')
 ), $rows); 
 ?>
 
