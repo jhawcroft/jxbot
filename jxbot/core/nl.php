@@ -85,10 +85,35 @@ class NL
 		$stmt = JxBotDB::$db->prepare('SELECT category_id FROM template WHERE template_id=?');
 		$stmt->execute(array($in_template_id));
 		$row = $stmt->fetchAll(PDO::FETCH_NUM);
-		if ($row === false) return NULL;
+		if (count($row) == 0) return NULL;
 		
 		$stmt = JxBotDB::$db->prepare('DELETE FROM template WHERE template_id=?');
 		$stmt->execute(array($in_template_id));
+		
+		return $row[0][0];
+	}
+	
+	
+	public static function get_template($in_template_id)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT template_id,category_id,template FROM template WHERE template_id=?');
+		$stmt->execute(array($in_template_id));
+		$row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		if (count($row) == 0) return NULL;
+		return $row[0];
+	}
+	
+	
+	public static function update_template($in_template_id, $in_text)
+	// returns the parent category ID
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT category_id FROM template WHERE template_id=?');
+		$stmt->execute(array($in_template_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		if (count($row) == 0) return NULL;
+		
+		$stmt = JxBotDB::$db->prepare('UPDATE template SET template=? WHERE template_id=?');
+		$stmt->execute(array($in_text, $in_template_id));
 		
 		return $row[0][0];
 	}

@@ -1,3 +1,12 @@
+<?php
+
+
+//print Converse::get_response("Hi there!!  How \taré you?");
+
+
+?>
+
+
 <h2>Chat</h2>
 
 <?php JxWidget::textfield('input', 'Chat Input', '', 150); ?>

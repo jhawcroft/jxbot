@@ -1,7 +1,7 @@
 <?php
 
 
-var_dump($_REQUEST);
+//var_dump($_REQUEST);
 
 
 //list($action) = JxBotUtil::inputs('action');
@@ -14,7 +14,8 @@ else if ($page == 'new-cat') do_new_category();
 else if ($page == 'add-seq') do_add_seq();
 else if ($page == 'add-tmpl') do_add_tmpl();
 else if ($page == 'del-tmpl') do_del_tmpl();
-else if ($page == 'edit-tmpl') do_edit_tmpl();
+else if ($page == 'edit-tmpl' && isset($_REQUEST['template'])) page_edit_tmpl($_REQUEST['template']);
+else if ($page == 'save-tmpl') do_save_tmpl();
 else page_lookup();
 
 
@@ -31,6 +32,14 @@ function do_del_tmpl()
 {
 	$inputs = JxBotUtil::inputs('template');
 	page_edit( NL::kill_template($inputs['template']) );
+}
+
+
+function do_save_tmpl()
+{
+	$inputs = JxBotUtil::inputs('template_id,template');
+	$category_id = NL::update_template($inputs['template_id'], $inputs['template']);
+	page_edit($category_id);
 }
 
 
@@ -210,5 +219,27 @@ JxWidget::grid(array(
 <?php
 }
 
+
+
+function page_edit_tmpl($in_template_id)
+{
+	$template = NL::get_template($in_template_id);
+
+?>
+
+<?php 
+JxWidget::hidden('category', $template['category_id']);
+JxWidget::hidden('template_id', $template['template_id']);
+?>
+
+<h2>Edit Template</h2>
+
+<p><?php JxWidget::memofield('template', 'Template', $template['template'], 5, true); ?></p>
+
+
+<p><?php JxWidget::button('Cancel', 'action', 'edit'); ?> <?php JxWidget::button('Save Template', 'action', 'save-tmpl'); ?></p>
+
+<?php
+}
 
 
