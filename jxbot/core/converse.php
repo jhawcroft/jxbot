@@ -37,6 +37,13 @@ class Converse
 	private static $convo_id = '';
 	
 	
+	public static function bot_available()
+	{
+		global $jxbot_config;
+		return (intval($jxbot_config['bot_active']) !== 0);
+	}
+	
+	
 	private static function log(&$input, &$output)
 	{
 		if (Converse::$convo_id === '') return;

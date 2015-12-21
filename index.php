@@ -3,7 +3,6 @@
 require_once(dirname(__FILE__) . '/jxbot/core/common.php');
 
 
-jxbot_start_session();
 
 
 // will need to be careful about sessions if this ends up being a plug-in on wordpress
@@ -19,10 +18,12 @@ jxbot_start_session();
 </head>
 <body>
 
+<?php if (Converse::bot_available()) { ?>
 
 <form method="post" action="">
 
 <div id="bot-output"><?php
+Converse::resume_conversation( jxbot_start_session() );
 if (isset($_REQUEST['input']))
 	print Converse::get_response($_REQUEST['input']);
 else
@@ -34,6 +35,16 @@ else
 <p><input type="submit" id="user-submit" value="Say"></p>
 
 </form>
+
+<?php } else { ?>
+
+<h1>Bot Not Available</h1>
+
+<p>Sorry, the chat bot is not currently available and is down for maintenance.</p>
+
+<p>Please check back again later!</p>
+
+<?php } ?>
 
 
 </body>

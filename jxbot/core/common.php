@@ -85,8 +85,9 @@ function jxbot_config()
 
 function jxbot_start_session()
 {
-	session_id(BotDefaults::SESSION_NAME);
+	session_name(BotDefaults::SESSION_NAME);
 	session_start();
+	return session_id();
 }
 
 
