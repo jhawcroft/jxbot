@@ -61,8 +61,8 @@ class Converse
 
 	public static function get_response($in_input)
 	{
-		$words = NLAux::normalise($in_input);
-		$category_id = NL::match_input($words);
+		//$words = NLAux::normalise($in_input);
+		$category_id = NL::match_input($in_input);
 		$output = NL::make_output($category_id);
 		
 		Converse::log($in_input, $output);

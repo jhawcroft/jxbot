@@ -59,8 +59,8 @@ class NL
 	{
 		$words = NLAux::normalise($in_sequence);
 		
-		$stmt = JxBotDB::$db->prepare('INSERT INTO sequence (category_id, words) VALUES (?, ?)');
-		$stmt->execute(array( $in_category_id, implode(',', $words) ) );
+		$stmt = JxBotDB::$db->prepare('INSERT INTO sequence (category_id, words, length) VALUES (?, ?, ?)');
+		$stmt->execute(array( $in_category_id, implode(',', $words), count($words) ) );
 		$sequence_id = JxBotDB::$db->lastInsertId();
 		
 		foreach ($words as $word)
@@ -154,7 +154,8 @@ class NL
 		FROM sequence JOIN sequence_word ON sequence.sequence_id=sequence_word.sequence_id
 		AND sequence_word.word_id IN (SELECT DISTINCT word_id FROM word WHERE word.word IN ('.
 		implode(',', $in_words).')) JOIN category ON sequence.category_id=category.id
-		GROUP BY sequence.sequence_id';
+		GROUP BY sequence.sequence_id
+		ORDER BY sequence.length DESC';
 		//print $sql.'<br>';
 		
 		$stmt = $jxbot_db->prepare($sql);
@@ -187,17 +188,65 @@ class NL
 	}
 	
 	
-	public static function matching_sequences($in_input)
-	/* find a return a list of matching sequences, in order from best match to worst match */
+	private static function sequence_matches(&$in_sequence, &$in_input_words)
+	/* check if the sequence exactly matches, and will eventually have to extract
+	wildcard information too */
 	{
-		if (trim($in_input) == '') return array();
-		
+		$word_index = 0;
+		$word_count = count($in_input_words);
+		$seq_words = explode(',', $in_sequence);
+		foreach ($seq_words as $term)
+		{
+			if ($word_index >= $word_count) return false;
+			$matched = false;
+			for (; $word_index < $word_count; $word_index++)
+			{
+				$input_word = $in_input_words[$word_index];
+				if ($input_word == $term)
+				{
+					$matched = true;
+					break;
+				}
+			}
+			if (!$matched) return false;
+		}
+		return true;
+	}
+	
+	
+	public static function matching_category($in_input)
+	{	
 		$words = NLAux::normalise($in_input);
 		$sequences = NL::prefind_sequences($words);
 		
-		// need to do additional checks to find actual matches here; not just prefind
+		foreach ($sequences as $seq)
+		{
+			$sequence = $seq[2];
+			if (NL::sequence_matches($sequence, $words)) 
+				return $seq[0];
+		}
 		
-		return $sequences;
+		// didnt match a category; need to find a default category
+		//  **
+		
+		return NULL;
+	}
+	
+	
+	public static function matching_sequences($in_input)
+	{
+		$words = NLAux::normalise($in_input);
+		$sequences = NL::prefind_sequences($words);
+		
+		$output = array();
+		foreach ($sequences as $seq)
+		{
+			$sequence = $seq[2];
+			if (NL::sequence_matches($sequence, $words)) 
+				$output[] = $seq;
+		}
+		
+		return $output;
 	}
 	
 	
@@ -216,19 +265,22 @@ class NL
 	// eventually could store a word length with each sequence
 	// so database can sort and we can peruse from longest to shortest
 	
-	public static function best_match(&$in_words, &$in_sequences)
+	//public static function best_match(&$in_words, &$in_sequences)
 	/* as with matching sequences above; only select the first (top) best match and be done with it */
-	{
-		return $in_sequences[0][0];
+	//{
+		//if (count($in_sequences) == 0)
+	//	return $in_sequences[0][0];
 		
 		// check length at least; first optimisation scheduled for later
-	}
+	//}
 	
 	
-	public static function match_input($in_words)
+	public static function match_input($in_input)
 	{
-		$sequences = NL::prefind_sequences($in_words);
-		return NL::best_match($in_words, $sequences);
+		$category_id = NL::matching_category($in_input);
+		//$sequences = NL::prefind_sequences($in_words);
+		//return NL::best_match($in_words, $sequences);
+		return $category_id;
 	}
 	
 	
@@ -247,6 +299,7 @@ class NL
 	
 	public static function make_output($in_category_id)
 	{
+	
 		$templates = NL::fetch_templates($in_category_id);
 		
 		// should select templates based on various rules eventually

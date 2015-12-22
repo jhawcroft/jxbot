@@ -124,10 +124,10 @@ function page_sequences()
 <p>For input: <strong><?php print $inputs['input']; ?></strong></p>
 <input type="hidden" name="input" value="<?php print $inputs['input']; ?>">
 
-<h3>Matched</h3>
-
 <?php 
 $rows = NL::matching_sequences($inputs['input']);
+
+print '<h3>Matched</h3>';
 JxWidget::grid(array(
 	array('label'=>'ID', 'id'=>0, 'key'=>true, 'visible'=>false),
 	array('label'=>'Sequence', 'id'=>2, 'link'=>'?page=database&action=edit&category=$$')

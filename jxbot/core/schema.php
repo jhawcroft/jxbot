@@ -61,6 +61,7 @@ $jxbot_db->exec('
 CREATE TABLE sequence_word (
 	sequence_id BIGINT NOT NULL REFERENCES sequence (sequence_id),
     word_id BIGINT NOT NULL REFERENCES word (word_id),
+    length TINYINT NOT NULL,
    PRIMARY KEY (sequence_id, word_id)
 )
 ');
