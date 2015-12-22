@@ -50,24 +50,29 @@ class NL
 		NL::$last_category_id = $jxbot_db->lastInsertId();
 		NL::$_flag_make_cat = false;
 	}*/
-	
-	
-	
-	
+
 
 	public static function register_sequence($in_category_id, $in_sequence)
 	{
-		$words = NLAux::normalise($in_sequence);
+		$words = NLAux::normalise($in_sequence, true);
 		
-		$stmt = JxBotDB::$db->prepare('INSERT INTO sequence (category_id, words, length) VALUES (?, ?, ?)');
-		$stmt->execute(array( $in_category_id, implode(',', $words), count($words) ) );
-		$sequence_id = JxBotDB::$db->lastInsertId();
-		
-		foreach ($words as $word)
+		if ((count($words) == 1) && ($words[0] == '*'))
 		{
-			$word_id = NLAux::get_word_id($word);
-			$stmt = JxBotDB::$db->prepare('INSERT INTO sequence_word VALUES (?, ?)');
-			$stmt->execute(array($sequence_id, $word_id));
+			$stmt = JxBotDB::$db->prepare('INSERT INTO sequence (category_id, words, length) VALUES (?, ?, ?)');
+			$stmt->execute(array( $in_category_id, '*', 0 ) );
+		}
+		else
+		{
+			$stmt = JxBotDB::$db->prepare('INSERT INTO sequence (category_id, words, length) VALUES (?, ?, ?)');
+			$stmt->execute(array( $in_category_id, implode(',', $words), count($words) ) );
+			$sequence_id = JxBotDB::$db->lastInsertId();
+			
+			foreach ($words as $word)
+			{
+				$word_id = NLAux::get_word_id($word);
+				$stmt = JxBotDB::$db->prepare('INSERT INTO sequence_word VALUES (?, ?)');
+				$stmt->execute(array($sequence_id, $word_id));
+			}
 		}
 	}
 
@@ -162,13 +167,23 @@ class NL
 		$stmt->execute();
 		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 		
+		// inefficient: (will need indexes or something)
+		$sql = 'SELECT category.id, sequence.sequence_id, sequence.words
+		FROM sequence JOIN category ON sequence.category_id=category.id
+		WHERE sequence.length=0
+		GROUP BY sequence.sequence_id';
+		$stmt = $jxbot_db->prepare($sql);
+		$stmt->execute();
+		$default_rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		$rows = array_merge($rows, $default_rows);
+		
 		return $rows;
 	}
 	
 	
 	public static function exact_sequence_exists($in_sequence)
 	{
-		$words = NLAux::normalise($in_sequence);
+		$words = NLAux::normalise($in_sequence, true);
 		$normalised = implode(',', $words);
 		array_walk($words, array('NL', 'quote_word'));
 		
@@ -192,6 +207,16 @@ class NL
 	/* check if the sequence exactly matches, and will eventually have to extract
 	wildcard information too */
 	{
+	
+	// will eventually need to do the prefind search, sorting by some artificially generated key
+	// other than length - something that incorporates a numeric pattern representative of each
+	// token, eg. normal word, or wildcard, such that wildcards sort after words in the pattern
+	// processing hierarchy, those with topics sort prior to those without, etc. etc.
+	
+	// could potentially add limited topic and that matching functionality ?
+	// not quite a complicated as AIML (no point) - but enough that the interpreter would
+	// be somewhat compatible with AIML datasets, and could advise when it wasn't on import...
+	
 		$word_index = 0;
 		$word_count = count($in_input_words);
 		$seq_words = explode(',', $in_sequence);
@@ -202,7 +227,7 @@ class NL
 			for (; $word_index < $word_count; $word_index++)
 			{
 				$input_word = $in_input_words[$word_index];
-				if ($input_word == $term)
+				if ($input_word == $term || $term == '*')
 				{
 					$matched = true;
 					break;

@@ -56,11 +56,13 @@ class NLAux
 	}
 	
 	
-	public static function normalise($in_input)
+	public static function normalise($in_input, $in_keep_wildcards = false)
 	{
 		$output = strip_accents(mb_strtoupper($in_input));
 		
 		$punctuation = array(',', '!', '?', '\'');
+		if (!$in_keep_wildcards) $punctuation = array_merge($punctuation,
+			array('*'));
   		$output = str_replace($punctuation, '', $output);
   		
   		$whitespace = array("\t", "\n", "\r");
