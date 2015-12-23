@@ -40,7 +40,9 @@ JxBotDB::$db->exec('
 CREATE TABLE pattern (
 	id INT(11) NOT NULL PRIMARY KEY,
 	category INT(11) NOT NULL,
-	value VARCHAR(255) NOT NULL
+	value VARCHAR(255) NOT NULL,
+	that VARCHAR(255) NOT NULL,
+	topic VARCHAR(255) NOT NULL
 ) ENGINE=MyISAM;
 ');
 

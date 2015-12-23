@@ -19,6 +19,9 @@ else if ($action == 'del-tmpl') do_del_tmpl();
 else if ($action == 'edit-tmpl') page_edit_tmpl();
 else if ($action == 'save-tmpl') do_save_tmpl();
 
+else if ($action == 'add-pat') do_add_pat();
+else if ($action == 'del-pat') do_del_pat();
+
 /*
 
 $page = 
@@ -58,33 +61,26 @@ function do_save_tmpl()
 }
 
 
-
-function do_add_seq()
+function do_add_pat()
 {
-	$inputs = JxBotUtil::inputs('category,new-seq,override');
+	$inputs = JxBotUtil::inputs('category,new-pat,topic,that,override');
 	
 	if (!$inputs['override'])
 	{
-		/* check if there are any existing sequences that match the proposed new sequence */
-		$existing = NL::exact_sequence_exists($inputs['new-seq']);
-		if ($existing !== false)
-		{
-			/* list the matches with a warning and override question */
-			page_confirm_new_seq($existing);
-			return;
-		}
+		/* check if there are any existing patterns that match the proposed new pattern */
+		 // todo
 	}
-
-	/* go ahead and add the new sequence */
-	NL::register_sequence(intval($inputs['category']), $inputs['new-seq']);
+	
+	/* go ahead and add the new pattern */
+	JxBotEngine::pattern_add($inputs['category'], $inputs['new-pat'], $inputs['topic'], $inputs['that']);
 	page_edit($inputs['category']);
 }
 
 
-function do_del_seq()
+function do_del_pat()
 {
-	$inputs = JxBotUtil::inputs('seq-id');
-	$category_id = NL::kill_sequence($inputs['seq-id']);
+	$inputs = JxBotUtil::inputs('pat-id');
+	$category_id = JxBotEngine::pattern_delete($inputs['pat-id']);
 	page_edit($category_id);
 }
 
@@ -181,6 +177,24 @@ function page_edit($in_category_id)
 
 <h2>Edit Category</h2>
 
+
+<h3>Context</h3>
+
+<p><?php JxWidget::textfield(array(
+	'name'=>'topic',
+	'label'=>'Topic',
+	'max'=>255
+)); ?></p>
+
+<p><?php JxWidget::textfield(array(
+	'name'=>'that',
+	'label'=>'That',
+	'max'=>255
+)); ?></p>
+
+<p><?php JxWidget::button('Update Context', 'action', 'save-ctx'); ?></p>
+
+
 <h3>Patterns</h3>
 
 <?php 
@@ -189,7 +203,7 @@ $stmt->execute(array($in_category_id));
 $rows = $stmt->fetchAll(PDO::FETCH_NUM);
 JxWidget::grid(array(
 	array('label'=>'ID', 'id'=>0, 'visible'=>false, 'key'=>true),
-	array('label'=>'Sequence', 'id'=>1),
+	array('label'=>'Pattern', 'id'=>1),
 	array('label'=>'Delete', 'id'=>':delete', 'link'=>'?page=database&action=del-pat&pat-id=$$')
 ), $rows); 
 ?>

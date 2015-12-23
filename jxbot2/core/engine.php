@@ -37,17 +37,18 @@ class JxBotEngine
 	{
 		$output = strip_accents(mb_strtoupper($in_input));
 		
-		$punctuation = array(',', '!', '?', '\'');
-		if (!$in_keep_wildcards) $punctuation = array_merge($punctuation,
-			array('*'));
-  		$output = str_replace($punctuation, '', $output);
+		if (!$in_keep_wildcards)
+		{
+			$punctuation = array(',', '!', '?', '\'', '*');
+			$output = str_replace($punctuation, '', $output);
+  		}
   		
   		$whitespace = array("\t", "\n", "\r");
   		$output = str_replace($whitespace, ' ', $output);
   		
   		$output = explode(' ', $output);
   		
-  		$output = array_diff($output, array(''));
+  		$output = array_values( array_diff($output, array('')) );
   		
 		return $output;
 	}
@@ -77,11 +78,14 @@ class JxBotEngine
 	}
 	
 	
-	public static function pattern_add($in_category_id, $in_text)
+	public static function pattern_add($in_category_id, $in_text, $in_topic, $in_that)
 	{
-		$terms = JxBotEngine::normalise($in_text, true);
+		$in_full = $in_text . ' : ' . $in_topic . ' : ' . $in_that;
+	
+		$terms = JxBotEngine::normalise($in_full, true);
 		$count = count($terms);
 		$last_node = NULL; /* root of graph */
+		
 		for ($index = 0; $index < $count; $index++)
 		{
 			$expression = $terms[$index];
@@ -97,7 +101,7 @@ class JxBotEngine
 					$last_node, 
 					$expression, 
 					JxBotEngine::make_sort_key($expression), 
-					($index + 1 >= $count)
+					(($index + 1 >= $count) ? 1 : 0)
 					));
 				$last_node = JxBotDB::$db->lastInsertId();
 			}
@@ -112,8 +116,8 @@ class JxBotEngine
 			}
 		}
 		
-		$stmt = JxBotDB::$db->prepare('INSERT INTO pattern (id, category, value)');
-		$stmt->execute(array($last_node, $in_category_id, $in_text));
+		$stmt = JxBotDB::$db->prepare('INSERT INTO pattern (id, category, value, that, topic) VALUES (?, ?, ?, ?, ?)');
+		$stmt->execute(array($last_node, $in_category_id, $in_text, $in_that, $in_topic));
 		
 		return $last_node;
 	}
