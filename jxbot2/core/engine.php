@@ -63,8 +63,8 @@ class JxBotEngine
 	
 	public static function category_delete($in_category_id)
 	{
-		$stmt = JxBotDB::$db->prepare('DELETE FROM category WHERE category_id=?');
-		$stmt->exec(array($in_category_id));
+		$stmt = JxBotDB::$db->prepare('DELETE FROM category WHERE id=?');
+		$stmt->execute(array($in_category_id));
 	}
 	
 	
@@ -138,7 +138,7 @@ class JxBotEngine
 	
 	public static function template_add($in_category_id, $in_template)
 	{
-		$stmt = JxBotDB::$db->prepare('INSERT INTO template (category_id, template) VALUES (?, ?)');
+		$stmt = JxBotDB::$db->prepare('INSERT INTO template (category, template) VALUES (?, ?)');
 		$stmt->execute(array($in_category_id, $in_template));
 	}
 	
@@ -146,7 +146,21 @@ class JxBotEngine
 	public static function template_update($in_template_id, $in_text)
 	{
 		$stmt = JxBotDB::$db->prepare('UPDATE template SET template=? WHERE id=?');
-		$stmt->execute(array($in_template_id, $in_text));
+		$stmt->execute(array($in_text, $in_template_id));
+		
+		$stmt = JxBotDB::$db->prepare('SELECT category FROM template WHERE id=?');
+		$stmt->execute(array($in_template_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		return $row[0][0];
+	}
+	
+	
+	public static function template_fetch($in_template_id)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT id,template,category FROM template WHERE id=?');
+		$stmt->execute(array($in_template_id));
+		$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		return $rows[0];
 	}
 	
 	
@@ -161,6 +175,15 @@ class JxBotEngine
 		$stmt->execute(array($in_template_id));
 		
 		return $row[0][0];
+	}
+	
+	
+	public static function fetch_templates($in_category_id)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT id,template FROM template WHERE category=?');
+		$stmt->execute(array($in_category_id));
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		return $rows;
 	}
 }
 

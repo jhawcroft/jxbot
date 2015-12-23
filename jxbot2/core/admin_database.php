@@ -1,13 +1,27 @@
 <?php
 
 
+
 //var_dump($_REQUEST);
 
 
 //list($action) = JxBotUtil::inputs('action');
 
+$inputs = JxBotUtil::inputs('action,category');
+$action = (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'lookup');
 
-$page = (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'lookup');
+if ($action == 'lookup') page_lookup();
+else if ($action == 'new-cat') do_new_category();
+else if ($action == 'edit') page_edit($inputs['category']);
+else if ($action == 'del-cat') do_delete_category();
+else if ($action == 'add-tmpl') do_add_tmpl();
+else if ($action == 'del-tmpl') do_del_tmpl();
+else if ($action == 'edit-tmpl') page_edit_tmpl();
+else if ($action == 'save-tmpl') do_save_tmpl();
+
+/*
+
+$page = 
 if ($page == 'sequences' && isset($_REQUEST['input']) && (trim($_REQUEST['input']) != '')) page_sequences();
 else if ($page == 'edit' && isset($_REQUEST['category'])) page_edit($_REQUEST['category']);
 else if ($page == 'new-cat') do_new_category();
@@ -17,14 +31,14 @@ else if ($page == 'add-tmpl') do_add_tmpl();
 else if ($page == 'del-tmpl') do_del_tmpl();
 else if ($page == 'edit-tmpl' && isset($_REQUEST['template'])) page_edit_tmpl($_REQUEST['template']);
 else if ($page == 'save-tmpl') do_save_tmpl();
-else page_lookup();
+else page_lookup();*/
 
 
 
 function do_add_tmpl()
 {
-	$inputs = JxBotUtil::inputs('category,tmpl');
-	NL::register_template(intval($inputs['category']), $inputs['tmpl']);
+	$inputs = JxBotUtil::inputs('category,new-tmpl');
+	JxBotEngine::template_add(intval($inputs['category']), $inputs['new-tmpl']);
 	page_edit($inputs['category']);
 }
 
@@ -32,14 +46,14 @@ function do_add_tmpl()
 function do_del_tmpl()
 {
 	$inputs = JxBotUtil::inputs('template');
-	page_edit( NL::kill_template($inputs['template']) );
+	page_edit( JxBotEngine::template_delete($inputs['template']) );
 }
 
 
 function do_save_tmpl()
 {
-	$inputs = JxBotUtil::inputs('template_id,template');
-	$category_id = NL::update_template($inputs['template_id'], $inputs['template']);
+	$inputs = JxBotUtil::inputs('tmpl-id,template');
+	$category_id = JxBotEngine::template_update($inputs['tmpl-id'], $inputs['template']);
 	page_edit($category_id);
 }
 
@@ -79,11 +93,16 @@ function do_del_seq()
 
 function do_new_category()
 {
-// move this to NL
-	JxBotDB::$db->exec('INSERT INTO category VALUES (NULL)');
-	$category_id = JxBotDB::$db->lastInsertId();
-	
+	$category_id = JxBotEngine::category_new();
 	page_edit($category_id);
+}
+
+
+function do_delete_category()
+{
+	$inputs = JxBotUtil::inputs('category');
+	JxBotEngine::category_delete($inputs['category']) ;
+	page_lookup();
 }
 
 
@@ -162,33 +181,33 @@ function page_edit($in_category_id)
 
 <h2>Edit Category</h2>
 
-<h3>Sequences</h3>
+<h3>Patterns</h3>
 
 <?php 
-$stmt = JxBotDB::$db->prepare('SELECT sequence_id,words FROM sequence WHERE category_id=?');
+$stmt = JxBotDB::$db->prepare('SELECT id,value FROM pattern WHERE category=?');
 $stmt->execute(array($in_category_id));
 $rows = $stmt->fetchAll(PDO::FETCH_NUM);
 JxWidget::grid(array(
 	array('label'=>'ID', 'id'=>0, 'visible'=>false, 'key'=>true),
 	array('label'=>'Sequence', 'id'=>1),
-	array('label'=>'Delete', 'id'=>':delete', 'link'=>'?page=database&action=del-seq&seq-id=$$')
+	array('label'=>'Delete', 'id'=>':delete', 'link'=>'?page=database&action=del-pat&pat-id=$$')
 ), $rows); 
 ?>
 
 <p><?php JxWidget::textfield(array(
-	'name'=>'new-seq', 
-	'label'=>'Sequence', 
+	'name'=>'new-pat', 
+	'label'=>'New Pattern', 
 	'max'=>255
 )); ?></p>
 
-<p><?php JxWidget::button('Add Sequence', 'action', 'add-seq'); ?></p>
+<p><?php JxWidget::button('Add Pattern', 'action', 'add-pat'); ?></p>
 
 
 
 <h3>Templates</h3>
 
 <?php 
-$rows = NL::fetch_templates($in_category_id);
+$rows = JxBotEngine::fetch_templates($in_category_id);
 JxWidget::grid(array(
 	array('label'=>'Template', 'id'=>1, 'link'=>'?page=database&action=edit-tmpl&template=$$'),
 	array('label'=>'ID', 'id'=>0, 'visible'=>false, 'key'=>true),
@@ -196,7 +215,7 @@ JxWidget::grid(array(
 ), $rows); 
 ?>
 
-<p><?php JxWidget::memofield('tmpl', 'Template', '', 5, true); ?></p>
+<p><?php JxWidget::memofield('new-tmpl', 'New Template', '', 5, true); ?></p>
 
 <p><?php JxWidget::button('Add Template', 'action', 'add-tmpl'); ?></p>
 
@@ -242,15 +261,16 @@ JxWidget::grid(array(
 
 
 
-function page_edit_tmpl($in_template_id)
+function page_edit_tmpl()
 {
-	$template = NL::get_template($in_template_id);
+	$inputs = JxBotUtil::inputs('template');
+	$template = JxBotEngine::template_fetch($inputs['template']);
 
 ?>
 
 <?php 
-JxWidget::hidden('category', $template['category_id']);
-JxWidget::hidden('template_id', $template['template_id']);
+JxWidget::hidden('category', $template['category']);
+JxWidget::hidden('tmpl-id', $template['id']);
 ?>
 
 <h2>Edit Template</h2>

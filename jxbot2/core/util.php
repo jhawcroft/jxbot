@@ -29,53 +29,95 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
+ 
 
-require_once(dirname(__FILE__).'/config.php');
-require_once(dirname(__FILE__).'/util.php');
-require_once(dirname(__FILE__).'/db.php');
-require_once(dirname(__FILE__).'/engine.php');
-
-
-
-class JxBot
+function jxbot_die($in_error)
 {
-	private $config = array();
-	
-	
-	public static function fatal_error($in_error)
-	{
-		print $in_error; // should be improved **
-		exit;
-	}
-
-	
-	public static function init()
-	{
-		JxBotConfig::setup_environment();
-		
-		
-	}
-
-
-	public static function run_admin()
-	{
-		JxBot::init();
-		
-		require_once(dirname(__FILE__).'/admin.php');
-		require_once(dirname(__FILE__).'/widget.php');
-		
-		session_name('jxbot');
-		session_start();
-		
-		JxBotAdmin::admin_generate();
-		
-	}
+	print $in_error;
+	exit;
 }
 
 
 
+if (!function_exists("array_column"))
+{
+    function array_column($array, $column_name)
+    {
+        return array_map(function($element) use($column_name) {
+        	return $element[$column_name];
+        }, $array);
+    }
+}
+
+
+function strip_accents($in_utf8)
+{
+	return strtr($in_utf8, array(
+		'À' => 'A',
+		'Á' => 'A',
+		'Â' => 'A',
+		'Ã' => 'A',
+		'Ä' => 'A',
+		'Å' => 'A',
+		'Ç' => 'C',
+		'È' => 'E',
+		'É' => 'E',
+		'Ê' => 'E',
+		'Ë' => 'E',
+		'Ì' => 'I',
+		'Í' => 'I',
+		'Î' => 'I',
+		'Ï' => 'I',
+		'Ñ' => 'N',
+		'Ò' => 'O',
+		'Ó' => 'O',
+		'Ô' => 'O',
+		'Õ' => 'O',
+		'Ö' => 'O',
+		'Ù' => 'U',
+		'Ú' => 'U',
+		'Û' => 'U',
+		'Ü' => 'U',
+		'Ý' => 'Y'
+	));
+}
 
 
 
+class JxBotUtil
+{
+	public static function phpinfo()
+	{
+		ob_start();
+		phpinfo();
+		$pinfo = ob_get_contents();
+		ob_end_clean();
+
+		$pinfo = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$pinfo);
+		echo '<div id="phpinfo">'.$pinfo.'</div>';
+	}
+	
+	
+	public static function request_url()
+	{
+		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != 'off')
+			$protocol = 'https';
+		else $protocol = 'http';
+		return $protocol . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER["REQUEST_URI"],'?');
+	}
+	
+	
+	public static function inputs($in_names)
+	{
+		if (is_string($in_names)) $in_names = explode(',', $in_names);
+		$result = array();
+		foreach ($in_names as $name)
+		{
+			if (isset($_REQUEST[$name])) $result[$name] = $_REQUEST[$name];
+			else $result[$name] = null;
+		}
+		return $result;
+	}
+}
 
 
