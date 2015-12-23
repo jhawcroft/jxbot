@@ -29,78 +29,18 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
- 
-// create the schema
 
-$jxbot_db->exec('
-CREATE TABLE category (
-    id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY
-)
-');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-/* type will influence the behaviour of the matching;
-0 => match everything, but don't worry about stuff that doesn't match,
-1 => AIML mode, match everything exactly as specified by the pattern */
-$jxbot_db->exec('
-CREATE TABLE sequence (
-	type TINYINT NOT NULL,
-	sequence_id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    category_id BIGINT NOT NULL REFERENCES category (id),
-    words VARCHAR(255) NOT NULL,
-    length TINYINT NOT NULL,
-    that VARCHAR(255) NOT NULL,
-    topic VARCHAR(255) NOT NULL,
-    sort_key VARCHAR(255) NOT NULL,
-    INDEX(category_id)
-)
-');
+require_once('db.php');
 
-// can double as a dictionary/theasurus-base/etc. and be used throughout the schema
-$jxbot_db->exec('
-CREATE TABLE word (
-	word_id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    word VARCHAR(30) NOT NULL,
-    UNIQUE(word)
-)
-');
-
-// inefficient duplication of words, but, might be just as well to use as is?
-$jxbot_db->exec('
-CREATE TABLE sequence_word (
-	sequence_id BIGINT NOT NULL REFERENCES sequence (sequence_id),
-    word_id BIGINT NOT NULL REFERENCES word (word_id),
-   PRIMARY KEY (sequence_id, word_id)
-)
-');
-
-$jxbot_db->exec('
-CREATE TABLE template (
-	category_id BIGINT NOT NULL REFERENCES sequence (sequence_id),
-    template_id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    template TEXT,
-    INDEX (category_id)
-)
-');
-
-$jxbot_db->exec('
-CREATE TABLE log (
-	id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	input TEXT NOT NULL,
-	output TEXT NOT NULL,
-	convo_id TEXT NOT NULL,
-	stamp TIMESTAMP NOT NULL
-)
-');
-
-$jxbot_db->exec('
-CREATE TABLE opt (
-	opt_key VARCHAR(100) NOT NULL PRIMARY KEY,
-	opt_value VARCHAR(100) NOT NULL
-)
-');
+JxBotDB::connect('localhost', 'bot2', '', 'root', 's1mple');
 
 
 
+
+require_once('schema.php');
 
 
 
