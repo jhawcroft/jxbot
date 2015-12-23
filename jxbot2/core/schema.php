@@ -58,9 +58,9 @@ CREATE TABLE pattern_node (
 JxBotDB::$db->exec('
 CREATE TABLE template (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	category_id INT(11) NOT NULL,
+	category INT(11) NOT NULL,
     template TEXT,
-    INDEX (category_id)
+    INDEX (category)
 ) ENGINE=MyISAM;
 ');
 

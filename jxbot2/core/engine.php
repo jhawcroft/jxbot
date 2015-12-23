@@ -68,7 +68,7 @@ class JxBotEngine
 	}
 	
 	
-	private static make_sort_key($in_term)
+	private static function make_sort_key($in_term)
 	{
 	// needs checking
 		if ($in_term == '*') return 9;
@@ -121,11 +121,46 @@ class JxBotEngine
 	
 	public static function pattern_delete($in_pattern_id)
 	{
+		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
+		$stmt->execute(array($in_pattern_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		if (count($row) == 0) return NULL;
+		
 		$stmt = JxBotDB::$db->prepare('DELETE FROM pattern WHERE id=?');
 		$stmt->execute(array($in_pattern_id));
 		
 		$stmt = JxBotDB::$db->prepare('UPDATE pattern_node SET is_terminal=0 WHERE id=?');
 		$stmt->execute(array($in_pattern_id));
+		
+		return $row[0][0];
+	}
+	
+	
+	public static function template_add($in_category_id, $in_template)
+	{
+		$stmt = JxBotDB::$db->prepare('INSERT INTO template (category_id, template) VALUES (?, ?)');
+		$stmt->execute(array($in_category_id, $in_template));
+	}
+	
+	
+	public static function template_update($in_template_id, $in_text)
+	{
+		$stmt = JxBotDB::$db->prepare('UPDATE template SET template=? WHERE id=?');
+		$stmt->execute(array($in_template_id, $in_text));
+	}
+	
+	
+	public static function template_delete($in_template_id)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT category FROM template WHERE id=?');
+		$stmt->execute(array($in_template_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		if (count($row) == 0) return NULL;
+		
+		$stmt = JxBotDB::$db->prepare('DELETE FROM template WHERE id=?');
+		$stmt->execute(array($in_template_id));
+		
+		return $row[0][0];
 	}
 }
 
