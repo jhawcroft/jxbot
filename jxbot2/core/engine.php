@@ -33,6 +33,12 @@
 
 class JxBotEngine
 {
+
+	protected $input_terms = null;
+	protected $term_index = 0;
+
+	
+
 	public static function normalise($in_input, $in_keep_wildcards = false)
 	{
 		$output = strip_accents(mb_strtoupper($in_input));
@@ -189,6 +195,69 @@ class JxBotEngine
 		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 		return $rows;
 	}
+	
+	// example:
+	
+	// input:  HELLO SWEETIE HOW ARE YOU
+	
+	// patterns:
+	// HELLO SWEETIE
+	// HELLO SWEETIE HOW AM I
+	// HELLO SWEETIE * ARE THEY
+	
+	// needs to search the longer patterns first!
+	
+	// ideally accumulate wildcard values on way back up when returning true
+	
+	protected function walk($in_parent_id, $in_term_index)
+	/* takes inputs as arrays, will probably call recursively;
+	best to avoid passing by reference where possible - maybe use an object context
+	as PHP's implementation of by reference is 'very strange' indeed */
+	{
+		$current_term = $this->input_terms[$this->term_index];
+		
+		/* look in parent node for children which match this term */
+		// might want to add a wild flag, and possibly a set table for AIML v2 with a set ID 
+		$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
+			WHERE parent=? AND expression IN (?, '*', '_') ORDER BY sort_key");
+		$stmt->execute(array($in_parent_id, $in_term_index));
+		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
+		foreach ($possible_branches as $possibility)
+		{
+			$branch_parent = $possibility[0];
+			$did_match = $this->walk($branch_parent, $in_term_index + 1);
+			if ($did_match) 
+			{
+				//if ($possibility[1] == '*' || $possibility[1] == '_')
+					// not quite right, because a wildcard can match more than 1 word
+					// in non-greedy mode, if it turns out that the branch didn't match and there's still content left
+					// stop word list could be computed by query and compared in a query- except if
+					// wildcards next to each other...
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	
+	public static function match($in_input, $in_that, $in_topic)
+	/* takes inputs in normal string form, returns some kind of array of information
+	about the match (if any); assumes matching a single sentence (splitting already done) */
+	{
+		$search_terms = JxBotEngine::normalise($in_input);
+		$search_terms[] = ':';
+		$search_terms = array_merge($search_terms, JxBotEngine::normalise($in_that));
+		$search_terms[] = ':';
+		$search_terms = array_merge($search_terms, JxBotEngine::normalise($in_topic));
+		
+		$context = new JxBotEngine();
+		$context->input_terms = $search_terms;
+		$context->term_index = 0;
+		
+		$context->walk(NULL, 0);
+	}
+	
 }
 
 
