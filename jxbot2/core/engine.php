@@ -38,6 +38,9 @@ class JxBotEngine
 	protected $term_index = 0;
 	protected $term_limit = 0;
 	protected $wild_values = null;
+	protected $wild_that_values = null;
+	protected $wild_topic_values = null;
+	protected $unwind_stage = 0;
 	
 
 	public static function normalise($in_input, $in_keep_wildcards = false)
@@ -227,6 +230,17 @@ class JxBotEngine
 	
 	// ideally accumulate wildcard values on way back up when returning true
 	
+	private function accumulate_wild_values(&$in_values)
+	{
+		if ($this->unwind_stage == 2)
+			$this->wild_topic_values[] = $in_values;
+		else if ($this->unwind_stage == 1)
+			$this->wild_that_values[] = $in_values;
+		else
+			$this->wild_values[] = $in_values;
+	}
+	
+	
 	protected function walk($in_parent_id, $in_term_index)
 	/* takes inputs as arrays, will probably call recursively;
 	best to avoid passing by reference where possible - maybe use an object context
@@ -273,12 +287,17 @@ class JxBotEngine
 				{
 					/* match remaining input to subbranch */
 					$match = $this->walk($br_parent, $in_term_index + 1);
-					if ($match !== false) return $match;
+					if ($match !== false) 
+					{
+						if ($br_expr === ':') $this->unwind_stage--;
+						return $match;
+					}
 				}
 				else if ($br_terminal)
 				{
 					print "Ran out of input @ terminal; matched $br_parent<br>";
 					/* ran out of input; match if terminal node */
+					if ($br_expr === ':') $this->unwind_stage--;
 					return $br_parent;
 				}
 				/* otherwise, match failed */
@@ -310,7 +329,9 @@ class JxBotEngine
 					if ($matched !== false)
 					/* subbranch matched; this branch matched */
 					{
-						$this->wild_values[] = $wildcard_terms;
+						//$this->wild_values[] = $wildcard_terms;
+						$this->accumulate_wild_values($wildcard_terms);
+						if ($br_expr === ':') $this->unwind_stage--;
 						return $matched;
 					}
 					else
@@ -326,7 +347,9 @@ class JxBotEngine
 				check this is a terminal node */
 				if ($br_terminal) 
 				{
-					$this->wild_values[] = $wildcard_terms;
+					//$this->wild_values[] = $wildcard_terms;
+					$this->accumulate_wild_values($wildcard_terms);
+					if ($br_expr === ':') $this->unwind_stage--;
 					return $br_parent;
 				}
 				
@@ -354,6 +377,9 @@ class JxBotEngine
 		$context->term_index = 0;
 		$context->term_limit = count($search_terms);
 		$context->wild_values = array();
+		$context->wild_that_values = array();
+		$context->wild_topic_values = array();
+		$context->unwind_stage = 2;
 
 		var_dump($search_terms);
 		print '<br>';
@@ -362,6 +388,18 @@ class JxBotEngine
 		if ($matched_pattern === false) return false;
 		
 		print 'Matched pattern: '.$matched_pattern.'<br>';
+		
+		print '<p>Wildcard values:<pre>';
+		var_dump($context->wild_values);
+		print '</pre></p>';
+		
+		print '<p>Wildcard THAT values:<pre>';
+		var_dump($context->wild_that_values);
+		print '</pre></p>';
+		
+		print '<p>Wildcard TOPIC values:<pre>';
+		var_dump($context->wild_topic_values);
+		print '</pre></p>';
 		
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
 		$stmt->execute(array($matched_pattern));
