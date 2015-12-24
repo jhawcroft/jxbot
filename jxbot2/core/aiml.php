@@ -29,55 +29,18 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
+ 
 
-require_once(dirname(__FILE__).'/config.php');
-require_once(dirname(__FILE__).'/util.php');
-require_once(dirname(__FILE__).'/db.php');
-require_once(dirname(__FILE__).'/engine.php');
-require_once(dirname(__FILE__).'/converse.php');
-require_once(dirname(__FILE__).'/aiml.php');
-
-
-
-class JxBot
+class JxBotAiml
 {
-	private $config = array();
-	
-	
-	public static function fatal_error($in_error)
-	{
-		print $in_error; // should be improved **
-		exit;
-	}
 
+	public static function import($in_filename)
+	{
+		
+		
+		return true;
+	}
 	
-	public static function init()
-	{
-		JxBotConfig::setup_environment();
-		
-		
-	}
-
-
-	public static function run_admin()
-	{
-		JxBot::init();
-		
-		require_once(dirname(__FILE__).'/admin.php');
-		require_once(dirname(__FILE__).'/widget.php');
-		
-		session_name('jxbot');
-		session_start();
-		
-		JxBotAdmin::admin_generate();
-		
-	}
 }
-
-
-
-
-
-
 
 

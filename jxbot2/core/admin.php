@@ -43,6 +43,7 @@ class JxBotAdmin
 		/*array('personality', 'Personality'),*/
 		array('database', 'Database'),
 		/*array('import-export', 'Import/Export'),*/
+		array('import', 'Import'),
 		array('settings', 'Settings'),
 		array('logs', 'Logs'),
 		array('about', 'About JxBot'),
@@ -271,7 +272,7 @@ public static function admin_page()
 {
 ?>
 <h1><?php print JxBotAdmin::$page[1]; ?></h1>
-<form method="post" action="" name="admin-form" id="admin-form">
+<form method="post" action="" name="admin-form" id="admin-form" enctype="multipart/form-data">
 <?php JxWidget::$form_id = 'admin-form'; ?>
 
 <?php 
