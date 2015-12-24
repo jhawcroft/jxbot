@@ -72,6 +72,9 @@ class JxBotEngine
 	
 	public static function category_new($in_that, $in_topic)
 	{
+	//print 'CATEGORY: '.$in_topic.'<br>';
+	//return;
+	
 		$stmt = JxBotDB::$db->prepare('INSERT INTO category (that, topic) VALUES (?, ?)');
 		$stmt->execute(array($in_that, $in_topic));
 		$category_id = JxBotDB::$db->lastInsertId();
@@ -118,6 +121,9 @@ class JxBotEngine
 	
 	public static function pattern_add($in_category_id, $in_text, $in_topic, $in_that)
 	{
+	//print 'PATTERN: '.$in_text.' : '.$in_that.' : '.$in_topic.'<br>';
+	//return;
+	
 		$in_full = $in_text . ' : ' . $in_that . ' : ' . $in_topic;
 		$terms = JxBotEngine::normalise($in_full, true);
 		$in_full = JxBotEngine::upper($in_full);
@@ -189,6 +195,9 @@ class JxBotEngine
 	
 	public static function template_add($in_category_id, $in_template)
 	{
+	//print 'TEMPLATE: '.$in_template.'<br>';
+	//return;
+	
 		$stmt = JxBotDB::$db->prepare('INSERT INTO template (category, template) VALUES (?, ?)');
 		$stmt->execute(array($in_category_id, $in_template));
 	}
