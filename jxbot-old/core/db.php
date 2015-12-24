@@ -31,67 +31,65 @@
  *******************************************************************************/
  
 
-class Converse
+function jxbot_is_installed()
 {
-
-	private static $convo_id = '';
+	global $jxbot_db;
 	
-	
-	public static function bot_available()
+	try
 	{
-		global $jxbot_config;
-		return (intval($jxbot_config['bot_active']) !== 0);
+		$stmt = $jxbot_db->prepare('SELECT * FROM category LIMIT 1');
+		$stmt->execute();
+		return true;
 	}
+	catch (Exception $err)
+	{}
 	
-	
-	private static function log(&$input, &$output)
-	{
-		if (Converse::$convo_id === '') return;
-		
-		return;
-		
-		$stmt = JxBotDB::$db->prepare('INSERT INTO log (input, output, convo_id) VALUES (?, ?, ?)');
-		$stmt->execute(array($input, $output, Converse::$convo_id));
-	}
-	
-	
-	public static function resume_conversation($in_convo_id)
-	{
-		Converse::$convo_id = $in_convo_id;
-	}
-
-
-	public static function get_response($in_input)
-	{
-		//$words = NLAux::normalise($in_input);
-		//$category_id = NL::match_input($in_input);
-		$category_id = JxBotEngine::match($in_input, 'unknown', 'unknown');
-		//print 'Matched category: '.$category_id.'<br>';
-		$template = JxBotEngine::fetch_templates($category_id);
-		$output = $template[0][1];
-		//$output = NL::make_output($category_id);
-		
-		Converse::log($in_input, $output);
-		
-		return $output;
-	}
-	
-	
-	public static function get_greeting()
-	/* conversation has just begun;
-	return an appropriate salutation */
-	{
-		$output = 'Hello.';
-		
-		$blank = '';
-		Converse::log($blank, $output);
-		
-		return $output;
-	}
-	
-	// suggest a salutation matching phase
-	// where only salutations (indexed flag) are matched
-	// followed by a separate stage
+	return false;
 }
+ 
+
+function jxbot_connect_db()
+{
+	global $jxbot_db, $jxbot_config;
+	
+	$jxbot_db = NULL;
+	
+	if (!isset($jxbot_config['db_host'])) return false;
+	if (!isset($jxbot_config['db_name'])) return false;
+	if (!isset($jxbot_config['db_username'])) return false;
+	if (!isset($jxbot_config['db_password'])) return false;
+	
+	$dsn = 'mysql:host='.$jxbot_config['db_host'].';dbname='.$jxbot_config['db_name'];
+	$username = $jxbot_config['db_username'];
+	$password = $jxbot_config['db_password'];
+	$options = array(
+		PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+	); 
+	
+	try
+	{
+		$jxbot_db = new PDO($dsn, $username, $password, $options);	
+		if ($jxbot_db === false) throw new Exception("Couldn't connect to database.");
+		
+		$jxbot_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	}
+	catch (Exception $err)
+	{
+		return false;
+	}
+	
+	JxBotDB::$db = $jxbot_db;  // until we stop using globals from the prototype...
+	
+	return true;
+}
+
+
+class JxBotDB
+{
+	public static $db = NULL;
+}
+
+
+
 
 

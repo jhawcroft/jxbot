@@ -16,6 +16,8 @@
 </p>
 
 
+<p><img src="<?php print JxBotConfig::bot_url(); ?>jxbot/core/gfx/robot-small.png"></p>
+
 <?php
 
 $inputs = JxBotUtil::inputs('input');

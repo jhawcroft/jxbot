@@ -30,58 +30,54 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+require_once(dirname(__FILE__).'/config.php');
+require_once(dirname(__FILE__).'/util.php');
+require_once(dirname(__FILE__).'/db.php');
+require_once(dirname(__FILE__).'/engine.php');
+require_once(dirname(__FILE__).'/converse.php');
+require_once(dirname(__FILE__).'/aiml.php');
 
-class JxBotDB
+
+
+class JxBot
 {
-	public static $db = NULL;
-	public static $prefix = '';
-	
-	
-	function is_installed()
-	/* minimal check to see if the database schema is present,
-	ie. the database has been installed */
-	{
-		try
-		{
-			$stmt = JxBotDB::$db->prepare('SELECT * FROM category LIMIT 1');
-			$stmt->execute();
-			return true;
-		}
-		catch (Exception $err)
-		{}
-		return false;
-	}
- 
+	const VERSION = '0.9';
 
-	public static function connect($host, $name, $prefix, $user, $password)
-	/* establishes a connection to the specified database */
+	private $config = array();
+	
+	
+	public static function fatal_error($in_error)
 	{
-		/* define the connection parameters */
-		$dsn = 'mysql:host='.$host.';dbname='.$name;
-		$options = array(
-			PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-		); 
+		print $in_error; // should be improved **
+		exit;
+	}
+
 	
-		try
-		{
-			/* inititate the connection */
-			JxBotDB::$db = new PDO($dsn, $user, $password, $options);	
-			if (JxBotDB::$db === false) 
-				throw new Exception("Couldn't connect to database.");
-			
-			/* ensure all further accesses throw an exception 
-			in the event of an error */
-			JxBotDB::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		}
-		catch (Exception $err)
-		{
-			/* if anything goes wrong, return false */
-			return false;
-		}
-	
-		return true; /* successful connection! */
+	public static function init()
+	{
+		JxBotConfig::setup_environment();
+		
+		
+	}
+
+
+	public static function run_admin()
+	{
+		JxBot::init();
+		
+		require_once(dirname(__FILE__).'/admin.php');
+		require_once(dirname(__FILE__).'/widget.php');
+		
+		session_name('jxbot');
+		session_start();
+		
+		JxBotAdmin::admin_generate();
+		
 	}
 }
+
+
+
 
 
 

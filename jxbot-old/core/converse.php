@@ -29,55 +29,63 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
+ 
 
-require_once(dirname(__FILE__).'/config.php');
-require_once(dirname(__FILE__).'/util.php');
-require_once(dirname(__FILE__).'/db.php');
-require_once(dirname(__FILE__).'/engine.php');
-require_once(dirname(__FILE__).'/converse.php');
-require_once(dirname(__FILE__).'/aiml.php');
-
-
-
-class JxBot
+class Converse
 {
-	private $config = array();
+
+	private static $convo_id = '';
 	
 	
-	public static function fatal_error($in_error)
+	public static function bot_available()
 	{
-		print $in_error; // should be improved **
-		exit;
+		global $jxbot_config;
+		return (intval($jxbot_config['bot_active']) !== 0);
 	}
-
 	
-	public static function init()
+	
+	private static function log(&$input, &$output)
 	{
-		JxBotConfig::setup_environment();
+		if (Converse::$convo_id === '') return;
 		
-		
+		$stmt = JxBotDB::$db->prepare('INSERT INTO log (input, output, convo_id) VALUES (?, ?, ?)');
+		$stmt->execute(array($input, $output, Converse::$convo_id));
+	}
+	
+	
+	public static function resume_conversation($in_convo_id)
+	{
+		Converse::$convo_id = $in_convo_id;
 	}
 
 
-	public static function run_admin()
+	public static function get_response($in_input)
 	{
-		JxBot::init();
+		//$words = NLAux::normalise($in_input);
+		$category_id = NL::match_input($in_input);
+		$output = NL::make_output($category_id);
 		
-		require_once(dirname(__FILE__).'/admin.php');
-		require_once(dirname(__FILE__).'/widget.php');
+		Converse::log($in_input, $output);
 		
-		session_name('jxbot');
-		session_start();
-		
-		JxBotAdmin::admin_generate();
-		
+		return $output;
 	}
+	
+	
+	public static function get_greeting()
+	/* conversation has just begun;
+	return an appropriate salutation */
+	{
+		$output = 'Hello.';
+		
+		$blank = '';
+		Converse::log($blank, $output);
+		
+		return $output;
+	}
+	
+	// suggest a salutation matching phase
+	// where only salutations (indexed flag) are matched
+	// followed by a separate stage
 }
-
-
-
-
-
-
 
 

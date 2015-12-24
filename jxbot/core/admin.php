@@ -43,6 +43,7 @@ class JxBotAdmin
 		/*array('personality', 'Personality'),*/
 		array('database', 'Database'),
 		/*array('import-export', 'Import/Export'),*/
+		array('import', 'Import'),
 		array('settings', 'Settings'),
 		array('logs', 'Logs'),
 		array('about', 'About JxBot'),
@@ -91,7 +92,9 @@ class JxBotAdmin
 	
 public static function admin_generate()
 {
+
 	JxBotAdmin::determine_page();
+	
 	
 	if (JxBotAdmin::$page[0] == 'logout')
 		JxBotAdmin::do_logout();
@@ -102,10 +105,10 @@ public static function admin_generate()
 <head>
 <meta charset="UTF-8">
 <title>JxBot: Administration</title>
-<link rel="base" href="<?php print BotDefaults::bot_url(); ?>">
-<link rel="stylesheet" type="text/css" href="<?php print BotDefaults::bot_url(); ?>jxbot/core/styles.css">
-<link rel="stylesheet" type="text/css" href="<?php print BotDefaults::bot_url(); ?>jxbot/core/phpinfo.css">
-<script type="text/javascript" src="<?php print BotDefaults::bot_url(); ?>jxbot/core/js/admin.js"></script>
+<link rel="base" href="<?php print JxBotConfig::bot_url(); ?>">
+<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/styles.css">
+<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/phpinfo.css">
+<script type="text/javascript" src="<?php print JxBotConfig::bot_url(); ?>jxbot/core/js/admin.js"></script>
 <style>
 
 
@@ -251,12 +254,15 @@ div#centre-content h2
 
 public static function admin_sidebar()
 {
+	$inputs = JxBotUtil::inputs('page');
 ?>
 <ul>
 <?php	
 	foreach (JxBotAdmin::$all_pages as $page_def)
 	{
-		print '<li><a href="?page='.$page_def[0].'">'.$page_def[1].'</a></li>';
+		print '<li><a href="?page='.$page_def[0].'"'.
+			($page_def[0] === $inputs['page'] ? ' class="current"' : '').
+			'>'.$page_def[1].'</a></li>';
 	}
 ?>
 </ul>
@@ -269,7 +275,7 @@ public static function admin_page()
 {
 ?>
 <h1><?php print JxBotAdmin::$page[1]; ?></h1>
-<form method="post" action="" name="admin-form" id="admin-form">
+<form method="post" action="" name="admin-form" id="admin-form" enctype="multipart/form-data">
 <?php JxWidget::$form_id = 'admin-form'; ?>
 
 <?php 
@@ -283,8 +289,6 @@ require_once(dirname(__FILE__).'/admin_'.JxBotAdmin::$page[0].'.php');
 
 }
 
-
-JxBotAdmin::admin_generate();
 
 
 

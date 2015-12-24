@@ -29,64 +29,58 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
- 
-
-function jxbot_is_installed()
-{
-	global $jxbot_db;
-	
-	try
-	{
-		$stmt = $jxbot_db->prepare('SELECT * FROM category LIMIT 1');
-		$stmt->execute();
-		return true;
-	}
-	catch (Exception $err)
-	{}
-	
-	return false;
-}
- 
-
-function jxbot_connect_db()
-{
-	global $jxbot_db, $jxbot_config;
-	
-	$jxbot_db = NULL;
-	
-	if (!isset($jxbot_config['db_host'])) return false;
-	if (!isset($jxbot_config['db_name'])) return false;
-	if (!isset($jxbot_config['db_username'])) return false;
-	if (!isset($jxbot_config['db_password'])) return false;
-	
-	$dsn = 'mysql:host='.$jxbot_config['db_host'].';dbname='.$jxbot_config['db_name'];
-	$username = $jxbot_config['db_username'];
-	$password = $jxbot_config['db_password'];
-	$options = array(
-		PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-	); 
-	
-	try
-	{
-		$jxbot_db = new PDO($dsn, $username, $password, $options);	
-		if ($jxbot_db === false) throw new Exception("Couldn't connect to database.");
-		
-		$jxbot_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	}
-	catch (Exception $err)
-	{
-		return false;
-	}
-	
-	JxBotDB::$db = $jxbot_db;  // until we stop using globals from the prototype...
-	
-	return true;
-}
 
 
 class JxBotDB
 {
 	public static $db = NULL;
+	public static $prefix = '';
+	
+	
+	function is_installed()
+	/* minimal check to see if the database schema is present,
+	ie. the database has been installed */
+	{
+		try
+		{
+			$stmt = JxBotDB::$db->prepare('SELECT * FROM category LIMIT 1');
+			$stmt->execute();
+			return true;
+		}
+		catch (Exception $err)
+		{}
+		return false;
+	}
+ 
+
+	public static function connect($host, $name, $prefix, $user, $password)
+	/* establishes a connection to the specified database */
+	{
+		/* define the connection parameters */
+		$dsn = 'mysql:host='.$host.';dbname='.$name;
+		$options = array(
+			PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+		); 
+	
+		try
+		{
+			/* inititate the connection */
+			JxBotDB::$db = new PDO($dsn, $user, $password, $options);	
+			if (JxBotDB::$db === false) 
+				throw new Exception("Couldn't connect to database.");
+			
+			/* ensure all further accesses throw an exception 
+			in the event of an error */
+			JxBotDB::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		}
+		catch (Exception $err)
+		{
+			/* if anything goes wrong, return false */
+			return false;
+		}
+	
+		return true; /* successful connection! */
+	}
 }
 
 

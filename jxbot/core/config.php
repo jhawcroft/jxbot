@@ -33,6 +33,9 @@
 
 class JxBotConfig
 {
+	const SESSION_NAME = 'JoshixBot';
+	
+
 	private static $config = array();
 	private static $is_installed = false;
 	
@@ -85,6 +88,57 @@ class JxBotConfig
 		
 		if (isset($jxbot['timezone']))
 			date_default_timezone_set($jxbot['timezone']);
+			
+		JxBotConfig::load_configuration();
+	}
+	
+	
+	public static function option($in_key)
+	{
+		if (isset(JxBotConfig::$config[$in_key])) return JxBotConfig::$config[$in_key];
+		return null;
+	}	
+	
+	
+	public static function set_option($in_key, $in_value)
+	{
+		JxBotConfig::$config[$in_key] = $in_value;
+	}
+	
+	
+	public static function load_configuration()
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT opt_key, opt_value FROM opt');
+		$stmt->execute();
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		foreach ($rows as $row)
+		{
+			JxBotConfig::$config[$row[0]] = $row[1];
+		}
+	}
+	
+	
+	public static function save_configuration()
+	{
+		foreach (JxBotConfig::$config as $key => $value)
+		{	
+			if (substr($key, 0, 3) == 'db_') continue;
+			if (substr($key, 0, 7) == 'config_') continue;
+			if ($key == 'debug') continue;
+			if ($key == 'bot_url') continue;
+			try
+			{
+				$stmt = JxBotDB::$db->prepare('INSERT INTO opt (opt_value, opt_key) VALUES (?, ?)');
+				$stmt->execute(array($value, $key));
+			}
+			catch (Exception $err) {}
+			try
+			{
+				$stmt = JxBotDB::$db->prepare('UPDATE opt SET opt_value=? WHERE opt_key=?');
+				$stmt->execute(array($value, $key));
+			}
+			catch (Exception $err) {}
+		}    
 	}
 }
 

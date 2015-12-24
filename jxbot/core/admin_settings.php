@@ -2,20 +2,20 @@
 
 if (isset($_POST['bot_name']))
 {
-	BotDefaults::set_option('bot_name', $_POST['bot_name']);
-	BotDefaults::set_option('bot_tz', $_POST['bot_tz']);
-	BotDefaults::set_option('bot_active', (isset($_POST['bot_active']) ? 1 : 0));
+	JxBotConfig::set_option('bot_name', $_POST['bot_name']);
+	JxBotConfig::set_option('bot_tz', $_POST['bot_tz']);
+	JxBotConfig::set_option('bot_active', (isset($_POST['bot_active']) ? 1 : 0));
 	
-	if (isset($_POST['bot_password']))
-		BotDefaults::set_option('admin_hash', hash('sha256', $_POST['bot_password']));
+	if (isset($_POST['bot_password']) && trim($_POST['bot_password']) !== '')
+		JxBotConfig::set_option('admin_hash', hash('sha256', $_POST['bot_password']));
 	
-	BotDefaults::save_configuration();
+	JxBotConfig::save_configuration();
 }
 
 ?>
 
 <p class="field"><label for="bot_name">Bot Name: </label>
-<input type="text" name="bot_name" id="bot_name" size="40" value="<?php print BotDefaults::option('bot_name'); ?>"></p>
+<input type="text" name="bot_name" id="bot_name" size="40" value="<?php print JxBotConfig::option('bot_name'); ?>"></p>
 
 <p class="field"><label for="bot_tz">Timezone: </label>
 <select name="bot_tz" id="bot_tz" class="focusable">
@@ -24,7 +24,7 @@ if (isset($_POST['bot_name']))
 $timezone_identifiers = DateTimeZone::listIdentifiers();
 foreach ($timezone_identifiers as $tz)
 {
-	print '<option value="'.$tz.'" '.(BotDefaults::option('bot_tz') == $tz ? ' selected="true"' : '').'>'.$tz.'</option>';
+	print '<option value="'.$tz.'" '.(JxBotConfig::option('bot_tz') == $tz ? ' selected="true"' : '').'>'.$tz.'</option>';
 }
 ?>
 </select></p>
@@ -33,7 +33,7 @@ foreach ($timezone_identifiers as $tz)
 
 <p class="field"><label for="bot_name">Active:</label>
 <?php
-JxWidget::toggle_switch('bot_active', BotDefaults::option('bot_active'));
+JxWidget::toggle_switch('bot_active', JxBotConfig::option('bot_active'));
 ?></p>
 
 
