@@ -8,12 +8,16 @@
 //list($action) = JxBotUtil::inputs('action');
 
 $inputs = JxBotUtil::inputs('action,category');
-$action = (isset($_REQUEST['action']) ? $_REQUEST['action'] : 'lookup');
+$action = (isset($_REQUEST['action']) ? $_REQUEST['action'] : '');
 
-if ($action == 'lookup') page_lookup();
+if ($action == '') page_lookup();
+else if ($action == 'lookup') page_lookup_results();
+
 else if ($action == 'new-cat') do_new_category();
 else if ($action == 'edit') page_edit($inputs['category']);
 else if ($action == 'del-cat') do_delete_category();
+else if ($action == 'save-ctx') do_update_category();
+
 else if ($action == 'add-tmpl') do_add_tmpl();
 else if ($action == 'del-tmpl') do_del_tmpl();
 else if ($action == 'edit-tmpl') page_edit_tmpl();
@@ -22,19 +26,6 @@ else if ($action == 'save-tmpl') do_save_tmpl();
 else if ($action == 'add-pat') do_add_pat();
 else if ($action == 'del-pat') do_del_pat();
 
-/*
-
-$page = 
-if ($page == 'sequences' && isset($_REQUEST['input']) && (trim($_REQUEST['input']) != '')) page_sequences();
-else if ($page == 'edit' && isset($_REQUEST['category'])) page_edit($_REQUEST['category']);
-else if ($page == 'new-cat') do_new_category();
-else if ($page == 'add-seq') do_add_seq();
-else if ($page == 'del-seq') do_del_seq();
-else if ($page == 'add-tmpl') do_add_tmpl();
-else if ($page == 'del-tmpl') do_del_tmpl();
-else if ($page == 'edit-tmpl' && isset($_REQUEST['template'])) page_edit_tmpl($_REQUEST['template']);
-else if ($page == 'save-tmpl') do_save_tmpl();
-else page_lookup();*/
 
 
 
@@ -89,7 +80,16 @@ function do_del_pat()
 
 function do_new_category()
 {
-	$category_id = JxBotEngine::category_new();
+	$inputs = JxBotUtil::inputs('that,topic');
+	$category_id = JxBotEngine::category_new($inputs['that'], $inputs['topic']);
+	page_edit($category_id);
+}
+
+
+function do_update_category()
+{
+	$inputs = JxBotUtil::inputs('category,that,topic');
+	JxBotEngine::category_update($inputs['category'], $inputs['that'], $intputs['topic']);
 	page_edit($category_id);
 }
 
@@ -105,17 +105,33 @@ function do_delete_category()
 
 function page_lookup()
 {
+	$inputs = JxBotUtil::inputs('input,that,topic');
 ?>
 
 <h2>Lookup</h2>
 
-<input type="hidden" name="action" value="sequences">
+<input type="hidden" name="action" value="lookup">
+
+<?php JxWidget::textfield(array(
+	'name'=>'topic',
+	'label'=>'Topic',
+	'max'=>150,
+	'autofocus'=>true,
+	'value'=>$inputs['topic']
+)); ?>
+
+<?php JxWidget::textfield(array(
+	'name'=>'that',
+	'label'=>'That',
+	'max'=>150,
+	'value'=>$inputs['that']
+)); ?>
 
 <?php JxWidget::textfield(array(
 	'name'=>'input',
-	'label'=>'Chat Input',
+	'label'=>'Input',
 	'max'=>150,
-	'autofocus'=>true
+	'value'=>$inputs['input']
 )); ?>
 
 <p>
@@ -126,41 +142,42 @@ function page_lookup()
 }
 
 
-function page_sequences()
+function page_lookup_results()
 {
-	$inputs = JxBotUtil::inputs('input');
+	$inputs = JxBotUtil::inputs('input,that,topic');
 	
-	//$stmt = JxBotDB::$db->prepare('SELECT sequence_id,words FROM
+	if (trim($inputs['that']) === '')
+		$inputs['that'] = '*';
+	if (trim($inputs['topic']) === '')
+		$inputs['topic'] = '*';
 	
+JxWidget::hidden($inputs, 'input,that,topic');
 ?>
 
-<h2>Sequences</h2>
+<h2>Categories</h2>
 
-<p>For input: <strong><?php print $inputs['input']; ?></strong></p>
-<input type="hidden" name="input" value="<?php print $inputs['input']; ?>">
+<p>For input: <strong><?php print $inputs['input']; ?> : <?php print $inputs['that']; ?> : <?php print $inputs['topic']; ?></strong></p>
 
 <?php 
-$rows = NL::matching_sequences($inputs['input']);
-
-print '<h3>Matched</h3>';
-JxWidget::grid(array(
-	array('label'=>'ID', 'id'=>0, 'key'=>true, 'visible'=>false),
-	array('label'=>'Sequence', 'id'=>2, 'link'=>'?page=database&action=edit&category=$$')
-), $rows); 
+$category_id = JxBotEngine::match($inputs['input'], $inputs['that'], $inputs['topic']);
+if ($category_id === false) {  ?>
+<h3>No Exact Match</h3>
+<?php } else { 
+	print '<h3>Exact Match</h3>';
+	
+	$patterns = JxBotEngine::fetch_patterns($category_id);
+	JxWidget::grid(array(
+		array('label'=>'ID', 'id'=>0, 'key'=>true, 'visible'=>false),
+		array('label'=>'Pattern', 'id'=>1, 'link'=>'?page=database&action=edit&category='.$category_id)
+	), $patterns); 
+}
 ?>
 
 
-<h3>Similar</h3>
-
-<?php 
-$rows = array();
-JxWidget::grid(array(
-	array('label'=>'Sequence')
-), $rows); 
-?>
+<!--<h3>Similar</h3>-->
 
 
-<p><?php JxWidget::button('Lookup Another', 'action', 'lookup'); ?> <?php JxWidget::button('New Category', 'action', 'new-cat'); ?></p>
+<p><?php JxWidget::button('Lookup Another', 'action', ''); ?> <?php JxWidget::button('New Category', 'action', 'new-cat'); ?></p>
 
 
 <?php
@@ -170,6 +187,9 @@ JxWidget::grid(array(
 
 function page_edit($in_category_id)
 {
+	$inputs = JxBotUtil::inputs('input');
+	
+	$category = JxBotEngine::category_fetch($in_category_id);
 ?>
 
 <input type="hidden" name="category" value="<?php print $in_category_id; ?>">
@@ -183,13 +203,15 @@ function page_edit($in_category_id)
 <p><?php JxWidget::textfield(array(
 	'name'=>'topic',
 	'label'=>'Topic',
-	'max'=>255
+	'max'=>255,
+	'value'=>$category['topic']
 )); ?></p>
 
 <p><?php JxWidget::textfield(array(
 	'name'=>'that',
 	'label'=>'That',
-	'max'=>255
+	'max'=>255,
+	'value'=>$category['that']
 )); ?></p>
 
 <p><?php JxWidget::button('Update Context', 'action', 'save-ctx'); ?></p>
@@ -211,7 +233,8 @@ JxWidget::grid(array(
 <p><?php JxWidget::textfield(array(
 	'name'=>'new-pat', 
 	'label'=>'New Pattern', 
-	'max'=>255
+	'max'=>255,
+	'value'=>$inputs['input']
 )); ?></p>
 
 <p><?php JxWidget::button('Add Pattern', 'action', 'add-pat'); ?></p>
@@ -235,7 +258,7 @@ JxWidget::grid(array(
 
 
 
-<p><?php JxWidget::button('Lookup Another', 'action', 'lookup'); ?> <?php JxWidget::button('Delete Category', 'action', 'del-cat'); ?></p>
+<p><?php JxWidget::button('Lookup Another', 'action', ''); ?> <?php JxWidget::button('Delete Category', 'action', 'del-cat'); ?></p>
 
 
 <?php

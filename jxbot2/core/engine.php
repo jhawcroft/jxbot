@@ -42,6 +42,12 @@ class JxBotEngine
 	protected $wild_topic_values = null;
 	protected $unwind_stage = 0;
 	
+	
+	public static function upper($in_input)
+	{
+		return mb_strtoupper($in_input);
+	}
+	
 
 	public static function normalise($in_input, $in_keep_wildcards = false)
 	{
@@ -64,11 +70,23 @@ class JxBotEngine
 	}
 	
 	
-	public static function category_new()
+	public static function category_new($in_that, $in_topic)
 	{
-		JxBotDB::$db->exec('INSERT INTO category VALUES (NULL)');
+		$stmt = JxBotDB::$db->prepare('INSERT INTO category (that, topic) VALUES (?, ?)');
+		$stmt->execute(array($in_that, $in_topic));
 		$category_id = JxBotDB::$db->lastInsertId();
 		return $category_id;
+	}
+	
+	
+	public static function category_update($in_category_id, $in_that, $in_topic)
+	{
+		$stmt = JxBotDB::$db->prepare('UPDATE category SET that=?, topic=? WHERE id=?');
+		$stmt->execute(array($in_that, $in_topic, $in_category_id));
+		
+		// this actually needs to do more - because strictly speaking
+		// it should remove all patterns and recreate with modified that & topic values  **
+		// in the meantime, can simply prevent category updates in the UI
 	}
 	
 	
@@ -76,6 +94,15 @@ class JxBotEngine
 	{
 		$stmt = JxBotDB::$db->prepare('DELETE FROM category WHERE id=?');
 		$stmt->execute(array($in_category_id));
+	}
+	
+	
+	public static function category_fetch($in_category_id)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT that,topic FROM category WHERE id=?');
+		$stmt->execute(array($in_category_id));
+		$row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		return $row[0];
 	}
 	
 	
@@ -91,9 +118,10 @@ class JxBotEngine
 	
 	public static function pattern_add($in_category_id, $in_text, $in_topic, $in_that)
 	{
-		$in_full = $in_text . ' : ' . $in_topic . ' : ' . $in_that;
-	
+		$in_full = $in_text . ' : ' . $in_that . ' : ' . $in_topic;
 		$terms = JxBotEngine::normalise($in_full, true);
+		$in_full = JxBotEngine::upper($in_full);
+		
 		$count = count($terms);
 		$last_node = NULL; /* root of graph */
 		
@@ -210,6 +238,15 @@ class JxBotEngine
 	}
 	
 	
+	public static function fetch_patterns($in_category_id)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT id,value,that,topic FROM pattern WHERE category=?');
+		$stmt->execute(array($in_category_id));
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		return $rows;
+	}
+	
+	
 	
 	private static function is_wildcard($in_expr)
 	{
@@ -263,7 +300,8 @@ class JxBotEngine
 	as PHP's implementation of by reference is 'very strange' indeed */
 	{
 		$current_term = $this->get_term($in_term_index);
-		print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
+		
+		//print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
 		
 		/* look in this branch for all possible matching subbranches */
 		// might want to add a wild flag, and possibly a set table for AIML v2 with a set ID 
@@ -281,9 +319,9 @@ class JxBotEngine
 		}
 		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
 		
-		print '<pre>';
-		var_dump($possible_branches);
-		print '</pre>';
+		//print '<pre>';
+		//var_dump($possible_branches);
+		//print '</pre>';
 		
 		foreach ($possible_branches as $possibility)
 		{
@@ -291,12 +329,12 @@ class JxBotEngine
 			list($br_parent, $br_expr, $br_terminal) = $possibility;
 			$is_wildcard = JxBotEngine::is_wildcard($br_expr);
 			
-			print "Considering possible branch=$br_parent, expr=$br_expr, term=$br_terminal, wild=$is_wildcard  :<br>";
+			//print "Considering possible branch=$br_parent, expr=$br_expr, term=$br_terminal, wild=$is_wildcard  :<br>";
 			
 			if (!$is_wildcard)
 			/* if the node isn't a wildcard, we need no special matching algorithm */
 			{
-				print 'trying to match term against word...<br>';
+				//print 'trying to match term against word...<br>';
 				
 				if ($in_term_index + 1 < $this->term_limit)
 				{
@@ -310,19 +348,19 @@ class JxBotEngine
 				}
 				else if ($br_terminal)
 				{
-					print "Ran out of input @ terminal; matched $br_parent<br>";
+					//print "Ran out of input @ terminal; matched $br_parent<br>";
 					
 					/* ran out of input; match if terminal node */
 					if ($br_expr === ':') $this->unwind_stage--;
 					return $br_parent;
 				}
 				/* otherwise, match failed */
-				print 'failed<br>';
+				//print 'failed<br>';
 			}
 			else
 			/* node is a wildcard; match one or more terms */
 			{
-				print 'trying to match terms against wildcard...<br>';
+				//print 'trying to match terms against wildcard...<br>';
 				
 				/* prepare to match wildcard */
 				$wildcard_terms = array();
@@ -334,7 +372,7 @@ class JxBotEngine
 				wildcards never match : */
 				if (!$zero_or_more && $term != ':')
 				{
-					print 'accumulate first 1+ term<br>';
+					//print 'accumulate first 1+ term<br>';
 					$wildcard_terms[] = $term;
 					$term = $this->get_term(++ $term_index);
 				}
@@ -359,7 +397,7 @@ class JxBotEngine
 					$term = $this->get_term(++ $term_index);
 				}
 			
-				print 'wildcard ran out of input<br>';
+				//print 'wildcard ran out of input<br>';
 			
 				/* inspect the wildcard match to see if matching
 				should continue, or if we should fail here */
@@ -404,15 +442,15 @@ class JxBotEngine
 		$context->wild_topic_values = array();
 		$context->unwind_stage = 2;
 
-		var_dump($search_terms);
-		print '<br>';
+		//var_dump($search_terms);
+		//print '<br>';
 
 		$matched_pattern = $context->walk(NULL, 0);
 		if ($matched_pattern === false) return false;
 		
-		print 'Matched pattern: '.$matched_pattern.'<br>';
+		//print 'Matched pattern: '.$matched_pattern.'<br>';
 		
-		print '<p>Wildcard values:<pre>';
+		/*print '<p>Wildcard values:<pre>';
 		var_dump($context->wild_values);
 		print '</pre></p>';
 		
@@ -422,7 +460,7 @@ class JxBotEngine
 		
 		print '<p>Wildcard TOPIC values:<pre>';
 		var_dump($context->wild_topic_values);
-		print '</pre></p>';
+		print '</pre></p>';*/
 		
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
 		$stmt->execute(array($matched_pattern));
