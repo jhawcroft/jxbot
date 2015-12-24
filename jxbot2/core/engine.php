@@ -233,54 +233,85 @@ class JxBotEngine
 	as PHP's implementation of by reference is 'very strange' indeed */
 	{
 		$current_term = $this->input_terms[$in_term_index];
+		print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
 		
 		/* look in this branch for all possible matching subbranches */
 		// might want to add a wild flag, and possibly a set table for AIML v2 with a set ID 
-		$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
-			WHERE parent=? AND expression IN (?, '*', '_') ORDER BY sort_key");
-		$stmt->execute(array($in_parent_id, $in_term_index));
+		if ($in_parent_id === null)
+		{
+			$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
+				WHERE parent IS NULL AND expression IN (?, '*', '_') ORDER BY sort_key");
+			$stmt->execute(array($current_term));
+		}
+		else
+		{
+			$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
+				WHERE parent=? AND expression IN (?, '*', '_') ORDER BY sort_key");
+			$stmt->execute(array($in_parent_id, $current_term));
+		}
 		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
+		
+		print '<pre>';
+		var_dump($possible_branches);
+		print '</pre>';
+		
 		foreach ($possible_branches as $possibility)
 		{
 			/* decode the possibility and prepare to match */
 			list($br_parent, $br_expr, $br_terminal) = $possibility;
 			$is_wildcard = JxBotEngine::is_wildcard($br_expr);
 			
+			print "Considering possible branch=$br_parent, expr=$br_expr, term=$br_terminal, wild=$is_wildcard  :<br>";
+			
+			
+			
 			if (!$is_wildcard)
 			/* if the node isn't a wildcard, we need no special matching algorithm */
 			{
+				print 'trying to match term against word...<br>';
 				if ($in_term_index + 1 < $this->term_limit)
+				{
 					/* match remaining input to subbranch */
-					return $this->walk($br_parent, $in_term_index + 1);
-				else if ($is_terminal)
+					$match = $this->walk($br_parent, $in_term_index + 1);
+					if ($match !== false) return $match;
+				}
+				else if ($br_terminal)
+				{
+					print "Ran out of input @ terminal; matched $br_parent<br>";
 					/* ran out of input; match if terminal node */
 					return $br_parent;
-				else
-					return false;
+				}
+				/* otherwise, match failed */
+				print 'failed<br>';
 			}
 			else
 			/* node is a wildcard; match one or more terms */
 			{
-			
 				// if it's a zero+ wildcard,
 				// we can try and match without incrementing the term index first
-			
-			
+		
 				/* perform a wildcard match; match as few terms as possible
 				to this wildcard */
+				print 'trying to match terms against wildcard...<br>';
 				$wildcard_terms = array();
 				$term_index = $in_term_index;
 				while ($term_index < $this->term_limit)
 				{
 					$term = $this->input_terms[$term_index];
+					
+					/* wildcards are not allowed to match : which is the divide between
+					that & topic parts of the input */
+					if ($term === ':') break;
+					
 					$wildcard_terms[] = $term; /* accumulate wildcard match value */
-				
+			
 					/* try match the current subbranch */
-					if ($this->walk($br_parent, $term_index + 1))
+					$matched = $this->walk($br_parent, $term_index + 1);
+					if ($matched !== false)
 					/* subbranch matched; this branch matched */
 					{
 						$this->wild_values[] = $wildcard_terms;
-						return $br_parent;
+						return $matched;
 					}
 					else
 					{
@@ -289,15 +320,17 @@ class JxBotEngine
 						$term_index++;
 					}
 				}
-				
+			
+				print 'ran out of input / failed wild-card match<br>';
 				/* if we got here, we've run out of terms;
 				check this is a terminal node */
-				if ($is_terminal) 
+				if ($br_terminal) 
 				{
 					$this->wild_values[] = $wildcard_terms;
 					return $br_parent;
 				}
-				else return false; /* run out of input on non-terminal; match failed */
+				
+				/* run out of input on non-terminal; match failed */
 			}
 		}
 		
@@ -321,9 +354,14 @@ class JxBotEngine
 		$context->term_index = 0;
 		$context->term_limit = count($search_terms);
 		$context->wild_values = array();
-		
+
+		var_dump($search_terms);
+		print '<br>';
+
 		$matched_pattern = $context->walk(NULL, 0);
 		if ($matched_pattern === false) return false;
+		
+		print 'Matched pattern: '.$matched_pattern.'<br>';
 		
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
 		$stmt->execute(array($matched_pattern));

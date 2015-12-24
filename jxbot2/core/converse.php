@@ -66,8 +66,10 @@ class Converse
 		//$words = NLAux::normalise($in_input);
 		//$category_id = NL::match_input($in_input);
 		$category_id = JxBotEngine::match($in_input, '', '');
-		$template = JxBotEngine::template_fetch($category_id);
-		$output = NL::make_output($category_id);
+		print 'Matched category: '.$category_id.'<br>';
+		$template = JxBotEngine::fetch_templates($category_id);
+		$output = $template[0][1];
+		//$output = NL::make_output($category_id);
 		
 		Converse::log($in_input, $output);
 		
