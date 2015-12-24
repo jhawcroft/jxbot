@@ -81,9 +81,10 @@ class JxBotEngine
 	
 	private static function make_sort_key($in_term)
 	{
-	// needs checking
-		if ($in_term == '*') return 9;
-		else if ($in_term == '_') return 1;
+		if ($in_term == '#') return 1;
+		else if ($in_term == '_') return 2;
+		else if ($in_term == '^') return 8;
+		else if ($in_term == '*') return 9;
 		else return 5;
 	}
 	
@@ -241,18 +242,33 @@ class JxBotEngine
 	}
 	
 	
+	private static function is_zero_wildcard($in_expr)
+	{
+		return ($in_expr === '^' || $in_expr === '#');
+	}
+	
+	
+	protected function get_term($in_term_index)
+	{
+		if ($in_term_index < $this->term_limit)
+			return $this->input_terms[$in_term_index];
+		else
+			return  ':';
+	}
+	
+	
 	protected function walk($in_parent_id, $in_term_index)
 	/* takes inputs as arrays, will probably call recursively;
 	best to avoid passing by reference where possible - maybe use an object context
 	as PHP's implementation of by reference is 'very strange' indeed */
 	{
-		$current_term = $this->input_terms[$in_term_index];
+		$current_term = $this->get_term($in_term_index);
 		print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
 		
 		/* look in this branch for all possible matching subbranches */
 		// might want to add a wild flag, and possibly a set table for AIML v2 with a set ID 
 		if ($in_parent_id === null)
-		{
+		{ // consider using zero 0 to eliminate this double-handling... **
 			$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
 				WHERE parent IS NULL AND expression IN (?, '*', '_') ORDER BY sort_key");
 			$stmt->execute(array($current_term));
@@ -277,12 +293,11 @@ class JxBotEngine
 			
 			print "Considering possible branch=$br_parent, expr=$br_expr, term=$br_terminal, wild=$is_wildcard  :<br>";
 			
-			
-			
 			if (!$is_wildcard)
 			/* if the node isn't a wildcard, we need no special matching algorithm */
 			{
 				print 'trying to match term against word...<br>';
+				
 				if ($in_term_index + 1 < $this->term_limit)
 				{
 					/* match remaining input to subbranch */
@@ -296,6 +311,7 @@ class JxBotEngine
 				else if ($br_terminal)
 				{
 					print "Ran out of input @ terminal; matched $br_parent<br>";
+					
 					/* ran out of input; match if terminal node */
 					if ($br_expr === ':') $this->unwind_stage--;
 					return $br_parent;
@@ -306,51 +322,58 @@ class JxBotEngine
 			else
 			/* node is a wildcard; match one or more terms */
 			{
-				// if it's a zero+ wildcard,
-				// we can try and match without incrementing the term index first
-		
-				/* perform a wildcard match; match as few terms as possible
-				to this wildcard */
 				print 'trying to match terms against wildcard...<br>';
+				
+				/* prepare to match wildcard */
 				$wildcard_terms = array();
 				$term_index = $in_term_index;
-				while ($term_index < $this->term_limit)
+				$term = $current_term;
+				$zero_or_more = JxBotEngine::is_zero_wildcard($br_expr);
+				
+				/* always match the first term for a 1+ wildcard;
+				wildcards never match : */
+				if (!$zero_or_more && $term != ':')
 				{
-					$term = $this->input_terms[$term_index];
-					
-					/* wildcards are not allowed to match : which is the divide between
-					that & topic parts of the input */
-					if ($term === ':') break;
-					
-					$wildcard_terms[] = $term; /* accumulate wildcard match value */
-			
-					/* try match the current subbranch */
-					$matched = $this->walk($br_parent, $term_index + 1);
+					print 'accumulate first 1+ term<br>';
+					$wildcard_terms[] = $term;
+					$term = $this->get_term(++ $term_index);
+				}
+				
+				/* match as few terms as possible
+				to this wildcard */
+				while ($term_index < $this->term_limit)
+				{			
+					/* try match the current subbranch;
+					effectively looking for the end of the wildcard processing */
+					$matched = $this->walk($br_parent, $term_index);
 					if ($matched !== false)
 					/* subbranch matched; this branch matched */
 					{
-						//$this->wild_values[] = $wildcard_terms;
 						$this->accumulate_wild_values($wildcard_terms);
 						if ($br_expr === ':') $this->unwind_stage--;
 						return $matched;
 					}
-					else
-					{
-						/* the subbranch didn't match and this branch is a wildcard;
-						consume another term and try again */
-						$term_index++;
-					}
+					
+					/* match the term to this wildcard */
+					$wildcard_terms[] = $term;
+					$term = $this->get_term(++ $term_index);
 				}
 			
-				print 'ran out of input / failed wild-card match<br>';
-				/* if we got here, we've run out of terms;
-				check this is a terminal node */
-				if ($br_terminal) 
-				{
-					//$this->wild_values[] = $wildcard_terms;
-					$this->accumulate_wild_values($wildcard_terms);
-					if ($br_expr === ':') $this->unwind_stage--;
-					return $br_parent;
+				print 'wildcard ran out of input<br>';
+			
+				/* inspect the wildcard match to see if matching
+				should continue, or if we should fail here */
+				$failed = (!$zero_or_more && count($wildcard_terms) == 0);
+				if (!$failed)
+				{				
+					/* if submatching didn't run till the end,
+					then this wildcard must be terminal */
+					if ($br_terminal) 
+					{
+						$this->accumulate_wild_values($wildcard_terms);
+						if ($br_expr === ':') $this->unwind_stage--;
+						return $br_parent;
+					}
 				}
 				
 				/* run out of input on non-terminal; match failed */
