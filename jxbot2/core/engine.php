@@ -109,13 +109,16 @@ class JxBotEngine
 	}
 	
 	
-	private static function make_sort_key($in_term)
+	private static function make_sort_key($in_term, $in_high = false)
+	/* @high		Boolean.  If true, word has the highest matching priority.
+					(AIML 2.0)
+	*/
 	{
 		if ($in_term == '#') return 1;
 		else if ($in_term == '_') return 2;
 		else if ($in_term == '^') return 8;
 		else if ($in_term == '*') return 9;
-		else return 5;
+		else return ($in_high ? 0 : 5);
 	}
 	
 	
