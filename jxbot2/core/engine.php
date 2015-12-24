@@ -36,7 +36,8 @@ class JxBotEngine
 
 	protected $input_terms = null;
 	protected $term_index = 0;
-
+	protected $term_limit = 0;
+	protected $wild_values = null;
 	
 
 	public static function normalise($in_input, $in_keep_wildcards = false)
@@ -96,8 +97,16 @@ class JxBotEngine
 		{
 			$expression = $terms[$index];
 			
-			$stmt = JxBotDB::$db->prepare('SELECT id FROM pattern_node WHERE parent=? AND expression=?');
-			$stmt->execute(array($last_node, $expression));
+			if ($last_node === NULL)
+			{
+				$stmt = JxBotDB::$db->prepare('SELECT id FROM pattern_node WHERE parent IS NULL AND expression=?');
+				$stmt->execute(array($expression));
+			}
+			else
+			{
+				$stmt = JxBotDB::$db->prepare('SELECT id FROM pattern_node WHERE parent=? AND expression=?');
+				$stmt->execute(array($last_node, $expression));
+			}
 			$existing = $stmt->fetchAll(PDO::FETCH_NUM);
 			if (count($existing) == 0)
 			{
@@ -196,6 +205,15 @@ class JxBotEngine
 		return $rows;
 	}
 	
+	
+	
+	private static function is_wildcard($in_expr)
+	{
+		return (($in_expr == '*' || $in_expr == '_' || 
+			$in_expr == '^' || $in_expr == '#'
+			|| substr($in_expr, 0, 1) == '@'));
+	}
+	
 	// example:
 	
 	// input:  HELLO SWEETIE HOW ARE YOU
@@ -214,9 +232,9 @@ class JxBotEngine
 	best to avoid passing by reference where possible - maybe use an object context
 	as PHP's implementation of by reference is 'very strange' indeed */
 	{
-		$current_term = $this->input_terms[$this->term_index];
+		$current_term = $this->input_terms[$in_term_index];
 		
-		/* look in parent node for children which match this term */
+		/* look in this branch for all possible matching subbranches */
 		// might want to add a wild flag, and possibly a set table for AIML v2 with a set ID 
 		$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
 			WHERE parent=? AND expression IN (?, '*', '_') ORDER BY sort_key");
@@ -224,19 +242,66 @@ class JxBotEngine
 		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
 		foreach ($possible_branches as $possibility)
 		{
-			$branch_parent = $possibility[0];
-			$did_match = $this->walk($branch_parent, $in_term_index + 1);
-			if ($did_match) 
+			/* decode the possibility and prepare to match */
+			list($br_parent, $br_expr, $br_terminal) = $possibility;
+			$is_wildcard = JxBotEngine::is_wildcard($br_expr);
+			
+			if (!$is_wildcard)
+			/* if the node isn't a wildcard, we need no special matching algorithm */
 			{
-				//if ($possibility[1] == '*' || $possibility[1] == '_')
-					// not quite right, because a wildcard can match more than 1 word
-					// in non-greedy mode, if it turns out that the branch didn't match and there's still content left
-					// stop word list could be computed by query and compared in a query- except if
-					// wildcards next to each other...
-				return true;
+				if ($in_term_index + 1 < $this->term_limit)
+					/* match remaining input to subbranch */
+					return $this->walk($br_parent, $in_term_index + 1);
+				else if ($is_terminal)
+					/* ran out of input; match if terminal node */
+					return $br_parent;
+				else
+					return false;
+			}
+			else
+			/* node is a wildcard; match one or more terms */
+			{
+			
+				// if it's a zero+ wildcard,
+				// we can try and match without incrementing the term index first
+			
+			
+				/* perform a wildcard match; match as few terms as possible
+				to this wildcard */
+				$wildcard_terms = array();
+				$term_index = $in_term_index;
+				while ($term_index < $this->term_limit)
+				{
+					$term = $this->input_terms[$term_index];
+					$wildcard_terms[] = $term; /* accumulate wildcard match value */
+				
+					/* try match the current subbranch */
+					if ($this->walk($br_parent, $term_index + 1))
+					/* subbranch matched; this branch matched */
+					{
+						$this->wild_values[] = $wildcard_terms;
+						return $br_parent;
+					}
+					else
+					{
+						/* the subbranch didn't match and this branch is a wildcard;
+						consume another term and try again */
+						$term_index++;
+					}
+				}
+				
+				/* if we got here, we've run out of terms;
+				check this is a terminal node */
+				if ($is_terminal) 
+				{
+					$this->wild_values[] = $wildcard_terms;
+					return $br_parent;
+				}
+				else return false; /* run out of input on non-terminal; match failed */
 			}
 		}
 		
+		/* no possible subbranches; no match this branch */
 		return false;
 	}
 	
@@ -254,8 +319,18 @@ class JxBotEngine
 		$context = new JxBotEngine();
 		$context->input_terms = $search_terms;
 		$context->term_index = 0;
+		$context->term_limit = count($search_terms);
+		$context->wild_values = array();
 		
-		$context->walk(NULL, 0);
+		$matched_pattern = $context->walk(NULL, 0);
+		if ($matched_pattern === false) return false;
+		
+		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
+		$stmt->execute(array($matched_pattern));
+		$category = $stmt->fetchAll(PDO::FETCH_NUM);
+		$category = $category[0][0];
+		
+		return $category;
 	}
 	
 }
