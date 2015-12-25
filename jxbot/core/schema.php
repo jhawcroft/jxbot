@@ -69,7 +69,7 @@ CREATE TABLE template (
 ');
 
 
-$jxbot_db->exec('
+JxBotDB::$db->exec('
 CREATE TABLE session (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	convo_id VARCHAR(100) NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE session (
 )
 ');
 
-$jxbot_db->exec('
+JxBotDB::$db->exec('
 CREATE TABLE predicate (
 	session INT(11) NOT NULL,
 	name VARCHAR(100) NOT NULL,
@@ -88,11 +88,7 @@ CREATE TABLE predicate (
 )
 ');
 
-$jxbot_db->exec("
-INSERT INTO opt (opt_key, opt_value) VALUES ('def_species', 'human');
-");
-
-$jxbot_db->exec('
+JxBotDB::$db->exec('
 CREATE TABLE log (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	session INT(11) NOT NULL,
@@ -102,14 +98,44 @@ CREATE TABLE log (
 )
 ');
 
-$jxbot_db->exec('
+JxBotDB::$db->exec('
 CREATE TABLE opt (
 	opt_key VARCHAR(100) NOT NULL PRIMARY KEY,
 	opt_value VARCHAR(100) NOT NULL
 )
 ');
 
-$jxbot_db->exec("
+JxBotDB::$db->exec('
+CREATE TABLE word (
+	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    word VARCHAR(30) NOT NULL,
+    UNIQUE(word)
+)
+');
+
+JxBotDB::$db->exec('
+CREATE TABLE _set (
+	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	UNIQUE(name)
+)
+');
+
+JxBotDB::$db->exec('
+CREATE TABLE set_item (
+	id INT(11) NOT NULL,
+	phrase VARCHAR(150) NOT NULL,
+	INDEX(id)
+)
+');
+
+JxBotDB::$db->exec("
+INSERT INTO opt (opt_key, opt_value) VALUES ('def_species', 'human');
+");
+
+// remaining options will be added by the installer!
+
+JxBotDB::$db->exec("
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_gender', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_master', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_website', '');
@@ -131,34 +157,6 @@ INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_tv_show', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_color', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_food', '');
 ");
-
-// remaining options will be added by the installer!
-
-$jxbot_db->exec('
-CREATE TABLE word (
-	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    word VARCHAR(30) NOT NULL,
-    UNIQUE(word)
-)
-');
-
-$jxbot_db->exec('
-CREATE TABLE _set (
-	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	name VARCHAR(50) NOT NULL,
-	UNIQUE(name)
-)
-');
-
-$jxbot_db->exec('
-CREATE TABLE set_item (
-	id INT(11) NOT NULL,
-	phrase VARCHAR(150) NOT NULL,
-	INDEX(id)
-)
-');
-
-
 
 
 

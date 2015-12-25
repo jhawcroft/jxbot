@@ -21,16 +21,7 @@ if (isset($_POST['bot_tz']))
 
 
 <div class="field"><label for="bot_tz">Timezone: </label>
-<select name="bot_tz" id="bot_tz" class="focusable">
-<option value=""></option>
-<?php
-$timezone_identifiers = DateTimeZone::listIdentifiers();
-foreach ($timezone_identifiers as $tz)
-{
-	print '<option value="'.$tz.'" '.(JxBotConfig::option('bot_tz') == $tz ? ' selected="true"' : '').'>'.$tz.'</option>';
-}
-?>
-</select></div>
+<?php JxBotConfig::widget_timezone(); ?></div>
 
 
 <div class="field"><label for="bot_password">Change Password: </label>

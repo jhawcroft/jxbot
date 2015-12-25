@@ -36,6 +36,7 @@ require_once(dirname(__FILE__).'/db.php');
 require_once(dirname(__FILE__).'/engine.php');
 require_once(dirname(__FILE__).'/converse.php');
 require_once(dirname(__FILE__).'/aiml.php');
+require_once(dirname(__FILE__).'/widget.php');
 
 
 
@@ -58,7 +59,6 @@ class JxBot
 		JxBotConfig::setup_environment();
 		
 		require_once(dirname(__FILE__).'/admin.php');
-		require_once(dirname(__FILE__).'/widget.php');
 		
 		session_name(JxBotConfig::SESSION_NAME);
 		session_start();

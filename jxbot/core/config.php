@@ -54,31 +54,36 @@ class JxBotConfig
 	
 	private static function run_installer()
 	{
-		print 'Not installed.';
+		require_once(dirname(__FILE__).'/install.php');
 		exit;
 	}
 	
 
 	public static function setup_environment()
 	{
+		JxBotConfig::$config['bot_url'] = JxBotUtil::request_url();
+
 		$config_file = dirname(dirname(__FILE__)).'/config.php';
 		if (!is_readable($config_file)) return JxBotConfig::run_installer();
 		
-		$jxbot = array();
+		if (!JxBotConfig::load_config())
+			JxBot::fatal_error("Couldn't load database configuration.");
+			
+		/*$jxbot = array();
 		require_once($config_file);
 		JxBotConfig::$config = $jxbot;
 		
 		if (!isset($jxbot['bot_url']))
-			JxBot::fatal_error("Bot configuraton is missing bot_url.");
+			JxBot::fatal_error("Bot configuraton is missing bot_url.");*/
 		
-		if (isset($jxbot['debug']) && $jxbot['debug']) 
+		/*if (isset($jxbot['debug']) && $jxbot['debug']) 
 		{
 			// PHP debugging for the program; distinct from AIML debugging
 			error_reporting(E_ALL);
 			ini_set('display_errors', 1);
-		}
+		}*/
 		
-		if (!isset($jxbot['db_host']))
+		/*if (!isset($jxbot['db_host']))
 			JxBot::fatal_error("JxBot database not configured.");
 		if (!isset($jxbot['db_name']))
 			JxBot::fatal_error("JxBot database not configured.");
@@ -90,7 +95,10 @@ class JxBotConfig
 			JxBot::fatal_error("JxBot database not configured.");
 		
 		JxBotDB::connect($jxbot['db_host'], $jxbot['db_name'], $jxbot['db_prefix'],
-			$jxbot['db_username'], $jxbot['db_password']);
+			$jxbot['db_username'], $jxbot['db_password']);*/
+			
+		if (!JxBotConfig::try_connect_db())
+			JxBot::fatal_error("Couldn't connect to database.");
 			
 		JxBotConfig::load_configuration();
 		
@@ -98,6 +106,33 @@ class JxBotConfig
 		
 		if (isset($jxbot['timezone']))
 			date_default_timezone_set($jxbot['timezone']);
+	}
+	
+	
+	public static function load_config()
+	{
+		if (isset(JxBotConfig::$config['db_name'])) return true;
+		
+		$config_file = dirname(dirname(__FILE__)).'/config.php';
+		if (!is_readable($config_file)) return false;
+		
+		$jxbot = array();
+		require_once($config_file);
+		JxBotConfig::$config = $jxbot;
+		
+		return true;
+	}
+	
+	
+	public static function try_connect_db()
+	{
+		return JxBotDB::connect(
+			JxBotConfig::option('db_host'), 
+			JxBotConfig::option('db_name'), 
+			JxBotConfig::option('db_prefix'),
+			JxBotConfig::option('db_username'), 
+			JxBotConfig::option('db_password')
+			);
 	}
 	
 	
@@ -138,7 +173,7 @@ class JxBotConfig
 		}
 		catch (Exception $err) 
 		{
-			run_installer();
+			JxBotConfig::run_installer();
 		}
 	}
 	
@@ -244,6 +279,23 @@ class JxBotConfig
 	public static function default_predicate($in_name)
 	{
 		return JxBotConfig::option('def_'.$in_name);
+	}
+	
+	
+	public static function widget_timezone()
+	{
+?>
+<select name="bot_tz" id="bot_tz">
+<option value=""></option>
+<?php
+$timezone_identifiers = DateTimeZone::listIdentifiers();
+foreach ($timezone_identifiers as $tz)
+{
+	print '<option value="'.$tz.'" '.(JxBotConfig::option('bot_tz') == $tz ? ' selected="true"' : '').'>'.$tz.'</option>';
+}
+?>
+</select>
+<?php
 	}
 }
 

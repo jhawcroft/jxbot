@@ -48,7 +48,7 @@ class JxBotAdmin
 		array('import', 'Import'),
 		array('bot', 'Bot Personality'),
 		array('settings', 'System Settings'),
-		/*array('export', 'Export'),*/
+		/*array('export', 'Export / Backup'),*/
 		array('about', 'About JxBot'),
 		array('logout', 'Logout')
 	);
@@ -143,14 +143,13 @@ public static function admin_generate()
 
 public static function admin_sidebar()
 {
-	$inputs = JxBotUtil::inputs('page');
 ?>
 <ul>
 <?php	
 	foreach (JxBotAdmin::$all_pages as $page_def)
 	{
 		print '<li><a href="?page='.$page_def[0].'"'.
-			($page_def[0] === $inputs['page'] ? ' class="current"' : '').
+			($page_def[0] === JxBotAdmin::$page[0] ? ' class="current"' : '').
 			'>'.$page_def[1].'</a></li>';
 	}
 ?>
