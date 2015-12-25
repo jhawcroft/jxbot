@@ -73,6 +73,8 @@ $jxbot_db->exec('
 CREATE TABLE session (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	convo_id VARCHAR(100) NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	accessed TIMESTAMP NOT NULL,
 	UNIQUE(convo_id)
 )
 ');
@@ -83,7 +85,6 @@ CREATE TABLE log (
 	session INT(11) NOT NULL,
 	input TEXT NOT NULL,
 	output TEXT NOT NULL,
-	convo_id TEXT NOT NULL,
 	stamp TIMESTAMP NOT NULL
 )
 ');

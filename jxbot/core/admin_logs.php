@@ -4,13 +4,11 @@
 <h2>Recent Conversations</h2>
 
 <?php
-$stmt = JxBotDB::$db->prepare('SELECT DISTINCT convo_id FROM log ORDER BY id desc LIMIT 50');
-$stmt->execute();
-$rows = $stmt->fetchAll(PDO::FETCH_NUM);
-
+$sessions = JxBotConverse::latest_sessions();
 JxWidget::grid(array(
-	array('id'=>0, 'label'=>'Identifier', 'key'=>true, 'link'=>'?page=logs&convo=$$')
-), $rows);
+	array('id'=>0, 'visible'=>false, 'key'=>true),
+	array('id'=>1, 'label'=>'Client', 'link'=>'?page=logs&convo=$$')
+), $sessions);
 ?>
 
 
@@ -43,7 +41,7 @@ if (!isset($_REQUEST['convo'])) {
 <?php
 } else {
 
-	$stmt = JxBotDB::$db->prepare('SELECT stamp,input,output FROM log WHERE convo_id=? ORDER BY id ASC');
+	$stmt = JxBotDB::$db->prepare('SELECT stamp,input,output FROM log WHERE session=? ORDER BY id ASC');
 	$stmt->execute(array($_REQUEST['convo']));
 	$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 

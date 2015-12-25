@@ -23,10 +23,10 @@
 $inputs = JxBotUtil::inputs('input');
 if (trim($inputs['input']) != '') 
 {
-	Converse::resume_conversation('admin');
-	$response = Converse::get_response($inputs['input']);
+	JxBotConverse::resume_conversation('admin');
+	$response = JxBotConverse::get_response($inputs['input']);
 }
-else $response = Converse::get_greeting();
+else $response = JxBotConverse::get_greeting();
 
 	print '<p>Bot:</p>';
 	print '<blockquote>';

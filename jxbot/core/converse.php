@@ -31,33 +31,76 @@
  *******************************************************************************/
  
 
-class Converse
+class JxBotConverse
 {
 
-	private static $convo_id = '';
+	private static $convo_id = '';  /* the public ID string associated with the session */
+	private static $session_id = 0; /* the internal session identifier */
 	
 	
 	public static function bot_available()
 	{
-		global $jxbot_config;
-		return (intval($jxbot_config['bot_active']) !== 0);
+		return (intval(JxBotConfig::option('bot_active')) !== 0);
 	}
 	
 	
 	private static function log(&$input, &$output)
 	{
-		if (Converse::$convo_id === '') return;
+		if (JxBotConverse::$session_id === 0) return;
 		
-		return;
+		$stmt = JxBotDB::$db->prepare('INSERT INTO log (session, input, output) VALUES (?, ?, ?)');
+		$stmt->execute(array(JxBotConverse::$session_id, $input, $output));
+	}
+	
+	
+	public static function latest_sessions()
+	{
+		$stmt = JxBotDB::$db->prepare('
+			SELECT session.id,session.name
+			FROM session 
+			ORDER BY accessed DESC
+			LIMIT 50
+			');
+		$stmt->execute();
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 		
-		$stmt = JxBotDB::$db->prepare('INSERT INTO log (input, output, convo_id) VALUES (?, ?, ?)');
-		$stmt->execute(array($input, $output, Converse::$convo_id));
+		$convos = array();
+		foreach ($rows as $row)
+		{
+			if (trim($row[1]) === '')
+				$convos[] = array($row[0], 'Client '.$row[0]);
+			else
+				$convos[] = array($row[0], $row[1]);
+		}
+		
+		return $convos;
 	}
 	
 	
 	public static function resume_conversation($in_convo_id)
 	{
-		Converse::$convo_id = $in_convo_id;
+		/* check if the conversation is registered */
+		$stmt = JxBotDB::$db->prepare('SELECT id FROM session WHERE convo_id=?');
+		$stmt->execute(array($in_convo_id));
+		$session_id = $stmt->fetchAll(PDO::FETCH_NUM);
+		
+		/* register the conversation */
+		if (count($session_id) == 0)
+		{
+			$stmt = JxBotDB::$db->prepare('INSERT INTO session (convo_id) VALUES (?)');
+			$stmt->execute(array($in_convo_id));
+			$session_id = JxBotDB::$db->lastInsertId();
+		}
+		else 
+		{
+			$session_id = $session_id[0][0];
+			$stmt = JxBotDB::$db->prepare('UPDATE session SET accessed=CURRENT_TIMESTAMP WHERE id=?');
+			$stmt->execute(array($session_id));
+		}
+		
+		/* store conversation IDs for this request */
+		JxBotConverse::$convo_id = $in_convo_id;
+		JxBotConverse::$session_id = $session_id;
 	}
 
 
@@ -71,7 +114,7 @@ class Converse
 		$output = $template[0][1];
 		//$output = NL::make_output($category_id);
 		
-		Converse::log($in_input, $output);
+		JxBotConverse::log($in_input, $output);
 		
 		return $output;
 	}
@@ -84,7 +127,7 @@ class Converse
 		$output = 'Hello.';
 		
 		$blank = '';
-		Converse::log($blank, $output);
+		JxBotConverse::log($blank, $output);
 		
 		return $output;
 	}
