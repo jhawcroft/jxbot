@@ -122,9 +122,10 @@ class JxBotConverse
 			$stmt = JxBotDB::$db->prepare('SELECT value FROM predicate WHERE session=? AND name=?');
 			$stmt->execute(array(JxBotConverse::$session_id, $in_name));
 			$row = $stmt->fetchAll(PDO::FETCH_NUM);
-			if (count($row) == 0) return null;
-			
-			JxBotConverse::$predicates[$in_name] = $row[0][0];
+			if (count($row) == 0) 
+				JxBotConverse::$predicates[$in_name] = JxBotConfig::default_predicate($in_name);
+			else
+				JxBotConverse::$predicates[$in_name] = $row[0][0];
 		}
 		return JxBotConverse::$predicates[$in_name];
 	}

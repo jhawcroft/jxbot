@@ -181,14 +181,53 @@ class JxBotConfig
 	
 	public static function bot_add_prop($in_name)
 	{
-		$prop_id = str_replace(' ', '_', strtolower($in_name));
-		JxBotConfig::set_option($prop_id, '');
+		$prop_id = str_replace(' ', '_', strtolower(trim($in_name)));
+		JxBotConfig::set_option('bot_'.$prop_id, '');
 	}
 	
 	
 	public static function bot_delete_prop($in_id)
 	{
 		JxBotConfig::delete_option($in_id);
+	}
+	
+	
+	
+	public static function client_defaults()
+	{
+		$props = array();
+		
+		$stmt = JxBotDB::$db->prepare('SELECT opt_key, opt_value FROM opt ORDER BY opt_key');
+		$stmt->execute();
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		foreach ($rows as $row)
+		{
+			if (substr($row[0], 0, 4) !== 'def_') continue;
+			
+			$nice_name = ucwords(str_replace('_', ' ', substr($row[0], 4)));
+			$props[] = array($row[0], $nice_name, $row[1]);
+		}
+		
+		return $props;
+	}
+	
+	
+	public static function def_add_pred($in_name)
+	{
+		$prop_id = str_replace(' ', '_', strtolower(trim($in_name)));
+		JxBotConfig::set_option('def_'.$prop_id, '');
+	}
+	
+	
+	public static function def_delete_pred($in_id)
+	{
+		JxBotConfig::delete_option($in_id);
+	}
+	
+	
+	public static function default_predicate($in_name)
+	{
+		return JxBotConfig::option('def_'.$in_name);
 	}
 }
 

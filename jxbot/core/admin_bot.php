@@ -1,7 +1,7 @@
 <?php
 
 if (isset($_POST['new-name']) && trim($_POST['new-name']) !== '')
-	JxBotConfig::bot_add_prop('bot_'.trim($_POST['new-name']), '');
+	JxBotConfig::bot_add_prop($_POST['new-name'], '');
 
 if (isset($_REQUEST['del-name']) && trim($_REQUEST['del-name']) !== '')
 {
