@@ -71,6 +71,9 @@ input[type='file']
 	
 	font-family: 'Roboto Condensed', sans-serif;
 	font-size: 12pt;
+	
+	width: auto;
+	min-width: 20em;
 }
 
 
