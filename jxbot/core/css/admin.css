@@ -218,3 +218,44 @@ img#chat-robot
 }
 
 
+
+/*
+Forms Layout
+*/
+
+label, input
+{
+	display: inline-block;
+	vertical-align: baseline;
+}
+
+label
+{
+	width: 10em;
+}
+
+
+/*
+
+p.field
+{
+	clear: both;
+	margin: 0;
+	margin-bottom: 0.5em;
+	border: 1px dotted red;
+	height: 30px;
+	position: relative;
+	vertical-align: middle;
+}
+
+
+label
+{
+	float: left;
+	width: 10em;
+	margin: 0;
+	margin-right: 1em;
+	border: 1px dotted blue;
+}
+*/
+
