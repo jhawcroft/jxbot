@@ -88,6 +88,10 @@ CREATE TABLE predicate (
 )
 ');
 
+$jxbot_db->exec("
+INSERT INTO opt (opt_key, opt_value) VALUES ('def_species', 'human');
+");
+
 $jxbot_db->exec('
 CREATE TABLE log (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
