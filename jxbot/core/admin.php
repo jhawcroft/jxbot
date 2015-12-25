@@ -105,12 +105,15 @@ public static function admin_generate()
 <head>
 <meta charset="UTF-8">
 <title>JxBot: Administration</title>
-<link rel="base" href="<?php print JxBotConfig::bot_url(); ?>">
+<link rel="base" href="<?php print JxBotConfig::bot_url(); ?>jxbot/">
 <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed|Oswald:700" rel="stylesheet" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/admin.css">
+<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/bubble.css">
 <!link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/widgets.css">
 <link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/phpinfo.css">
 <script type="text/javascript" src="<?php print JxBotConfig::bot_url(); ?>jxbot/core/js/admin.js"></script>
+
+
 </head>
 <body>
 
