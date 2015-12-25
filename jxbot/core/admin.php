@@ -38,10 +38,13 @@ class JxBotAdmin
 	
 	private static $all_pages = array(
 		array('dashboard', 'Dashboard'),
-		array('chat', 'Chat'),
+		array('chat', 'Talk to the Bot'),
 		array('logs', 'Logs'),
 		array('client', 'Client Defaults'),
 		array('database', 'Database'),
+		/*array('sets', 'Sets'), // should consider putting these as tabs under Database to minimise admin clutter
+		array('maps', 'Maps'),
+		array('subs', 'Substitutions'),*/
 		array('import', 'Import'),
 		array('bot', 'Bot Personality'),
 		array('settings', 'System Settings'),
@@ -123,6 +126,9 @@ public static function admin_generate()
 </div>
 
 <?php JxBotAdmin::admin_sidebar(); ?>
+
+
+<div id="nav-bot"></div>
 </div>
 
 <div id="page"><div id="container">
