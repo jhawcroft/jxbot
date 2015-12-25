@@ -126,8 +126,8 @@ class JxBotEngine
 	{
 	//print 'PATTERN: '.$in_text.' : '.$in_that.' : '.$in_topic.'<br>';
 	//return;
-	
 		$in_full = $in_text . ' : ' . $in_that . ' : ' . $in_topic;
+		$in_full = JxBotAiml::translate_pattern_tags($in_full);
 		$terms = JxBotEngine::normalise($in_full, true);
 		$in_full = JxBotEngine::upper($in_full);
 		

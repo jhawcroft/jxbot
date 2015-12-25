@@ -161,7 +161,10 @@ class JxWidget
 					$key_value = $row[$key_indexes[0]];
 					print '<a href="'.str_replace('$$', $key_value, $col['link']).'">';
 				}
+				
+				if (isset($col['encode']) && $col['encode']) $value = htmlentities($value);
 				print $value;
+				
 				if ($is_link) print '</a>';
 				print '</td>';
 			}

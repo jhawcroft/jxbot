@@ -42,12 +42,33 @@ class JxBotAiml
 	const STATE_THT = 4;
 	const STATE_TPC = 5;
 	
+	const STATE_PAT_ENCODE = 6;
+	const STATE_PAT_TXT = 7;
+	const STATE_PAT_BOT = 8;
+	const STATE_PAT_SET = 9;
+	
 	private static $category_id;
 	private static $top_topic;
 	private static $pattern;
 	private static $template;
 	private static $that;
 	private static $topic;
+	
+	private static $unnested_info;
+
+
+	private static $error;
+	private static $error_line;
+	
+	
+	private static function set_error($in_parser, $in_error)
+	{
+		if (JxBotAiml::$error === '')
+		{
+			JxBotAiml::$error = $in_error;
+			JxBotAiml::$error_line = xml_get_current_line_number($in_parser);
+		}
+	}
 	
 
 	public static function _element_start($in_parser, $in_name, $in_attrs)
@@ -87,6 +108,39 @@ class JxBotAiml
 				JxBotAiml::$state = JxBotAiml::STATE_TPC;
 				JxBotAiml::$topic = '';
 			}
+			break;
+			
+			
+		case JxBotAiml::STATE_PAT_ENCODE:
+			if ($in_name == 'pattern')
+			{
+				JxBotAiml::$state = JxBotAiml::STATE_PAT_TXT;
+				JxBotAiml::$pattern = '';
+			}
+			else JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		case JxBotAiml::STATE_PAT_TXT:
+			if ($in_name == 'bot')
+			{
+				JxBotAiml::$state = JxBotAiml::STATE_PAT_BOT;
+				JxBotAiml::$unnested_info = '';
+				if (array_key_exists('name', $in_attrs))
+					JxBotAiml::$unnested_info = ':'.$in_attrs['name'];
+			}
+			else if ($in_name == 'set')
+			{
+				JxBotAiml::$state = JxBotAiml::STATE_PAT_SET;
+				JxBotAiml::$unnested_info = '';
+				if (array_key_exists('name', $in_attrs))
+					JxBotAiml::$unnested_info = $in_attrs['name'].':';
+			}
+			else JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		case JxBotAiml::STATE_PAT_BOT:
+			JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		case JxBotAiml::STATE_PAT_SET:
+			JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
 			break;
 		}
 	}
@@ -136,6 +190,19 @@ class JxBotAiml
 					JxBotAiml::$topic);
 			}
 			break;
+			
+		case JxBotAiml::STATE_PAT_TXT:
+			if ($in_name != 'pattern')
+				JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		case JxBotAiml::STATE_PAT_BOT:
+			JxBotAiml::$state = JxBotAiml::STATE_PAT_TXT;
+			JxBotAiml::$pattern .= JxBotAiml::$unnested_info;
+			break;
+		case JxBotAiml::STATE_PAT_SET:
+			JxBotAiml::$state = JxBotAiml::STATE_PAT_TXT;
+			JxBotAiml::$pattern .= JxBotAiml::$unnested_info;
+			break;
 		}
 	}
 	
@@ -151,14 +218,23 @@ class JxBotAiml
 		case JxBotAiml::STATE_TMP:
 			JxBotAiml::$template .= $in_data;
 			break;
+			
+			
+		case JxBotAiml::STATE_PAT_TXT:
+			JxBotAiml::$pattern .= $in_data;
+			break;
+		case JxBotAiml::STATE_PAT_BOT:
+			JxBotAiml::$unnested_info .= $in_data;
+			break;
+		case JxBotAiml::STATE_PAT_SET:
+			JxBotAiml::$unnested_info .= $in_data;
+			break;
 		}
 	}
 	
 	
-	public static function import($in_filename)
+	private static function parser_create()
 	{
-		set_time_limit(300); // 5-minutes
-		
 		$parser = xml_parser_create();
 		xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
 		xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, 'UTF-8');
@@ -168,6 +244,16 @@ class JxBotAiml
 			array('JxBotAiml', '_element_end'));
 		xml_set_character_data_handler($parser, 
 			array('JxBotAiml', '_element_data'));
+			
+		return $parser;
+	}
+	
+	
+	public static function import($in_filename)
+	{
+		set_time_limit(300); // 5-minutes
+		
+		$parser = JxBotAiml::parser_create();
 			
 		JxBotAiml::$state = JxBotAiml::STATE_TOP;
 		JxBotAiml::$top_topic = '*';
@@ -186,6 +272,24 @@ class JxBotAiml
 		xml_parser_free($parser);
 		
 		return true;
+	}
+	
+	
+	public static function translate_pattern_tags($in_pattern)
+	{
+		$in_pattern = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pattern>" . $in_pattern . '</pattern>';
+		
+		$parser = JxBotAiml::parser_create();
+			
+		JxBotAiml::$pattern = '';
+		JxBotAiml::$state = JxBotAiml::STATE_PAT_ENCODE;
+		JxBotAiml::$error = '';
+			
+		xml_parse($parser, $in_pattern, true);
+		
+		xml_parser_free($parser);
+		
+		return JxBotAiml::$pattern;
 	}
 	
 }

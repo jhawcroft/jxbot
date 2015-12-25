@@ -89,8 +89,8 @@ function do_new_category()
 function do_update_category()
 {
 	$inputs = JxBotUtil::inputs('category,that,topic');
-	JxBotEngine::category_update($inputs['category'], $inputs['that'], $intputs['topic']);
-	page_edit($category_id);
+	JxBotEngine::category_update($inputs['category'], $inputs['that'], $inputs['topic']);
+	page_edit($inputs['category']);
 }
 
 
@@ -168,7 +168,7 @@ if ($category_id === false) {  ?>
 	$patterns = JxBotEngine::fetch_patterns($category_id);
 	JxWidget::grid(array(
 		array('label'=>'ID', 'id'=>0, 'key'=>true, 'visible'=>false),
-		array('label'=>'Pattern', 'id'=>1, 'link'=>'?page=database&action=edit&category='.$category_id)
+		array('label'=>'Pattern', 'id'=>1, 'link'=>'?page=database&action=edit&category='.$category_id, 'encode'=>true)
 	), $patterns); 
 }
 ?>
@@ -225,7 +225,7 @@ $stmt->execute(array($in_category_id));
 $rows = $stmt->fetchAll(PDO::FETCH_NUM);
 JxWidget::grid(array(
 	array('label'=>'ID', 'id'=>0, 'visible'=>false, 'key'=>true),
-	array('label'=>'Pattern', 'id'=>1),
+	array('label'=>'Pattern', 'id'=>1, 'encode'=>true),
 	array('label'=>'Delete', 'id'=>':delete', 'link'=>'?page=database&action=del-pat&pat-id=$$')
 ), $rows); 
 ?>
@@ -246,7 +246,7 @@ JxWidget::grid(array(
 <?php 
 $rows = JxBotEngine::fetch_templates($in_category_id);
 JxWidget::grid(array(
-	array('label'=>'Template', 'id'=>1, 'link'=>'?page=database&action=edit-tmpl&template=$$'),
+	array('label'=>'Template', 'id'=>1, 'link'=>'?page=database&action=edit-tmpl&template=$$', 'encode'=>true),
 	array('label'=>'ID', 'id'=>0, 'visible'=>false, 'key'=>true),
 	array('label'=>'Delete', 'id'=>':delete', 'link'=>'?page=database&action=del-tmpl&template=$$')
 ), $rows); 
