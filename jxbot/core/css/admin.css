@@ -262,6 +262,7 @@ Table appearance
 table
 {
 	width: 100%;
+	border-collapse: collapse;
 }
 
 th
@@ -269,11 +270,32 @@ th
 	text-align: left;
 	
 	border-bottom: 1px solid #AAA;
+	margin: 0;
+	padding: 3px 5px 5px 5px;
+}
+
+thead
+{
+	margin: 0;
+	padding: 0;
 }
 
 td
 {
-	border-bottom: 1px solid #AAA;
+	border-bottom: 1px solid #DDD;
+	padding: 2px 5px 2px 5px;
+	margin: 0;
+}
+
+td a{
+	color: black;
+}
+
+tr
+{
+	margin: 0;
+	padding: 0;
+	
 }
 
 tr:nth-child(even)
