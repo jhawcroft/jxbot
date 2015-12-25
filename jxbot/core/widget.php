@@ -149,10 +149,13 @@ class JxWidget
 				
 				$is_link = isset($col['link']);
 				
-				if ($col['id'] === ':delete') $value = 'X';
+				if ($col['id'] === ':delete') 
+					$value = '<img src="'.JxBotConfig::bot_url().'jxbot/core/gfx/delete16.png" alt="Delete">';
 				else $value = $row[ $col['id'] ];
 				
-				print '<td>';
+				print '<td';
+				if ($col['id'] == ':delete') print ' style="width: 3em;"';
+				print '>';
 				if ($is_link) 
 				{
 					$key_value = $row[$key_indexes[0]];

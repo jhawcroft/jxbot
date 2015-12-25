@@ -151,7 +151,7 @@ div#container
 {
 	padding: 2em;
 	padding-top: 1em;
-	
+	width: 60em;
 }
 
 div#container h1
@@ -253,6 +253,51 @@ fieldset
 	padding: 0;
 }
 
+
+
+/*
+Table appearance
+*/
+
+table
+{
+	width: 100%;
+}
+
+th
+{
+	text-align: left;
+	
+	border-bottom: 1px solid #AAA;
+}
+
+td
+{
+	border-bottom: 1px solid #AAA;
+}
+
+tr:nth-child(even)
+{
+	background-color: #EEE;
+}
+
+
+
+/*
+Links
+*/
+
+a
+{
+	color: #0066ff;
+	text-decoration: none;
+}
+
+a:hover
+{
+	color: #0033cc;
+	text-decoration: underline;
+}
 
 
 
