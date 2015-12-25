@@ -46,13 +46,13 @@ class JxWidget
 		//print '<div class="widget-toggle focusable toggle-switch" tabindex="0" data-name="'.$in_name.'">';
 		//print '<div class="'.($in_state ? 'yes' : 'off').'">Yes</div>';
 		//print '<div class="'.(!$in_state ? 'no' : 'off').'">No</div>';
-		print '<fieldset>';
-		print '<input type="radio" name="'.$in_name.'" id="'.$in_name.'_1" value="1" class="widget-toggle" '.
+		print '<fieldset class="fancy-switch" tabindex="0">';
+		print '<input type="radio" name="'.$in_name.'" id="'.$in_name.'_1" value="1" '.
 			($in_state == 1 ? ' checked="true"' : '').'>';
-		print '<label for="'.$in_name.'_1">Yes</label>';
-		print '<input type="radio" name="'.$in_name.'" id="'.$in_name.'_0" value="0" class="widget-toggle" '.
+		print '<label for="'.$in_name.'_1" class="fancy-yes">Yes</label>';
+		print '<input type="radio" name="'.$in_name.'" id="'.$in_name.'_0" value="0" '.
 			($in_state == 0 ? ' checked="true"' : '').'>';
-		print '<label for="'.$in_name.'_0">No</label>';
+		print '<label for="'.$in_name.'_0" class="fancy-no">No</label>';
 		print '</fieldset>';
 		//print '</div>';
 		//print '<div class="clear"></div>';
