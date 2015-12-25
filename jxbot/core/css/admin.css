@@ -223,16 +223,39 @@ img#chat-robot
 Forms Layout
 */
 
-label, input
+label, input, select, fieldset
 {
 	display: inline-block;
-	vertical-align: baseline;
+	vertical-align: top;
 }
 
 label
 {
 	width: 10em;
+	margin-top: 0.1em;
 }
+
+fieldset input[type='radio']
+{
+	
+	margin-right: 0.5em;
+}
+
+fieldset label
+{
+	width: auto;
+	margin-right: 1em;
+}
+
+fieldset
+{
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+
+
 
 
 /*

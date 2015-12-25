@@ -43,12 +43,19 @@ class JxWidget
 	// replace with radio button array & re-do styles
 	public static function toggle_switch($in_name, $in_state)
 	{
-		print '<div class="widget-toggle focusable toggle-switch" tabindex="0" data-name="'.$in_name.'">';
-		print '<div class="'.($in_state ? 'yes' : 'off').'">Yes</div>';
-		print '<div class="'.(!$in_state ? 'no' : 'off').'">No</div>';
-		print '</div>';
-		print '<input type="checkbox" name="'.$in_name.'" class="widget-toggle">';
-		print '<div class="clear"></div>';
+		//print '<div class="widget-toggle focusable toggle-switch" tabindex="0" data-name="'.$in_name.'">';
+		//print '<div class="'.($in_state ? 'yes' : 'off').'">Yes</div>';
+		//print '<div class="'.(!$in_state ? 'no' : 'off').'">No</div>';
+		print '<fieldset>';
+		print '<input type="radio" name="'.$in_name.'" id="'.$in_name.'_1" value="1" class="widget-toggle" '.
+			($in_state == 1 ? ' checked="true"' : '').'>';
+		print '<label for="'.$in_name.'_1">Yes</label>';
+		print '<input type="radio" name="'.$in_name.'" id="'.$in_name.'_0" value="0" class="widget-toggle" '.
+			($in_state == 0 ? ' checked="true"' : '').'>';
+		print '<label for="'.$in_name.'_0">No</label>';
+		print '</fieldset>';
+		//print '</div>';
+		//print '<div class="clear"></div>';
 	}
 	
 	

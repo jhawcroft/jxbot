@@ -1,10 +1,12 @@
 <?php
 
+
+
 if (isset($_POST['bot_name']))
 {
 	JxBotConfig::set_option('bot_name', $_POST['bot_name']);
 	JxBotConfig::set_option('bot_tz', $_POST['bot_tz']);
-	JxBotConfig::set_option('bot_active', (isset($_POST['bot_active']) ? 1 : 0));
+	JxBotConfig::set_option('bot_active', $_POST['bot_active']);
 	
 	if (isset($_POST['bot_password']) && trim($_POST['bot_password']) !== '')
 		JxBotConfig::set_option('admin_hash', hash('sha256', $_POST['bot_password']));
@@ -31,10 +33,10 @@ foreach ($timezone_identifiers as $tz)
 
 
 
-<p class="field"><label for="bot_name">Active:</label>
+<label for="bot_name">Active:</label>
 <?php
 JxWidget::toggle_switch('bot_active', JxBotConfig::option('bot_active'));
-?></p>
+?>
 
 
 <p class="field"><label for="bot_password">Change Password: </label>
