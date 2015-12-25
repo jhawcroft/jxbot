@@ -23,7 +23,8 @@ function page_import_form()
 
 <?php if (isset($_FILES['data_file'])) do_handle_upload(); ?>
 
-<p>File: <input type="file" name="data_file" size="30"></p>
+<p><label for="data_file">File:</label>
+<input type="file" name="data_file" id="data_file" size="30"></p>
 
 <p><?php JxWidget::button('Upload', 'upload', ''); ?></p>
 

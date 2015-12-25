@@ -58,6 +58,22 @@ textarea
 }
 
 
+/*
+File Upload
+*/
+
+input[type='file']
+{
+	border: 1px solid #AAA;
+	border-radius: 5px;
+	
+	padding: 2px 5px 2px 5px;
+	
+	font-family: 'Roboto Condensed', sans-serif;
+	font-size: 12pt;
+}
+
+
 
 /*
 Select Lists
