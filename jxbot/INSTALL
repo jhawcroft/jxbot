@@ -1,0 +1,22 @@
+JxBot Install
+=============
+
+! IMPORTANT:  This software is an advanced state of DEVELOPMENT - and is not ready 
+for production use on public web servers.  Use at your own risk!
+
+
+1.  Upload the JxBot directory to an appropriate location on your web server.
+
+2.	Create a MySQL database.
+
+3.  Point your web browser at the JxBot directory, eg.
+
+	http://localhost/jxbot/
+	
+4.	Follow the instructions in the Installer.
+
+5.	Configure your bot further and upload AIML in the administration interface.
+
+6.	'Activate' your bot in the System Settings of the administration interface.
+
+7.	Happy chatting!
