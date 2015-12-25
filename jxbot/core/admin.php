@@ -106,137 +106,17 @@ public static function admin_generate()
 <meta charset="UTF-8">
 <title>JxBot: Administration</title>
 <link rel="base" href="<?php print JxBotConfig::bot_url(); ?>">
-<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/styles.css">
-<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/phpinfo.css">
+<link href="https://fonts.googleapis.com/css?family=Roboto+Condensed|Oswald:700" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/admin.css">
+<!link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/widgets.css">
+<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/phpinfo.css">
 <script type="text/javascript" src="<?php print JxBotConfig::bot_url(); ?>jxbot/core/js/admin.js"></script>
-<style>
-
-
-div#nav
-{
-	float: left;
-	width: 12em;
-	background-color: #333;
-	color: white;
-	height: 100%;
-}
-
-div#nav-top
-{
-	margin: 1em;
-	margin-bottom: 2em;
-	margin-top: 1em;
-}
-
-div#nav-top h1
-{
-	margin: 0;
-	font-family: sans-serif;
-	font-size: 24pt;
-	font-weight: bold;
-}
-
-div#page
-{
-	margin-left: 12em;
-	height: 100%;
-	overflow-y: auto;
-	overflow-x: auto;
-}
-
-div#container
-{
-	padding: 2em;
-	padding-top: 1em;
-	
-}
-
-div#container h1
-{
-	font-family: sans-serif;
-	font-size: 24pt;
-	font-weight: normal;
-	margin: 0;
-	margin-bottom: 1em;
-}
-
-
-/*
-Admin Navigation
-*/
-
-div#nav ul
-{
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	font-size: 12pt;
-	font-family: sans-serif;
-}
-
-div#nav ul li
-{
-	display: block;
-	margin: 0;
-	padding: 0;
-}
-
-div#nav a
-{
-	display: block;
-	color: white;
-	text-decoration: none;
-	padding: 10px 1em 10px 1em;
-	border-bottom: 1px solid black;
-}
-
-div#nav li:last-child a
-{
-	border-bottom: 0;
-}
-
-div#nav a:hover
-{
-	background-color: rgb(20,20,20);
-	color: rgb(102,153,255);
-}
-
-div#nav a.current
-{
-	background-color: rgb(0,102,204);
-	color: rgb(255,255,255);
-}
-
-
-
-div#right-nav
-{
-	width: 30%;
-}
-
-div#right-nav h2
-{
-	margin-top: 0;
-}
-
-div#centre-content
-{
-	width: 67%;
-}
-
-div#centre-content h2
-{
-	margin-top: 0;
-}
-
-
-</style>
 </head>
 <body>
 
 <div id="nav">
 <div id="nav-top">
-	<h1>JxBot</h1>
+	<img src="<?php print JxBotConfig::bot_url(); ?>jxbot/core/gfx/robot-tiny.png" style="float:right;"><h1>JxBot</h1>
 </div>
 
 <?php JxBotAdmin::admin_sidebar(); ?>
