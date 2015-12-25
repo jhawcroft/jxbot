@@ -51,11 +51,18 @@ class JxBotConfig
 		return JxBotConfig::$config['bot_url'];
 	}
 	
+	
+	private static function run_installer()
+	{
+		print 'Not installed.';
+		exit;
+	}
+	
 
 	public static function setup_environment()
 	{
 		$config_file = dirname(dirname(__FILE__)).'/config.php';
-		if (!is_readable($config_file)) return; /* not installed */
+		if (!is_readable($config_file)) return JxBotConfig::run_installer();
 		
 		$jxbot = array();
 		require_once($config_file);
@@ -64,8 +71,9 @@ class JxBotConfig
 		if (!isset($jxbot['bot_url']))
 			JxBot::fatal_error("Bot configuraton is missing bot_url.");
 		
-		if (isset($jxbot['debug']) && $jxbot['debug'])
+		if (isset($jxbot['debug']) && $jxbot['debug']) 
 		{
+			// PHP debugging for the program; distinct from AIML debugging
 			error_reporting(E_ALL);
 			ini_set('display_errors', 1);
 		}
@@ -84,12 +92,12 @@ class JxBotConfig
 		JxBotDB::connect($jxbot['db_host'], $jxbot['db_name'], $jxbot['db_prefix'],
 			$jxbot['db_username'], $jxbot['db_password']);
 			
+		JxBotConfig::load_configuration();
+		
 		JxBotConfig::$is_installed = true;
 		
 		if (isset($jxbot['timezone']))
 			date_default_timezone_set($jxbot['timezone']);
-			
-		JxBotConfig::load_configuration();
 	}
 	
 	
@@ -117,12 +125,20 @@ class JxBotConfig
 	
 	public static function load_configuration()
 	{
-		$stmt = JxBotDB::$db->prepare('SELECT opt_key, opt_value FROM opt');
-		$stmt->execute();
-		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
-		foreach ($rows as $row)
+		try
 		{
-			JxBotConfig::$config[$row[0]] = $row[1];
+			$stmt = JxBotDB::$db->prepare('SELECT opt_key, opt_value FROM opt');
+			$stmt->execute();
+			$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+			if (count($rows) == 0) throw new Exception('Not properly installed.');
+			foreach ($rows as $row)
+			{
+				JxBotConfig::$config[$row[0]] = $row[1];
+			}
+		}
+		catch (Exception $err) 
+		{
+			run_installer();
 		}
 	}
 	

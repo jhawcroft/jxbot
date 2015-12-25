@@ -1,7 +1,5 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 require_once(dirname(__FILE__) . '/jxbot/core/jxbot.php');
 
 JxBot::init_client();
