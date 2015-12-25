@@ -172,6 +172,12 @@ class JxWidget
 	}
 	
 	
+	public static function small_delete_icon()
+	{
+		print '<img src="'.JxBotConfig::bot_url().'jxbot/core/gfx/delete16.png" alt="Delete">';
+	}
+	
+	
 	public static function hidden($in_data, $in_values)
 	{
 		if (is_array($in_data))

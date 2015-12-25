@@ -96,6 +96,29 @@ CREATE TABLE opt (
 )
 ');
 
+$jxbot_db->exec("
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_gender', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_master', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_website', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_email', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_birthday', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_location', '');
+
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_sport', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_team', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_actor', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_actress', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_artist', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_song', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_musician', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_band', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_music_kind', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_movie', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_tv_show', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_color', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_food', '');
+");
+
 $jxbot_db->exec('
 CREATE TABLE word (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,

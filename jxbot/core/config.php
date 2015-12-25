@@ -106,6 +106,15 @@ class JxBotConfig
 	}
 	
 	
+	public static function delete_option($in_key)
+	{
+		if (isset(JxBotConfig::$config[$in_key]))
+			unset(JxBotConfig::$config[$in_key]);
+		$stmt = JxBotDB::$db->prepare('DELETE FROM opt WHERE opt_key=?');
+		$stmt->execute(array($in_key));
+	}
+	
+	
 	public static function load_configuration()
 	{
 		$stmt = JxBotDB::$db->prepare('SELECT opt_key, opt_value FROM opt');
@@ -139,6 +148,47 @@ class JxBotConfig
 			}
 			catch (Exception $err) {}
 		}    
+	}
+	
+	
+	public static function bot($in_key)
+	{
+		
+	}
+	
+	
+	public static function bot_properties()
+	{
+		$props = array();
+		
+		$stmt = JxBotDB::$db->prepare('SELECT opt_key, opt_value FROM opt ORDER BY opt_key');
+		$stmt->execute();
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		foreach ($rows as $row)
+		{
+			if (substr($row[0], 0, 4) !== 'bot_') continue;
+			if ($row[0] === 'bot_name') continue;
+			if ($row[0] === 'bot_tz') continue;
+			if ($row[0] === 'bot_active') continue;
+			
+			$nice_name = ucwords(str_replace('_', ' ', substr($row[0], 4)));
+			$props[] = array($row[0], $nice_name, $row[1]);
+		}
+		
+		return $props;
+	}
+	
+	
+	public static function bot_add_prop($in_name)
+	{
+		$prop_id = str_replace(' ', '_', strtolower($in_name));
+		JxBotConfig::set_option($prop_id, '');
+	}
+	
+	
+	public static function bot_delete_prop($in_id)
+	{
+		JxBotConfig::delete_option($in_id);
 	}
 }
 

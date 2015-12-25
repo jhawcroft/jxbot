@@ -39,13 +39,13 @@ class JxBotAdmin
 	private static $all_pages = array(
 		array('dashboard', 'Dashboard'),
 		array('chat', 'Chat'),
-		/*array('talk', 'Talk'),*/
-		/*array('personality', 'Personality'),*/
-		array('database', 'Database'),
-		/*array('import-export', 'Import/Export'),*/
-		array('import', 'Import'),
-		array('settings', 'Settings'),
 		array('logs', 'Logs'),
+		array('client', 'Client Defaults'),
+		array('database', 'Database'),
+		array('import', 'Import'),
+		array('bot', 'Bot Personality'),
+		array('settings', 'System Settings'),
+		/*array('export', 'Export'),*/
 		array('about', 'About JxBot'),
 		array('logout', 'Logout')
 	);

@@ -253,6 +253,13 @@ fieldset
 	padding: 0;
 }
 
+div.field
+{
+	display: block;
+	margin-bottom: 0.5em;
+}
+
+
 
 
 /*
@@ -287,7 +294,8 @@ td
 	margin: 0;
 }
 
-td a{
+td a
+{
 	color: black;
 }
 
@@ -319,6 +327,24 @@ a:hover
 {
 	color: #0033cc;
 	text-decoration: underline;
+}
+
+
+
+/*
+Columns
+*/
+
+div.col-left
+{
+	width: 50%;
+	float: left;
+}
+
+div.col-right
+{
+	width: 50%;
+	float: left;
 }
 
 
