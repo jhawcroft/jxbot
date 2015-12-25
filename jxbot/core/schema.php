@@ -80,6 +80,15 @@ CREATE TABLE session (
 ');
 
 $jxbot_db->exec('
+CREATE TABLE predicate (
+	session INT(11) NOT NULL,
+	name VARCHAR(100) NOT NULL,
+	value VARCHAR(255) NOT NULL,
+	PRIMARY KEY (session, name)
+)
+');
+
+$jxbot_db->exec('
 CREATE TABLE log (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	session INT(11) NOT NULL,
@@ -118,6 +127,8 @@ INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_tv_show', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_color', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_food', '');
 ");
+
+// remaining options will be added by the installer!
 
 $jxbot_db->exec('
 CREATE TABLE word (

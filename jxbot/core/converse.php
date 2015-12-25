@@ -37,6 +37,8 @@ class JxBotConverse
 	private static $convo_id = '';  /* the public ID string associated with the session */
 	private static $session_id = 0; /* the internal session identifier */
 	
+	private static $predicates = array();
+	
 	
 	public static function bot_available()
 	{
@@ -81,6 +83,8 @@ class JxBotConverse
 	{
 		$stmt = JxBotDB::$db->prepare('UPDATE session SET name=? WHERE id=?');
 		$stmt->execute(array(trim($in_name), JxBotConverse::$session_id));
+		
+		JxBotConverse::$predicates['name'] = $in_name;
 	}
 	
 	
@@ -92,14 +96,44 @@ class JxBotConverse
 			return;
 		}
 		
+		$did_add = false;
+		try
+		{
+			$stmt = JxBotDB::$db->prepare('INSERT INTO predicate (session, name, value) VALUES (?, ?, ?)');
+			$stmt->execute(array(JxBotConverse::$session_id, $in_name, $in_value));
+			$did_add = true;
+		}
+		catch (Exception $err) {}
 		
+		if (!$did_add)
+		{
+			$stmt = JxBotDB::$db->prepare('UPDATE predicate SET value=? WHERE session=? AND name=?');
+			$stmt->execute(array($in_value, JxBotConverse::$session_id, $in_name));
+		}
+		
+		JxBotConverse::$predicates[$in_name] = $in_value;
+	}
+	
+	
+	public static function predicate($in_name)
+	{
+		if (!isset(JxBotConverse::$predicates[$in_name]))
+		{
+			$stmt = JxBotDB::$db->prepare('SELECT value FROM predicate WHERE session=? AND name=?');
+			$stmt->execute(array(JxBotConverse::$session_id, $in_name));
+			$row = $stmt->fetchAll(PDO::FETCH_NUM);
+			if (count($row) == 0) return null;
+			
+			JxBotConverse::$predicates[$in_name] = $row[0][0];
+		}
+		return JxBotConverse::$predicates[$in_name];
 	}
 	
 	
 	public static function resume_conversation($in_convo_id)
 	{
 		/* check if the conversation is registered */
-		$stmt = JxBotDB::$db->prepare('SELECT id FROM session WHERE convo_id=?');
+		$stmt = JxBotDB::$db->prepare('SELECT id,name FROM session WHERE convo_id=?');
 		$stmt->execute(array($in_convo_id));
 		$session_id = $stmt->fetchAll(PDO::FETCH_NUM);
 		
@@ -115,7 +149,9 @@ class JxBotConverse
 		}
 		else 
 		{
+			$name = $session_id[0][1];
 			$session_id = $session_id[0][0];
+			
 			$stmt = JxBotDB::$db->prepare('UPDATE session SET accessed=CURRENT_TIMESTAMP WHERE id=?');
 			$stmt->execute(array($session_id));
 		}
@@ -123,6 +159,7 @@ class JxBotConverse
 		/* store conversation IDs for this request */
 		JxBotConverse::$convo_id = $in_convo_id;
 		JxBotConverse::$session_id = $session_id;
+		JxBotConverse::$predicates['name'] = $name;
 	}
 
 

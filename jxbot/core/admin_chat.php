@@ -5,6 +5,7 @@ $inputs = JxBotUtil::inputs('input');
 if (trim($inputs['input']) != '') 
 {
 	JxBotConverse::resume_conversation('admin');
+	
 	$response = JxBotConverse::get_response($inputs['input']);
 }
 else $response = JxBotConverse::get_greeting();
