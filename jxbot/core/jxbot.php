@@ -51,28 +51,35 @@ class JxBot
 		print $in_error; // should be improved **
 		exit;
 	}
-
 	
-	public static function init()
-	{
-		JxBotConfig::setup_environment();
-		
-		
-	}
-
 
 	public static function run_admin()
 	{
-		JxBot::init();
+		JxBotConfig::setup_environment();
 		
 		require_once(dirname(__FILE__).'/admin.php');
 		require_once(dirname(__FILE__).'/widget.php');
 		
-		session_name('jxbot');
+		session_name(JxBotConfig::SESSION_NAME);
 		session_start();
 		
 		JxBotAdmin::admin_generate();
 		
+	}
+	
+	
+	public static function start_session()
+	{
+		session_name(JxBotConfig::SESSION_NAME);
+		session_start();
+		
+		return session_id();
+	}
+	
+	
+	public static function init_client()
+	{
+		JxBotConfig::setup_environment();
 	}
 }
 

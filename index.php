@@ -1,8 +1,10 @@
 <?php
 
-require_once(dirname(__FILE__) . '/jxbot/core/common.php');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+require_once(dirname(__FILE__) . '/jxbot/core/jxbot.php');
 
-
+JxBot::init_client();
 
 
 // will need to be careful about sessions if this ends up being a plug-in on wordpress
@@ -18,16 +20,16 @@ require_once(dirname(__FILE__) . '/jxbot/core/common.php');
 </head>
 <body>
 
-<?php if (Converse::bot_available()) { ?>
+<?php if (JxBotConverse::bot_available()) { ?>
 
 <form method="post" action="">
 
 <div id="bot-output"><?php
-Converse::resume_conversation( jxbot_start_session() );
+JxBotConverse::resume_conversation( JxBot::start_session() );
 if (isset($_REQUEST['input']))
-	print Converse::get_response($_REQUEST['input']);
+	print JxBotConverse::get_response($_REQUEST['input']);
 else
-	print Converse::get_greeting();
+	print JxBotConverse::get_greeting();
 ?></div>
 
 <p><input type="text" name="input" id="user-input" size="100"></p>
