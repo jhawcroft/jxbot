@@ -77,6 +77,25 @@ class JxBotConverse
 	}
 	
 	
+	public static function set_client_name($in_name)
+	{
+		$stmt = JxBotDB::$db->prepare('UPDATE session SET name=? WHERE id=?');
+		$stmt->execute(array(trim($in_name), JxBotConverse::$session_id));
+	}
+	
+	
+	public static function set_predicate($in_name, $in_value)
+	{
+		if ($in_name == 'name')
+		{
+			JxBotConverse::set_client_name($in_value);
+			return;
+		}
+		
+		
+	}
+	
+	
 	public static function resume_conversation($in_convo_id)
 	{
 		/* check if the conversation is registered */
@@ -87,8 +106,11 @@ class JxBotConverse
 		/* register the conversation */
 		if (count($session_id) == 0)
 		{
-			$stmt = JxBotDB::$db->prepare('INSERT INTO session (convo_id) VALUES (?)');
-			$stmt->execute(array($in_convo_id));
+			if ($in_convo_id == 'admin') $name = 'Administrator';
+			else $name = '';
+		
+			$stmt = JxBotDB::$db->prepare('INSERT INTO session (convo_id, name) VALUES (?, ?)');
+			$stmt->execute(array($in_convo_id, $name));
 			$session_id = JxBotDB::$db->lastInsertId();
 		}
 		else 
