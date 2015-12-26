@@ -50,12 +50,19 @@ class JxBotEngine
 	protected $wild_topic_values = null; /* portion of the topic predicate that matches
 	                                        a wildcard in the <topic> clause of the
 	                                        matching category */
-	protected $unwind_stage = 0;		
-	
+	protected $unwind_stage = 0;         /* once a match is found, tracks the unwinding
+	                                        of the recursive call stack to determine
+	                                        which of the three wildcard value arrays
+	                                        (^ above) in which to store wildcard values */
 	
 	
 	private function accumulate_wild_values(&$in_values)
+	/* registers the specified value in the appropriate array for later use in
+	the output template (eg. AIML <star/> value) */
 	{
+		/*  ** these arrays may be back-to-front when multiple values exist ?
+		probably need to insert at the front not the end TODO */
+	
 		$in_value = implode(' ', $in_values);
 		if ($this->unwind_stage == 2)
 			$this->wild_topic_values[] = $in_value;
@@ -109,18 +116,21 @@ class JxBotEngine
 	
 
 	protected function get_term($in_term_index)
+	/* returns the current term from the user input, or the colon : if the end of the
+	input is reached so that matching fails */
 	{
 		if ($in_term_index < $this->term_limit)
 			return $this->input_terms[$in_term_index];
 		else
-			return  ':';
+			return  ':'; /* ** not sure about the character selected here; needs review;
+			                could just as well be a period? */
 	}
 	
 	
 	protected function walk($in_parent_id, $in_term_index)
-	/* takes inputs as arrays, will probably call recursively;
-	best to avoid passing by reference where possible - maybe use an object context
-	as PHP's implementation of by reference is 'very strange' indeed */
+	/* Walks the subtree rooted at <parent_id>, beginning at term <term_index> of the
+	user input; looks for a match with the remainder of the input.  If a match is found,
+	returns the matching pattern ID, otherwise, returns FALSE. */
 	{
 		$current_term = $this->get_term($in_term_index);
 		
