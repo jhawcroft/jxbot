@@ -204,7 +204,7 @@ class JxBotConfig
 	
 	public static function bot($in_key)
 	{
-		
+		return JxBotConfig::option('bot_'.strtolower($in_key)); // to be improved & cached, etc.!  ***
 	}
 	
 	

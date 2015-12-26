@@ -109,16 +109,40 @@ class JxBotEngine
 	}
 	
 	
-	private static function make_sort_key($in_term, $in_high = false)
+	private static function make_sort_key(&$in_term)
 	/* @high		Boolean.  If true, word has the highest matching priority.
 					(AIML 2.0)
 	*/
 	{
+		/* wildcards: */
 		if ($in_term == '#') return 1;
 		else if ($in_term == '_') return 2;
 		else if ($in_term == '^') return 8;
 		else if ($in_term == '*') return 9;
-		else return ($in_high ? 0 : 5);
+		
+		/* bot property: */
+		else if (substr($in_term, 0, 1) == ':') 
+		{
+			$in_term = substr($in_term, 1);
+			return 6;
+		}
+		
+		/* set name: */
+		else if (substr($in_term, strlen($in_term)-1, 1) == ':') 
+		{
+			$in_term = substr($in_term, 0, strlen($in_term)-1);
+			return 6;
+		}
+		
+		/* high priority word: */
+		else if (substr($in_term, 0, 1) == '$')
+		{
+			$in_term = substr($in_term, 1);
+			return 0;
+		}
+		
+		/* normal word: */
+		else return 5;
 	}
 	
 	
@@ -153,10 +177,11 @@ class JxBotEngine
 			{
 				$stmt = JxBotDB::$db->prepare('INSERT INTO pattern_node (parent, expression, sort_key, is_terminal)
 											   VALUES (?, ?, ?, ?)');
+				$sort_key = JxBotEngine::make_sort_key($expression);
 				$stmt->execute(array(
 					$last_node, 
 					$expression, 
-					JxBotEngine::make_sort_key($expression), 
+					$sort_key, 
 					(($index + 1 >= $count) ? 1 : 0)
 					));
 				$last_node = JxBotDB::$db->lastInsertId();
@@ -260,26 +285,6 @@ class JxBotEngine
 	
 	
 	
-	private static function is_wildcard($in_expr)
-	{
-		return (($in_expr == '*' || $in_expr == '_' || 
-			$in_expr == '^' || $in_expr == '#'
-			|| substr($in_expr, 0, 1) == '@'));
-	}
-	
-	// example:
-	
-	// input:  HELLO SWEETIE HOW ARE YOU
-	
-	// patterns:
-	// HELLO SWEETIE
-	// HELLO SWEETIE HOW AM I
-	// HELLO SWEETIE * ARE THEY
-	
-	// needs to search the longer patterns first!
-	
-	// ideally accumulate wildcard values on way back up when returning true
-	
 	private function accumulate_wild_values(&$in_values)
 	{
 		if ($this->unwind_stage == 2)
@@ -291,12 +296,48 @@ class JxBotEngine
 	}
 	
 	
+	private static function is_wildcard($in_expr)
+	/* returns true if the internal pattern expression is a wildcard */
+	{
+		return ($in_expr == '*' || $in_expr == '_' || 
+				$in_expr == '^' || $in_expr == '#');
+	}
+	
+	
 	private static function is_zero_wildcard($in_expr)
+	/* returns true if the internal pattern expression is a wildcard that matches
+	zero or more words */
 	{
 		return ($in_expr === '^' || $in_expr === '#');
 	}
 	
 	
+	private static function is_set_ref($in_expr)
+	/* returns the name of a set, if the supplied internal pattern expression is a set
+	name, ie. has a trailing colon :
+	otherwise returns false */
+	{
+		if ($in_expr == ':') return false;
+		if (substr($in_expr, strlen($in_expr) - 1, 1) == ':')
+			return substr($in_expr, 0, strlen($in_expr) - 1);
+		else
+			return false;
+	}
+	
+	
+	private static function is_bot_ref($in_expr)
+	/* returns the name of a bot property, if the supplied internal pattern expression 
+	is a bot property reference, ie. has a leading colon :
+	otherwise returns false */
+	{
+		if ($in_expr == ':') return false;
+		if (substr($in_expr, 0, 1) == ':')
+			return substr($in_expr, 1);
+		else
+			return false;
+	}
+	
+
 	protected function get_term($in_term_index)
 	{
 		if ($in_term_index < $this->term_limit)
@@ -313,6 +354,10 @@ class JxBotEngine
 	{
 		$current_term = $this->get_term($in_term_index);
 		
+		
+		// can this be refactored into a number of smaller functions??!
+		
+		
 		//print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
 		
 		/* look in this branch for all possible matching subbranches */
@@ -320,13 +365,15 @@ class JxBotEngine
 		if ($in_parent_id === null)
 		{ // consider using zero 0 to eliminate this double-handling... **
 			$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
-				WHERE parent IS NULL AND expression IN (?, '*', '_') ORDER BY sort_key");
+				WHERE parent IS NULL AND ( (expression = ? AND sort_key IN (0,5)) OR (sort_key NOT IN (0,5)) ) 
+				ORDER BY sort_key");
 			$stmt->execute(array($current_term));
 		}
 		else
 		{
 			$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
-				WHERE parent=? AND expression IN (?, '*', '_') ORDER BY sort_key");
+				WHERE parent=? AND ( (expression = ? AND sort_key IN (0,5)) OR (sort_key NOT IN (0,5)) ) 
+				ORDER BY sort_key");
 			$stmt->execute(array($in_parent_id, $current_term));
 		}
 		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
@@ -339,11 +386,66 @@ class JxBotEngine
 		{
 			/* decode the possibility and prepare to match */
 			list($br_parent, $br_expr, $br_terminal) = $possibility;
-			$is_wildcard = JxBotEngine::is_wildcard($br_expr);
 			
+			// in future, for speed, this information could be assessed at pattern registration
+			// and stored & accessed, possibly using the sort key integer ?
+			
+			$is_wildcard = JxBotEngine::is_wildcard($br_expr);
+			$set_ref = JxBotEngine::is_set_ref($br_expr);
+			$bot_ref = JxBotEngine::is_bot_ref($br_expr);
+			
+			//print $br_expr;
 			//print "Considering possible branch=$br_parent, expr=$br_expr, term=$br_terminal, wild=$is_wildcard  :<br>";
 			
-			if (!$is_wildcard)
+			// pattern side sets & bot tags will have to be handled similarly, since they may have multi-word values
+			// basically, like wildcards, except all words must match
+			
+			if (($bot_ref !== false) || ($set_ref !== false))
+			{
+				// grab the set of possible match values
+				if ($bot_ref !== false)
+				{
+					$set_of_values = array( JxBotEngine::normalise( JxBotConfig::bot($bot_ref) ) );
+				}
+				else if ($set_ref !== false)
+				{
+					// need to get all set values here *** todo
+					$set_of_values = array();
+				}
+				
+				// attempt to match all words at current position to one of the set values
+				foreach ($set_of_values as $trial_value)
+				{
+					//print 'Trying '.implode(' ', $trial_value).'<br>';
+					//var_dump($current_term);
+					
+					$term_index = $in_term_index;
+					$term = $current_term;
+					$is_match = true;
+					foreach ($trial_value as $trial_term)
+					{
+						if ($trial_term != $term)
+						{
+							$is_match = false;
+							break;
+						}
+						$term = $this->get_term(++ $term_index);
+					}
+					if ($is_match)
+					{
+						$matched = $this->walk($br_parent, $term_index);
+						if ($matched !== false)
+						/* subbranch matched; this branch matched */
+						{
+							$this->accumulate_wild_values($trial_value);
+							if ($br_expr === ':') $this->unwind_stage--;
+							return $matched;
+						}
+					}
+				}
+				// failed.. continue with other branch possibilities
+			}
+			else if (!$is_wildcard)
 			/* if the node isn't a wildcard, we need no special matching algorithm */
 			{
 				//print 'trying to match term against word...<br>';
