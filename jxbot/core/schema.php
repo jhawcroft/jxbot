@@ -39,7 +39,7 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 class JxBotSchema
 {
 
-	public function install()
+	public static function install()
 	{
 	
 JxBotDB::$db->exec('
