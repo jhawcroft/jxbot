@@ -170,8 +170,14 @@ class JxBotConverse
 		//$category_id = NL::match_input($in_input);
 		$category_id = JxBotEngine::match($in_input, 'unknown', 'unknown');
 		//print 'Matched category: '.$category_id.'<br>';
-		$template = JxBotEngine::fetch_templates($category_id);
-		$output = $template[0][1];
+		
+		if ($category_id === false)
+			$output = '???';
+		else
+		{
+			$template = JxBotEngine::fetch_templates($category_id);
+			$output = $template[0][1];
+		}
 		//$output = NL::make_output($category_id);
 		
 		JxBotConverse::log($in_input, $output);
