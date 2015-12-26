@@ -122,20 +122,23 @@ class JxBotEngine
 		if ($in_term_index < $this->term_limit)
 			return $this->input_terms[$in_term_index];
 		else
-			return  '.'; /* ** not sure about the character selected here; needs review;
-			                could just as well be a period? */
+			return  '.'; /* end of input */
 	}
 	
 	
 	protected function try_match_values($in_branch, &$in_values, $in_save_match, $in_term_index, $is_terminal)
+	/* takes a set of multi-term values and attempts to find a match with the remainder
+	of the input; can optionally save the matching input (eg. an AIML <star/> value) */
 	{
 		$current_term = $this->get_term($in_term_index);
 		
+		/* iterate over set of supplied possibilities */
 		foreach ($in_values as $trial_value)
 		{
 			//print 'Trying '.implode(' ', $trial_value).'<br>';
 			//var_dump($current_term);
 			
+			/* does this possibility match the remainder of the input ? */
 			$term_index = $in_term_index;
 			$term = $current_term;
 			$is_match = true;
@@ -152,35 +155,39 @@ class JxBotEngine
 			if ($is_match)
 			{
 				if ($term == '.')
+				/* are we at the end of the input and at a pattern termination ? */
 				{
 					if ($is_terminal) return $in_branch;
 				}
-				else
+				//else
+				//{
+				
+				/* try and match the remainder of the input */
+				$matched = $this->walk($in_branch, $term_index);
+				if ($matched !== false)
+				/* subbranch matched; this branch matched */
 				{
-					$matched = $this->walk($in_branch, $term_index);
-					if ($matched !== false)
-					/* subbranch matched; this branch matched */
-					{
-						if ($in_save_match)
-							$this->accumulate_wild_values($trial_value);
-						
-						return $matched;
-					}
+					if ($in_save_match)
+						$this->accumulate_wild_values($trial_value);
+					
+					return $matched;
 				}
+				//}
 			}
 		} /* foreach ($set_of_values as $trial_value) */
 		
-		return false;
+		return false; /* no match */
 	}
 	
 	
 	protected function try_match_wildcard($in_branch, &$in_wildcard, $in_term_index, $is_terminal)
+	/* attempts to match the remainder of the input against a specific type of wildcard;
+	saves the matching input if there's a match for later use (eg. AIML <star/> value) */
 	{
 		//print 'trying to match terms against wildcard...<br>';
 		
-		$current_term = $this->get_term($in_term_index);
-				
 		/* prepare to match wildcard */
+		$current_term = $this->get_term($in_term_index);
 		$wildcard_terms = array();
 		$term_index = $in_term_index;
 		$term = $current_term;
@@ -237,6 +244,9 @@ class JxBotEngine
 	
 	
 	protected function try_match_word($in_branch, &$in_word, $in_term_index, $is_terminal)
+	/* takes a word that has already been matched by the walk() function and attempts
+	to match the remainder of the input; tracks progress of stack unwind on successful
+	match so that saved wildcard values are added to the appropriate list */
 	{
 		//print 'trying to match term against word...<br>';
 		
@@ -244,20 +254,20 @@ class JxBotEngine
 		
 		//if ($in_word == $current_term) // probably unnecessary, as SQL already matching...
 		//{
-			if ($this->get_term($in_term_index + 1) == '.')
+		if ($this->get_term($in_term_index + 1) == '.')
+		{
+			if ($is_terminal) return $in_branch;
+		}
+		else
+		{
+			/* match remaining input to subbranch */
+			$match = $this->walk($in_branch, $in_term_index + 1);
+			if ($match !== false) 
 			{
-				if ($is_terminal) return $in_branch;
+				if ($in_word == ':') $this->unwind_stage--;
+				return $match;
 			}
-			else
-			{
-				/* match remaining input to subbranch */
-				$match = $this->walk($in_branch, $in_term_index + 1);
-				if ($match !== false) 
-				{
-					if ($in_word == ':') $this->unwind_stage--;
-					return $match;
-				}
-			}
+		}
 		//}
 			
 		/* otherwise, match failed */
