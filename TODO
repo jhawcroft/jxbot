@@ -1,0 +1,32 @@
+TODO
+====
+
+Essentials (toward a version 1.0)
+----------
+
+* Implement load monitoring
+
+* Implement template-side AIML evaluation, parsing & import
+
+* Continue cleaning up
+
+* Fix obvious bugs
+
+* Get installer to ask for admin username
+
+* Write documentation
+
+* Write sample AIML, possibly to be preloaded with new bots
+
+* Improvements to Database admin
+
+* Substitution maintenance and sentence splitting
+
+
+
+Consider
+--------
+
+* AIML 2.0 'set' implementation
+
+
