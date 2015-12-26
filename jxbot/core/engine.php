@@ -36,25 +36,33 @@ any given user input */
 
 class JxBotEngine
 {
-
-	protected $input_terms = null;
-	protected $term_index = 0;
-	protected $term_limit = 0;
-	protected $wild_values = null;
-	protected $wild_that_values = null;
-	protected $wild_topic_values = null;
-	protected $unwind_stage = 0;
+	/* track of a few things during the matching process: */
+	
+	protected $input_terms = null;       /* the normalised input as an array of terms */
+	protected $term_limit = 0;           /* the number of terms (^ above) */
+	
+	/* each wildcard array has an element for each corresponding wildcard;
+	   each element in turn consists of an ordered array of matching terms */
+	protected $wild_values = null;       /* input that matches wildcard(s) or
+	                                        <set>...</set> */
+	protected $wild_that_values = null;  /* prior input that matches a wildcard in the
+                                            <that> clause of the matching category */
+	protected $wild_topic_values = null; /* portion of the topic predicate that matches
+	                                        a wildcard in the <topic> clause of the
+	                                        matching category */
+	protected $unwind_stage = 0;		
 	
 	
 	
 	private function accumulate_wild_values(&$in_values)
 	{
+		$in_value = implode(' ', $in_values);
 		if ($this->unwind_stage == 2)
-			$this->wild_topic_values[] = $in_values;
+			$this->wild_topic_values[] = $in_value;
 		else if ($this->unwind_stage == 1)
-			$this->wild_that_values[] = $in_values;
+			$this->wild_that_values[] = $in_value;
 		else
-			$this->wild_values[] = $in_values;
+			$this->wild_values[] = $in_value;
 	}
 	
 	
@@ -199,7 +207,9 @@ class JxBotEngine
 						if ($matched !== false)
 						/* subbranch matched; this branch matched */
 						{
-							$this->accumulate_wild_values($trial_value);
+							if ($set_ref !== false)
+								$this->accumulate_wild_values($trial_value);
+								
 							if ($br_expr === ':') $this->unwind_stage--;
 							return $matched;
 						}

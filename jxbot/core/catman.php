@@ -80,6 +80,9 @@ class JxBotNLData
 					(AIML 2.0)
 	*/
 	{
+		/* match part separator */
+		if ($in_term == ':') return 5;
+		
 		/* wildcards: */
 		if ($in_term == '#') return 1;
 		else if ($in_term == '_') return 2;
