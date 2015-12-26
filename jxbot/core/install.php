@@ -31,7 +31,10 @@
  *******************************************************************************/
 
 /* user-driven installer script */
-			
+
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
+
 
 class JxBotInstaller
 {
@@ -184,6 +187,7 @@ JxWidget::hidden($inputs, 'db_host,db_name,db_prefix,db_username,db_password');
 		
 		// schema creation
 		require_once(dirname(__FILE__).'/schema.php');
+		JxBotSchema::install();
 		
 		// configure system
 		JxBotConfig::set_option('bot_name', $inputs['bot_name']);

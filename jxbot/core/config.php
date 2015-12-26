@@ -32,6 +32,8 @@
 
 /* bot configuration and initalisation */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
 
 class JxBotConfig
 {

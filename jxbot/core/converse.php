@@ -33,6 +33,9 @@
 /* conversation management; initialisation, logging, client predicates ('variables'),
 response generation using the engine */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
+
 class JxBotConverse
 {
 

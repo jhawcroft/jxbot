@@ -30,6 +30,9 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
+
+
 	
 function do_handle_upload()
 {

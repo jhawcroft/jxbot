@@ -30,6 +30,8 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
+
 
 if (isset($_POST['new-name']) && trim($_POST['new-name']) !== '')
 	JxBotConfig::bot_add_prop($_POST['new-name'], '');

@@ -33,6 +33,8 @@
 /* main include for JxBot;
 there are two principal entry modes: i) client chat, ii) administration */
 
+define('JXBOT', 1);
+
 
 require_once(dirname(__FILE__).'/config.php');
 require_once(dirname(__FILE__).'/util.php');

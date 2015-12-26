@@ -32,6 +32,8 @@
 
 /* the bot administration pages */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
 
 class JxBotAdmin
 {
@@ -67,7 +69,7 @@ class JxBotAdmin
 	{
 		unset($_SESSION['jxbot-admin']);
 		JxBotAdmin::$page = NULL;
-		jxbot_finish_session();
+		session_destroy();
 		
 		header("Location: ../\n");
 		exit;
@@ -97,6 +99,15 @@ class JxBotAdmin
 	
 public static function admin_generate()
 {
+	if ((!isset($_SESSION['jxbot-admin'])) || ($_SESSION['jxbot-admin'] !== 1))
+	{
+		require(dirname(__FILE__).'/login.php');
+		exit;
+	}
+	
+	
+	define('JXBOT_ADMIN', 1);
+
 
 	JxBotAdmin::determine_page();
 	
@@ -176,6 +187,19 @@ require_once(dirname(__FILE__).'/admin_'.JxBotAdmin::$page[0].'.php');
 <?php
 }
 
+
+	public static function check_and_login()
+	{
+		$inputs = JxBotUtil::inputs('username,password');
+		
+		if ((JxBotConfig::option('admin_user') != $inputs['username']) ||
+			(JxBotConfig::option('admin_hash') != hash('sha256', $inputs['password'])))
+			return false;
+		
+		$_SESSION['jxbot-admin'] = 1;
+		
+		JxBotAdmin::admin_generate();
+	}
 
 }
 

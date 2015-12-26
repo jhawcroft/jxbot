@@ -32,6 +32,8 @@
 
 /* AIML parsing and generating capabilities for JxBot */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
 
 class JxBotAiml
 {

@@ -32,6 +32,9 @@
 
 /* general utilities */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
+
 
 function jxbot_die($in_error)
 /* something really bad has happened, print an error message and end the HTTP request */

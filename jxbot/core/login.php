@@ -30,20 +30,53 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-// this file is for development/debugging purposes and will shortly be deleted ***
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-require_once('db.php');
-
-JxBotDB::connect('localhost', 'bot2', '', 'root', 's1mple');
+if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 
+$error = false;
+if (isset($_POST['username']) || isset($_POST['password']))
+{
+	$logged_in = JxBotAdmin::check_and_login();
+	if (!$logged_in) $error = true;
+}
 
 
-require_once('schema.php');
+?><!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>JxBot: Administration</title>
+<link rel="base" href="<?php print JxBotConfig::bot_url(); ?>jxbot/">
+<link href="https://fonts.googleapis.com/css?family=Roboto+Condensed|Oswald:700" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/admin.css">
+<link rel="stylesheet" type="text/css" href="<?php print JxBotConfig::bot_url(); ?>jxbot/core/css/fancy.css">
+</head>
+<body>
+<div id="login-container-outer">
+<div id="login-container">
+<form method="post" action="">
+
+<h1>JxBot Administration</h1>
+
+<?php if ($error) { ?>
+<p class="error">Sorry, the username or password you entered is not correct.<p>
+<?php } ?>
+
+<p><label for="username">Username:</label>
+<input type="text" name="username" id="username" size="20"></p>
+
+<p><label for="password">Password:</label>
+<input type="password" name="password" id="password" size="20"></p>
+
+<p class="left"><small><a href="?forgot-password=1">Forgot my password</a></p>
+
+<p class="right"><input type="submit" value="Login"></p>
 
 
-
+<div class="clear"></div>
+</form>
+</div>
+</div>
+</body>
+</html>
 

@@ -33,7 +33,8 @@
 Text Fields 
 */
 
-input[type='text']
+input[type='text'],
+input[type='password']
 {
 	border: 1px solid #AAA;
 	border-radius: 5px;

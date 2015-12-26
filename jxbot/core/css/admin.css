@@ -44,13 +44,11 @@ html, body
 
 .left
 {
-	clear: both;
 	float: left;
 }
 
 .right
 {
-	clear: both;
 	float: right;
 }
 
@@ -401,6 +399,59 @@ img#welcome-bot
 {
 	float: right;
 	margin-left: 1.5em;
+}
+
+
+
+/*
+Login
+*/
+
+div#login-container-outer
+{
+	position: relative;
+	height: 100%;
+	width: 100%;
+}
+
+
+div#login-container
+{
+	width: 23em;
+	margin: 0 auto;
+	
+	position: relative;
+	top: 45%;
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+	
+	padding: 20px;
+	background-color: white;
+	box-shadow: 0px 2px 4px 0 black;
+}
+
+
+div#login-container h1
+{
+	margin: 0;
+	margin-bottom: 1em;
+	font-family: 'Oswald', sans-serif;
+	font-size: 24pt;
+	font-weight: bold;
+	
+}
+
+
+/*
+Error notice
+*/
+
+.error
+{
+	background-color: #ffcccc;
+	padding: 0.8em;
+	font-weight: bold;
 }
 
 

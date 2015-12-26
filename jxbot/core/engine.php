@@ -33,6 +33,8 @@
 /* core logic; responsible for finding the most appropriate category to handle
 any given user input */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
 
 class JxBotEngine
 {

@@ -33,10 +33,15 @@
 /* creation of the JxBot MySQL database schema and population with most essential
 default values except those explicitly configured by the install script */
 
-// TODO *** ought to prevent execution of this and other scripts directly
-// unless some constant is defined
+if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 
+class JxBotSchema
+{
+
+	public function install()
+	{
+	
 JxBotDB::$db->exec('
 CREATE TABLE category (
     id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
@@ -172,5 +177,9 @@ INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_color', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_food', '');
 ");
 
+JxBotDB::$db->exec("
+INSERT INTO opt (opt_key, opt_value) VALUES ('admin_user', 'admin');
+");
 
-
+	}
+}

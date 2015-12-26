@@ -33,6 +33,9 @@
 /* 'category manager'; storage, import, export and editing of the category database
 of natural language patterns and output templates */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
+
 class JxBotNLData
 {
 

@@ -33,6 +33,9 @@
 /* natural language auxiliary functions & utilities;
 normalisation, substitution, tense, spelling, etc. */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
+
 class JxBotNL
 {
 

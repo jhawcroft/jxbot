@@ -33,6 +33,9 @@
 /* output generation; converts a template to an output based upon the supplied
 match information and current bot context */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
+
 
 
 

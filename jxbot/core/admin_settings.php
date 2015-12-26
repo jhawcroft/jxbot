@@ -30,12 +30,16 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
+
 
 
 if (isset($_POST['bot_tz']))
 {
 	JxBotConfig::set_option('bot_tz', $_POST['bot_tz']);
 	JxBotConfig::set_option('bot_active', $_POST['bot_active']);
+	
+	JxBotConfig::set_option('admin_user', $_POST['admin_user']);
 	
 	if (isset($_POST['bot_password']) && trim($_POST['bot_password']) !== '')
 		JxBotConfig::set_option('admin_hash', hash('sha256', $_POST['bot_password']));
@@ -53,6 +57,9 @@ if (isset($_POST['bot_tz']))
 <div class="field"><label for="bot_tz">Timezone: </label>
 <?php JxBotConfig::widget_timezone(); ?></div>
 
+
+<div class="field"><label for="admin_user">Administration Username: </label>
+<input type="text" name="admin_user" id="admin_user" size="20" value="<?php print JxBotConfig::option('admin_user'); ?>"></div>
 
 <div class="field"><label for="bot_password">Change Password: </label>
 <input type="text" name="bot_password" id="bot_password" size="20"></div>

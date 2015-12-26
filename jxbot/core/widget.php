@@ -32,6 +32,9 @@
 
 /* a set of simple styled HTML widgets for use in the administration interface */
 
+if (!defined('JXBOT')) die('Direct script access not permitted.');
+
+
 
 // ! TODO  was part of another project of the author's, should be renamed and cleaned up
 class JxWidget
