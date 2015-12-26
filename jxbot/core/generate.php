@@ -49,9 +49,78 @@ class JxBotElement
 	}
 	
 	
-	public function generate($in_context) // pass in a Converse instance
+	public function child_element_count()
 	{
+		$count = 0;
+		foreach ($this->children as $child)
+			if (!is_string($child)) $count++;
+		return $count;
+	}
 	
+	
+	public function child_element($in_index)
+	{
+		$index = 0;
+		foreach ($this->children as $child)
+		{
+			if (!is_string($child))
+			{
+				if ($index == $in_index) return $child;
+				$index++;
+			}
+		}
+		return null;
+	}
+	
+	
+	public function generate($in_context) // pass in a Converse instance / access statically demand
+	{
+		switch ($this->name)
+		{
+		case 'template':
+		case 'li':
+		case 'index':
+		case 'name':
+			$content = '';
+			foreach ($this->children as $child)
+			{
+				if (is_string($child)) $content .= $child;
+				else $content .= $child->generate($in_context);
+			}
+			return $content;
+		
+		case 'random':
+			$count = $this->child_element_count();
+			$index = mt_rand(1, $count) - 1;
+			return $this->child_element($index)->generate($in_context);
+		
+		case 'star':
+		case 'thatstar':
+		case 'topicstar':
+			if (count($this->children) == 1 &&
+				is_object($this->children[0]) &&
+				$this->children[0]->name == 'index')
+			{
+				$index = intval($this->children[0]->generate($in_context));
+				return 'STAR['.$index.']'; // ** TO PATCH
+			}
+			break;
+		
+		case 'bot':
+		case 'get':
+			if (count($this->children) == 1 &&
+				is_object($this->children[0]) &&
+				$this->children[0]->name == 'name')
+			{
+				$name = trim($this->children[0]->generate($in_context));
+				if ($this->name == 'get')
+					return JxBotConverse::predicate($name);
+				else
+					return JxBotConfig::predicate($name);
+			}
+			break;
+			
+		}
 	}
 }
 

@@ -207,9 +207,16 @@ class JxBotConfig
 	
 	
 	public static function bot($in_key)
+	// deprecated; use predicate
 	{
 		return JxBotConfig::option('bot_'.strtolower($in_key)); // to be improved & cached, etc.!  ***
 	}
+	
+	public static function predicate($in_name)
+	{
+		return JxBotConfig::option('bot_'.strtolower($in_name)); // to be improved & cached, etc.!  ***
+	}
+	
 	
 	
 	public static function bot_properties()
