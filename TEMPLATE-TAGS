@@ -1,0 +1,319 @@
+Template-side Tags for v1
+=========================
+
+! suggest we use the PHP XML parse -> struct mechanism,
+and a recursive evaluation to generate output, with
+specific functions for specific tags.
+
+(1-based indexes; invalid index raises error)
+
+
+star, thatstar, topicstar
+----
+	(optional)
+	index = I
+
+where I : input match captured value (wildcard/set)
+
+! would like to rename this; what name could we use?
+  or we can be specific in the documentation about it matching
+  and being named after the * wildcard
+
+
+that
+----
+
+(previous output)
+
+	(optional)
+	index = R, S
+	index = R
+	
+where R : response, S : sentence
+
+
+input
+-----
+
+(previous input; is 1,1 this input?)
+
+	(optional)
+	index = I, S (sentence)
+	index = I
+
+
+get
+---
+(client predicate)
+
+	name = ???
+	
+No value, return empty string
+(but represent internally as null so can test in v2
+if the predicate is 'bound' and has a value)
+
+bot
+---
+(bot predicate)
+
+	name = ???
+
+(return empty string if null/unspecified)
+
+
+date
+	Local date & time
+
+id
+	user ID - use the internal session ID integer for conciseness ?
+
+size
+	number of categories
+
+version
+	JxBot version
+
+
+
+uppercase
+lowercase
+formal - ie. Title Case
+sentence - uppercase first letter of each sentence delimited by period (.)
+	(lets add ? and ! which aren't specified by AIML 1.0.1)
+
+
+
+condition
+	name = client predicate name
+	value = simple pattern expression (eg. supports * wildcard)
+	
+	(contents is returned if true;
+	internally represent as below)
+
+condition
+	name = client predicate name
+
+		li  value = pattern
+		li value = pattern
+		li (default)
+	(contents of matching li are returned;
+	li is processed in order, first match is taken and condition stops processing;
+	internally represent as below)
+	
+condition
+		li  name value
+		li name value
+		li 
+
+
+
+random
+	(return one li at random)
+	
+	
+	
+set name
+	(client-side predicate; to contents)
+	
+	generally returns captured value, but JxBot may be configured
+	to recognise certain client-side predicates as return name not value?
+	(probably wont do that, but it's in the v1 spec as an option)
+
+
+
+
+srai
+	pass the contents to the AIML matching process and return the result
+	(not sure about the processing of that, et al.
+	in these instances? - suggest we process as with the original match
+	ie. without taking into account any prior sentence that may have already
+	been processed for this interaction; seems to make most sense and
+	otherwise ends up being tricky and unclear anyway)
+
+
+think
+	hide evaluation of contents from output (inhibit/consume silently)
+javascript
+	(server-side JS; don't implement; consume ie. think content)
+system
+	(security implications;
+	suggest implement whatever v2 alternatives are available,
+	and maybe include a switch that is OFF by default 
+	and has appropriate warnings?)
+	
+
+gossip
+	removed in V2; supposed to capture gossip from client
+		probably silently ignore & process contents as if it doesn't exist,
+		can review later
+learn
+	(security hole in v1 spec, not going to be implemented until reviewed;
+	will silently act as if tags not there, returning contents,
+	and produce a flag on AIML import, perhaps also on dashboard?)
+
+
+
+
+
+
+
+
+
+
+Don't worry about person, person2 and gender initially;
+will need to implement substitutions to make these work.
+Requires an additional configuration screen & database
+review.  Can implement this functionality after MAPS,
+as I think it may be related.
+Add for version 1 - but not 0.92
+
+
+person2  1st person -> third person (words)
+         3rd person -> first person (words)
+
+(v2 supports maps, and no specific implementaiton is specified,
+we will probably implement using an extension of maps ?)
+
+person
+	1st -> second person (words)
+	2nd -> first person (words)
+	
+gender
+	male -> female (words)
+	female -> male (words)
+
+
+
+
+! where attributes are allowed as elements in v2, implement that here too
+	
+
+
+Convenience Elements
+=======
+(do these last)
+
+sr => srai star /srai
+person2 => person2 star /person2
+person => person star /person
+gender => gender star /gender
+
+
+
+
+Notes on Normalisations
+=====
+
+Sequence:
+1. substitution (could be a replacement for my foreign accent removal
+	or could put a switch in for that); suggest use configurable tables in admin
+2. sentence splitting
+	(probably provide plug-in functions/classes to handle this
+	with a choice of which one, or none to use in settings)
+3. pattern fitting (ie. splitting into words, uppercase, etc.)
+
+
+
+=====
+v2 New Elements
+
+* already implementing $ operator, and new wildcards ^ and #
+* consider after implementation of all of v1 above
+* 'nullstar' bot predicate -> value of empty star value,
+	suggest an empty string
+* should be checking aiml & version= attribute
+* already implementing category-side <topic>
+
+request
+	like input, but entire inputs (all sentences)
+response 
+	last response (all sentences)
+
+condition
+	<loop/>
+	(condition is repeatedly evaluated & output concatentated,
+	until an li is matched that doesn't contain a <loop/>
+	
+	(obviously requires a recursion limit, to be provided in system settings
+	and given sane default values for server sanity)
+
+
+sraix
+	external service usage
+	default service: Pannous
+	bot - destination bot on same server 'username/botname'
+	botid - same server 'bot id'
+	limit - first N sentences of response
+	service - as above
+	apikey (if relevant)
+	server - where to call
+	hint - poorly defined, but tends to indicate a type of service
+		and let server decide
+	default -> override use of SRAIXFAILED pattern on failure
+
+map
+	name
+	transforms content from one value to another
+	fairly self-explanatory
+	map files look like this
+		value:value2
+	in database will probably just store as a map table.
+
+	(can use this as the basis of person in all likelihood;
+	provide example built-in maps)
+
+date
+	additional attributes:
+	locale, eg. en_US (language/country code)
+	format  -> Unix strftime format string including plain text
+	timezone (+/- hours relative to GMT)
+	jformat -> Java simple date format
+		http://docs.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html
+
+explode
+	split a word into characters with spaces between
+
+
+normalize and denormalize
+	(up to the administrator to configure)
+
+
+
+(compatibility; v1 files will produce learn tags that don't do anything as above)
+v2 files will produce v2 working learn)
+
+learn
+	-> add to patterns specific to the client session
+	(lost when session expires; will need to implement expiry, 
+	and sane limits, etc.)
+
+learnf
+	-> as above, but global to the bot and retained for download
+	& sorting into other aiml files
+	
+	(security settings for both of these options may also apply,
+	besides sane limits, to turn them on/off)
+
+eval - seems to be redundant given it's description - not sure what they're thinking?
+
+
+vocabulary
+	-total number of distinct words in sets and patterns
+
+program
+	-program name & version string
+	
+interval
+	-time between two dates
+	attributes:
+		style - minutes, hours, days, weeks, months or years
+		jformat / format
+		from
+		to
+
+
+	
+
+
+
+

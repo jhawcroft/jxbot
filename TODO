@@ -22,6 +22,8 @@ Essentials (toward a version 1.0)
 
 * Substitution maintenance and sentence splitting
 
+* Implement sane recursion limits & checks
+
 
 
 Consider
