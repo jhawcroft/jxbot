@@ -30,7 +30,7 @@ else $response = JxBotConverse::get_greeting();
 </div>
 
 
-<div class="bubble">
+<div class="bubble" style="max-width: 80%;">
 <div class="bubble-top"><div class="bubble-corner-tl"></div><div class="bubble-corner-tr"></div></div>
 <div class="bubble-left"></div>
 <div class="bubble-content">

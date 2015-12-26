@@ -122,8 +122,147 @@ class JxBotEngine
 		if ($in_term_index < $this->term_limit)
 			return $this->input_terms[$in_term_index];
 		else
-			return  ':'; /* ** not sure about the character selected here; needs review;
+			return  '.'; /* ** not sure about the character selected here; needs review;
 			                could just as well be a period? */
+	}
+	
+	
+	protected function try_match_values($in_branch, &$in_values, $in_save_match, $in_term_index, $is_terminal)
+	{
+		$current_term = $this->get_term($in_term_index);
+		
+		foreach ($in_values as $trial_value)
+		{
+			//print 'Trying '.implode(' ', $trial_value).'<br>';
+			//var_dump($current_term);
+			
+			$term_index = $in_term_index;
+			$term = $current_term;
+			$is_match = true;
+			foreach ($trial_value as $trial_term)
+			{
+				if ($trial_term != $term)
+				{
+					$is_match = false;
+					break;
+				}
+				$term = $this->get_term(++ $term_index);
+			}
+			
+			if ($is_match)
+			{
+				if ($term == '.')
+				{
+					if ($is_terminal) return $in_branch;
+				}
+				else
+				{
+					$matched = $this->walk($in_branch, $term_index);
+					if ($matched !== false)
+					/* subbranch matched; this branch matched */
+					{
+						if ($in_save_match)
+							$this->accumulate_wild_values($trial_value);
+						
+						return $matched;
+					}
+				}
+			}
+		} /* foreach ($set_of_values as $trial_value) */
+		
+		return false;
+	}
+	
+	
+	protected function try_match_wildcard($in_branch, &$in_wildcard, $in_term_index, $is_terminal)
+	{
+		//print 'trying to match terms against wildcard...<br>';
+		
+		$current_term = $this->get_term($in_term_index);
+				
+		/* prepare to match wildcard */
+		$wildcard_terms = array();
+		$term_index = $in_term_index;
+		$term = $current_term;
+		$zero_or_more = JxBotEngine::is_zero_wildcard($in_wildcard);
+		
+		/* always match the first term for a 1+ wildcard;
+		wildcards never match : */
+		if (!$zero_or_more && $term != ':')
+		{
+			//print 'accumulate first 1+ term<br>';
+			$wildcard_terms[] = $term;
+			$term = $this->get_term(++ $term_index);
+		}
+		
+		/* match as few terms as possible
+		to this wildcard */
+		while ($term_index < $this->term_limit)
+		{			
+			/* try match the current subbranch;
+			effectively looking for the end of the wildcard processing */
+			$matched = $this->walk($in_branch, $term_index);
+			if ($matched !== false)
+			/* subbranch matched; this branch matched */
+			{
+				$this->accumulate_wild_values($wildcard_terms);
+				return $matched;
+			}
+			
+			/* match the term to this wildcard */
+			$wildcard_terms[] = $term;
+			$term = $this->get_term(++ $term_index);
+		}
+	
+		//print 'wildcard ran out of input<br>';
+	
+		/* reached end of input,
+		inspect the wildcard match to see if matching
+		should continue, or if we should fail here */
+		$failed = (!$zero_or_more && count($wildcard_terms) == 0);
+		if (!$failed)
+		{				
+			/* if submatching didn't run till the end,
+			then this wildcard must be terminal */
+			if ($is_terminal) 
+			{
+				$this->accumulate_wild_values($wildcard_terms);
+				return $in_branch;
+			}
+		}
+		
+		/* run out of input on non-terminal; match failed */
+		return false;
+	}
+	
+	
+	protected function try_match_word($in_branch, &$in_word, $in_term_index, $is_terminal)
+	{
+		//print 'trying to match term against word...<br>';
+		
+		//$current_term = $this->get_term($in_term_index);
+		
+		//if ($in_word == $current_term) // probably unnecessary, as SQL already matching...
+		//{
+			if ($this->get_term($in_term_index + 1) == '.')
+			{
+				if ($is_terminal) return $in_branch;
+			}
+			else
+			{
+				/* match remaining input to subbranch */
+				$match = $this->walk($in_branch, $in_term_index + 1);
+				if ($match !== false) 
+				{
+					if ($in_word == ':') $this->unwind_stage--;
+					return $match;
+				}
+			}
+		//}
+			
+		/* otherwise, match failed */
+		//print 'failed<br>';
+		return false;
 	}
 	
 	
@@ -132,21 +271,17 @@ class JxBotEngine
 	user input; looks for a match with the remainder of the input.  If a match is found,
 	returns the matching pattern ID, otherwise, returns FALSE. */
 	{
-		$current_term = $this->get_term($in_term_index);
-		
-		
-		// can this be refactored into a number of smaller functions??! - 3 subparts
-		
-		
-		
-		//print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
-		
-		/* look in this branch for all possible matching subbranches */
+		/* look in this branch for all possible matching sub-branches;
+		ie. an exact match with the input term, or, a wildcard or complex pattern term
+		such as a bot property or AIML 2 'set' */
 		$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
 			WHERE parent=? AND ( (expression = ? AND sort_key IN (0,5)) OR (sort_key NOT IN (0,5)) ) 
 			ORDER BY sort_key");
+		$current_term = $this->get_term($in_term_index);
 		$stmt->execute(array($in_parent_id, $current_term));
 		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
+		
+		//print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
 		
 		//print '<pre>';
 		//var_dump($possible_branches);
@@ -170,138 +305,27 @@ class JxBotEngine
 			// pattern side sets & bot tags will have to be handled similarly, since they may have multi-word values
 			// basically, like wildcards, except all words must match
 			
+			/* branch to appropriate match handler depending on type of branch */
 			if (($bot_ref !== false) || ($set_ref !== false))
 			{
-				// grab the set of possible match values
-				if ($bot_ref !== false)
-				{
-					$set_of_values = array( JxBotNL::normalise( JxBotConfig::bot($bot_ref) ) );
-				}
-				else if ($set_ref !== false)
-				{
-					// need to get all set values here *** todo
-					$set_of_values = array();
-				}
-				
-				// attempt to match all words at current position to one of the set values
-				foreach ($set_of_values as $trial_value)
-				{
-					//print 'Trying '.implode(' ', $trial_value).'<br>';
-					//var_dump($current_term);
-					
-					$term_index = $in_term_index;
-					$term = $current_term;
-					$is_match = true;
-					foreach ($trial_value as $trial_term)
-					{
-						if ($trial_term != $term)
-						{
-							$is_match = false;
-							break;
-						}
-						$term = $this->get_term(++ $term_index);
-					}
-					if ($is_match)
-					{
-						$matched = $this->walk($br_parent, $term_index);
-						if ($matched !== false)
-						/* subbranch matched; this branch matched */
-						{
-							if ($set_ref !== false)
-								$this->accumulate_wild_values($trial_value);
-								
-							if ($br_expr === ':') $this->unwind_stage--;
-							return $matched;
-						}
-					}
-				}
-				// failed.. continue with other branch possibilities
+				/* match:  bot predicate or set reference: */
+				$values = array( JxBotNL::normalise( JxBotConfig::bot($bot_ref) ) );
+				$match = JxBotEngine::try_match_values($br_parent, $values, false, $in_term_index, $br_terminal);
 			}
 			else if (!$is_wildcard)
-			/* if the node isn't a wildcard, we need no special matching algorithm */
 			{
-				//print 'trying to match term against word...<br>';
-				
-				if ($in_term_index + 1 < $this->term_limit)
-				{
-					/* match remaining input to subbranch */
-					$match = $this->walk($br_parent, $in_term_index + 1);
-					if ($match !== false) 
-					{
-						if ($br_expr === ':') $this->unwind_stage--;
-						return $match;
-					}
-				}
-				else if ($br_terminal)
-				{
-					//print "Ran out of input @ terminal; matched $br_parent<br>";
-					
-					/* ran out of input; match if terminal node */
-					if ($br_expr === ':') $this->unwind_stage--;
-					return $br_parent;
-				}
-				/* otherwise, match failed */
-				//print 'failed<br>';
+				/* match:  normal word or pattern clause separator: */
+				$match = JxBotEngine::try_match_word($br_parent, $br_expr, $in_term_index, $br_terminal);
 			}
 			else
-			/* node is a wildcard; match one or more terms */
 			{
-				//print 'trying to match terms against wildcard...<br>';
-				
-				/* prepare to match wildcard */
-				$wildcard_terms = array();
-				$term_index = $in_term_index;
-				$term = $current_term;
-				$zero_or_more = JxBotEngine::is_zero_wildcard($br_expr);
-				
-				/* always match the first term for a 1+ wildcard;
-				wildcards never match : */
-				if (!$zero_or_more && $term != ':')
-				{
-					//print 'accumulate first 1+ term<br>';
-					$wildcard_terms[] = $term;
-					$term = $this->get_term(++ $term_index);
-				}
-				
-				/* match as few terms as possible
-				to this wildcard */
-				while ($term_index < $this->term_limit)
-				{			
-					/* try match the current subbranch;
-					effectively looking for the end of the wildcard processing */
-					$matched = $this->walk($br_parent, $term_index);
-					if ($matched !== false)
-					/* subbranch matched; this branch matched */
-					{
-						$this->accumulate_wild_values($wildcard_terms);
-						if ($br_expr === ':') $this->unwind_stage--;
-						return $matched;
-					}
-					
-					/* match the term to this wildcard */
-					$wildcard_terms[] = $term;
-					$term = $this->get_term(++ $term_index);
-				}
-			
-				//print 'wildcard ran out of input<br>';
-			
-				/* inspect the wildcard match to see if matching
-				should continue, or if we should fail here */
-				$failed = (!$zero_or_more && count($wildcard_terms) == 0);
-				if (!$failed)
-				{				
-					/* if submatching didn't run till the end,
-					then this wildcard must be terminal */
-					if ($br_terminal) 
-					{
-						$this->accumulate_wild_values($wildcard_terms);
-						if ($br_expr === ':') $this->unwind_stage--;
-						return $br_parent;
-					}
-				}
-				
-				/* run out of input on non-terminal; match failed */
+				/* match:  wildcard */
+				$match = JxBotEngine::try_match_wildcard($br_parent, $br_expr, $in_term_index, $br_terminal);
 			}
+			
+			/* if matching was successful, return the matching pattern,
+			otherwise, continue looking at sub-branches at this level */
+			if ($match !== false) return $match;
 		}
 		
 		/* no possible subbranches; no match this branch */
@@ -339,7 +363,7 @@ class JxBotEngine
 		
 		//print 'Matched pattern: '.$matched_pattern.'<br>';
 		
-		/*print '<p>Wildcard values:<pre>';
+		print '<p>Wildcard values:<pre>';
 		var_dump($context->wild_values);
 		print '</pre></p>';
 		
@@ -349,7 +373,7 @@ class JxBotEngine
 		
 		print '<p>Wildcard TOPIC values:<pre>';
 		var_dump($context->wild_topic_values);
-		print '</pre></p>';*/
+		print '</pre></p>';
 		
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
 		$stmt->execute(array($matched_pattern));
