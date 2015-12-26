@@ -299,6 +299,13 @@ eval - seems to be redundant given it's description - not sure what they're thin
 
 vocabulary
 	-total number of distinct words in sets and patterns
+	(work with a dictionary facility, for which words will be added
+	when patterns are defined - tho not deleted - same with sets
+	not great from an accidental mistaken spelling perspective, 
+	but can always provide a timestamp
+	so latest words can be reviewed) ; can double as a dictionary/theasurus
+	for which words can be associated with one-another and meanings added
+	/ imported from CSV
 
 program
 	-program name & version string
