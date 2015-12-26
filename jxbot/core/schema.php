@@ -51,13 +51,20 @@ CREATE TABLE pattern (
 JxBotDB::$db->exec('
 CREATE TABLE pattern_node (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	parent INT(11) NULL,
+	parent INT(11) NOT NULL,
 	expression VARCHAR(30) NOT NULL,
 	sort_key TINYINT(1) NOT NULL,
 	is_terminal TINYINT(1) NOT NULL DEFAULT 0,
 	UNIQUE(parent,expression)
 ) ENGINE=MyISAM;
 ');
+
+
+JxBotDB::$db->exec("
+INSERT INTO pattern_node (id, parent, expression, sort_key, is_terminal) 
+VALUES (0, 0, ':ROOT:', 0, 0);
+");
+
 
 JxBotDB::$db->exec('
 CREATE TABLE template (

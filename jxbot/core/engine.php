@@ -135,27 +135,17 @@ class JxBotEngine
 		$current_term = $this->get_term($in_term_index);
 		
 		
-		// can this be refactored into a number of smaller functions??!
+		// can this be refactored into a number of smaller functions??! - 3 subparts
+		
 		
 		
 		//print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
 		
 		/* look in this branch for all possible matching subbranches */
-		// might want to add a wild flag, and possibly a set table for AIML v2 with a set ID 
-		if ($in_parent_id === null)
-		{ // consider using zero 0 to eliminate this double-handling... **
-			$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
-				WHERE parent IS NULL AND ( (expression = ? AND sort_key IN (0,5)) OR (sort_key NOT IN (0,5)) ) 
-				ORDER BY sort_key");
-			$stmt->execute(array($current_term));
-		}
-		else
-		{
-			$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
-				WHERE parent=? AND ( (expression = ? AND sort_key IN (0,5)) OR (sort_key NOT IN (0,5)) ) 
-				ORDER BY sort_key");
-			$stmt->execute(array($in_parent_id, $current_term));
-		}
+		$stmt = JxBotDB::$db->prepare("SELECT id,expression,is_terminal FROM pattern_node 
+			WHERE parent=? AND ( (expression = ? AND sort_key IN (0,5)) OR (sort_key NOT IN (0,5)) ) 
+			ORDER BY sort_key");
+		$stmt->execute(array($in_parent_id, $current_term));
 		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
 		
 		//print '<pre>';
@@ -344,7 +334,7 @@ class JxBotEngine
 		//var_dump($search_terms);
 		//print '<br>';
 
-		$matched_pattern = $context->walk(NULL, 0);
+		$matched_pattern = $context->walk(0, 0);
 		if ($matched_pattern === false) return false;
 		
 		//print 'Matched pattern: '.$matched_pattern.'<br>';

@@ -125,22 +125,22 @@ class JxBotNLData
 		$in_full = JxBotNL::upper($in_full);
 		
 		$count = count($terms);
-		$last_node = NULL; /* root of graph */
+		$last_node = 0; /* root of graph */
 		
 		for ($index = 0; $index < $count; $index++)
 		{
 			$expression = $terms[$index];
 			
-			if ($last_node === NULL)
+			/*if ($last_node === NULL)
 			{
 				$stmt = JxBotDB::$db->prepare('SELECT id FROM pattern_node WHERE parent IS NULL AND expression=?');
 				$stmt->execute(array($expression));
 			}
 			else
-			{
-				$stmt = JxBotDB::$db->prepare('SELECT id FROM pattern_node WHERE parent=? AND expression=?');
-				$stmt->execute(array($last_node, $expression));
-			}
+			{*/
+			$stmt = JxBotDB::$db->prepare('SELECT id FROM pattern_node WHERE parent=? AND expression=?');
+			$stmt->execute(array($last_node, $expression));
+			//}
 			$existing = $stmt->fetchAll(PDO::FETCH_NUM);
 			if (count($existing) == 0)
 			{
