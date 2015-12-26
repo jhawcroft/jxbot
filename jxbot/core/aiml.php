@@ -59,10 +59,12 @@ class JxBotAiml
 	private static $topic;
 	
 	private static $unnested_info;
-
-
+	
 	private static $error;
 	private static $error_line;
+	
+	private static $root;
+	private static $stack;
 	
 	
 	private static function set_error($in_parser, $in_error)
@@ -237,17 +239,17 @@ class JxBotAiml
 	}
 	
 	
-	private static function parser_create()
+	private static function parser_create($in_start, $in_end, $in_data)
 	{
 		$parser = xml_parser_create();
 		xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
 		xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, 'UTF-8');
 		
 		xml_set_element_handler($parser, 
-			array('JxBotAiml', '_element_start'), 
-			array('JxBotAiml', '_element_end'));
+			array('JxBotAiml', $in_start), 
+			array('JxBotAiml', $in_end));
 		xml_set_character_data_handler($parser, 
-			array('JxBotAiml', '_element_data'));
+			array('JxBotAiml', $in_data));
 			
 		return $parser;
 	}
@@ -257,7 +259,7 @@ class JxBotAiml
 	{
 		set_time_limit(300); // 5-minutes
 		
-		$parser = JxBotAiml::parser_create();
+		$parser = JxBotAiml::parser_create('_element_start', '_element_end', '_element_data');
 			
 		JxBotAiml::$state = JxBotAiml::STATE_TOP;
 		JxBotAiml::$top_topic = '*';
@@ -283,7 +285,7 @@ class JxBotAiml
 	{
 		$in_pattern = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pattern>" . $in_pattern . '</pattern>';
 		
-		$parser = JxBotAiml::parser_create();
+		$parser = JxBotAiml::parser_create('_element_start', '_element_end', '_element_data');
 			
 		JxBotAiml::$pattern = '';
 		JxBotAiml::$state = JxBotAiml::STATE_PAT_ENCODE;
@@ -294,6 +296,51 @@ class JxBotAiml
 		xml_parser_free($parser);
 		
 		return JxBotAiml::$pattern;
+	}
+	
+	
+	
+	private static function _template_open($in_parser, $in_name, $in_attrs)
+	{
+		$element = JxBotAiml::$stack[] = new JxBotElement($in_name);
+		if (count(JxBotAiml::$stack) > 1)
+			JxBotAiml::$stack[count(JxBotAiml::$stack) - 2]->children[] = $element;
+		else
+			JxBotAiml::$root = $element;
+		
+		foreach ($in_attrs as $name => $value)
+		{
+			$attr_element = new JxBotElement($name);
+			$element->children[] = $attr_element;
+			$attr_element->children[] = $value;
+		}
+	}
+	
+	
+	private static function _template_close($in_parser, $in_name)
+	{
+		array_pop(JxBotAiml::$stack);
+	}
+	
+	
+	private static function _template_data($in_parser, $in_content)
+	{
+		JxBotAiml::$stack[count(JxBotAiml::$stack) - 1]->children[] = $in_content;
+	}
+	
+	
+	public static function parse_template($in_template)
+	{
+		JxBotAiml::$error = '';
+		JxBotAiml::$root = NULL;
+		JxBotAiml::$stack = array();
+		
+		$parser = JxBotAiml::parser_create('_template_open', '_template_close', '_template_data');
+		$in_template = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><template>" . $in_template . '</template>';
+		xml_parse($parser, $in_template, true);
+		xml_parser_free($parser);
+
+		return JxBotAiml::$root;
 	}
 	
 }

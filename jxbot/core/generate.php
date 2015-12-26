@@ -36,6 +36,25 @@ match information and current bot context */
 if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 
+class JxBotElement 
+{
+	public $name;
+	public $children;
+	
+	
+	public function __construct($in_name)
+	{
+		$this->name = $in_name;
+		$this->children = array();
+	}
+	
+	
+	public function generate($in_context) // pass in a Converse instance
+	{
+	
+	}
+}
+
 
 
 
