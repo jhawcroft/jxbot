@@ -32,7 +32,7 @@ else if ($action == 'del-pat') do_del_pat();
 function do_add_tmpl()
 {
 	$inputs = JxBotUtil::inputs('category,new-tmpl');
-	JxBotEngine::template_add(intval($inputs['category']), $inputs['new-tmpl']);
+	JxBotNLData::template_add(intval($inputs['category']), $inputs['new-tmpl']);
 	page_edit($inputs['category']);
 }
 
@@ -40,14 +40,14 @@ function do_add_tmpl()
 function do_del_tmpl()
 {
 	$inputs = JxBotUtil::inputs('template');
-	page_edit( JxBotEngine::template_delete($inputs['template']) );
+	page_edit( JxBotNLData::template_delete($inputs['template']) );
 }
 
 
 function do_save_tmpl()
 {
 	$inputs = JxBotUtil::inputs('tmpl-id,template');
-	$category_id = JxBotEngine::template_update($inputs['tmpl-id'], $inputs['template']);
+	$category_id = JxBotNLData::template_update($inputs['tmpl-id'], $inputs['template']);
 	page_edit($category_id);
 }
 
@@ -63,7 +63,7 @@ function do_add_pat()
 	}
 	
 	/* go ahead and add the new pattern */
-	JxBotEngine::pattern_add($inputs['category'], $inputs['new-pat'], $inputs['topic'], $inputs['that']);
+	JxBotNLData::pattern_add($inputs['category'], $inputs['new-pat'], $inputs['topic'], $inputs['that']);
 	page_edit($inputs['category']);
 }
 
@@ -71,7 +71,7 @@ function do_add_pat()
 function do_del_pat()
 {
 	$inputs = JxBotUtil::inputs('pat-id');
-	$category_id = JxBotEngine::pattern_delete($inputs['pat-id']);
+	$category_id = JxBotNLData::pattern_delete($inputs['pat-id']);
 	page_edit($category_id);
 }
 
@@ -81,7 +81,7 @@ function do_del_pat()
 function do_new_category()
 {
 	$inputs = JxBotUtil::inputs('that,topic');
-	$category_id = JxBotEngine::category_new($inputs['that'], $inputs['topic']);
+	$category_id = JxBotNLData::category_new($inputs['that'], $inputs['topic']);
 	page_edit($category_id);
 }
 
@@ -89,7 +89,7 @@ function do_new_category()
 function do_update_category()
 {
 	$inputs = JxBotUtil::inputs('category,that,topic');
-	JxBotEngine::category_update($inputs['category'], $inputs['that'], $inputs['topic']);
+	JxBotNLData::category_update($inputs['category'], $inputs['that'], $inputs['topic']);
 	page_edit($inputs['category']);
 }
 
@@ -97,7 +97,7 @@ function do_update_category()
 function do_delete_category()
 {
 	$inputs = JxBotUtil::inputs('category');
-	JxBotEngine::category_delete($inputs['category']) ;
+	JxBotNLData::category_delete($inputs['category']) ;
 	page_lookup();
 }
 
@@ -165,7 +165,7 @@ if ($category_id === false) {  ?>
 <?php } else { 
 	print '<h3>Exact Match</h3>';
 	
-	$patterns = JxBotEngine::fetch_patterns($category_id);
+	$patterns = JxBotNLData::fetch_patterns($category_id);
 	JxWidget::grid(array(
 		array('label'=>'ID', 'id'=>0, 'key'=>true, 'visible'=>false),
 		array('label'=>'Pattern', 'id'=>1, 'link'=>'?page=database&action=edit&category='.$category_id, 'encode'=>true)
@@ -189,7 +189,7 @@ function page_edit($in_category_id)
 {
 	$inputs = JxBotUtil::inputs('input');
 	
-	$category = JxBotEngine::category_fetch($in_category_id);
+	$category = JxBotNLData::category_fetch($in_category_id);
 ?>
 
 <input type="hidden" name="category" value="<?php print $in_category_id; ?>">
@@ -244,7 +244,7 @@ JxWidget::grid(array(
 <h3>Templates</h3>
 
 <?php 
-$rows = JxBotEngine::fetch_templates($in_category_id);
+$rows = JxBotNLData::fetch_templates($in_category_id);
 JxWidget::grid(array(
 	array('label'=>'Template', 'id'=>1, 'link'=>'?page=database&action=edit-tmpl&template=$$', 'encode'=>true),
 	array('label'=>'ID', 'id'=>0, 'visible'=>false, 'key'=>true),
@@ -301,7 +301,7 @@ JxWidget::grid(array(
 function page_edit_tmpl()
 {
 	$inputs = JxBotUtil::inputs('template');
-	$template = JxBotEngine::template_fetch($inputs['template']);
+	$template = JxBotNLData::template_fetch($inputs['template']);
 
 ?>
 

@@ -1,0 +1,45 @@
+IMPORTANT ENGINEERING NOTES
+===========================
+
+String Character Encodings
+--------------------------
+
+PHP's support for string character encodings is far from ideal, for historical reasons,
+in part.
+
+As PHP is engineered around byte-oriented strings, ALL text within JxBot is represented
+using UTF-8.
+
+Utilities are explicitly provided (see nl.php) for all the types of text manipulation 
+operations likely to be encountered in this software.  They will be used for clarity.
+
+
+Intermediate-Internal Pattern Format (IIPF)
+-------------------------------------------
+
+For internal reasons, AIML patterns are not stored as-is within the pattern tree 
+in the database.
+
+Pattern-side elements, such as <bot name="..."/> and <set>...</set> are translated into
+a flat, non-XML format for optimal internal use.  Bot properties are represented by a
+colon (:) followed by the property name, and sets, the set name followed by a colon.
+For example:
+
+	<bot>name</bot>    =>    :name
+	<set>colors</set>  =>    colors:
+
+Other operations performed during input normalisation are applied, such that IIPF strings
+resemble normalised input.
+For example:
+
+	HELLO :name DO YOU LIKE colors:
+
+Matches:
+
+	Hello JxBot, do you like red?
+	
+
+
+
+
+

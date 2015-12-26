@@ -175,7 +175,7 @@ class JxBotConverse
 			$output = '???';
 		else
 		{
-			$template = JxBotEngine::fetch_templates($category_id);
+			$template = JxBotNLData::fetch_templates($category_id);
 			$output = $template[0][1];
 		}
 		//$output = NL::make_output($category_id);

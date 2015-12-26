@@ -29,65 +29,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
- 
 
-function jxbot_die($in_error)
-{
-	print $in_error;
-	exit;
-}
+/* output generation; converts a template to an output based upon the supplied
+match information and current bot context */
 
 
-
-if (!function_exists("array_column"))
-{
-    function array_column($array, $column_name)
-    {
-        return array_map(function($element) use($column_name) {
-        	return $element[$column_name];
-        }, $array);
-    }
-}
-
-
-
-
-
-
-class JxBotUtil
-{
-	public static function phpinfo()
-	{
-		ob_start();
-		phpinfo();
-		$pinfo = ob_get_contents();
-		ob_end_clean();
-
-		$pinfo = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$pinfo);
-		echo '<div id="phpinfo">'.$pinfo.'</div>';
-	}
-	
-	
-	public static function request_url()
-	{
-		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != 'off')
-			$protocol = 'https';
-		else $protocol = 'http';
-		return $protocol . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER["REQUEST_URI"],'?');
-	}
-	
-	
-	public static function inputs($in_names)
-	{
-		if (is_string($in_names)) $in_names = explode(',', $in_names);
-		$result = array();
-		foreach ($in_names as $name)
-		{
-			if (isset($_REQUEST[$name])) $result[$name] = $_REQUEST[$name];
-			else $result[$name] = null;
-		}
-		return $result;
-	}
-}
 
 

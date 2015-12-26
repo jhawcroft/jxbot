@@ -33,6 +33,9 @@
 require_once(dirname(__FILE__).'/config.php');
 require_once(dirname(__FILE__).'/util.php');
 require_once(dirname(__FILE__).'/db.php');
+require_once(dirname(__FILE__).'/nl.php');
+require_once(dirname(__FILE__).'/catman.php');
+require_once(dirname(__FILE__).'/generate.php');
 require_once(dirname(__FILE__).'/engine.php');
 require_once(dirname(__FILE__).'/converse.php');
 require_once(dirname(__FILE__).'/aiml.php');
