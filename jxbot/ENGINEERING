@@ -39,6 +39,41 @@ Matches:
 	Hello JxBot, do you like red?
 	
 
+Multi-Pattern/Template Categories
+---------------------------------
+
+Unlike a standard AIML interpreter, JxBot permits categories to have more than one
+pattern and more than one template.  This is an alternative to the standard <srai>
+function and has the potential to make management of large databases easier.
+
+At this stage, I have not yet decided what stance to take on this functionality with
+respect to compatibility with other bot systems.  It is possible that exported AIML will
+be factored to be functionally equivalent but consist only of standard, single-pattern,
+single-template categories.
+
+The semantics are not yet set in concrete.
+
+### Pattern Semantics
+
+Where multiple patterns exist and utilise wildcards, a decision is yet to be made on how
+to handle access to wildcard values:
+
+i)  Wildcards must be presented in the same order and in the same quantity throughout
+    all patterns within a single category, OR
+    
+ii) Named wildcards will be introduced to facilitate the use of multiple patterns having
+    uncorrelated wildcards or differing wildcard count.
+
+### Template Semantics
+
+When multiple templates are present, the interpreter will choose at random, only one of
+the available templates using the same algorithm as the <random> element.
+
+
+
+J. Hawcroft
+JxBot Author
+
 
 
 

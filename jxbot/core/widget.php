@@ -29,8 +29,11 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
- 
 
+/* a set of simple styled HTML widgets for use in the administration interface */
+
+
+// ! TODO  was part of another project of the author's, should be renamed and cleaned up
 class JxWidget
 {
 

@@ -30,6 +30,8 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+/* connection to the MySQL database */
+
 
 class JxBotDB
 {

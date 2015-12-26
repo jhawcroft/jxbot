@@ -36,7 +36,13 @@ of natural language patterns and output templates */
 class JxBotNLData
 {
 
+/********************************************************************************
+Category Management
+*/
+
 	public static function category_new($in_that, $in_topic)
+	/* creates a new category with the specified <that> and <topic>;
+	returns the new category ID */
 	{
 	//print 'CATEGORY: '.$in_topic.'<br>';
 	//return;
@@ -49,6 +55,7 @@ class JxBotNLData
 	
 	
 	public static function category_update($in_category_id, $in_that, $in_topic)
+	/* updates the <that> and <topic> of the specified category */
 	{
 		$stmt = JxBotDB::$db->prepare('UPDATE category SET that=?, topic=? WHERE id=?');
 		$stmt->execute(array($in_that, $in_topic, $in_category_id));
@@ -56,17 +63,26 @@ class JxBotNLData
 		// this actually needs to do more - because strictly speaking
 		// it should remove all patterns and recreate with modified that & topic values  **
 		// in the meantime, can simply prevent category updates in the UI
+		
+		// this software is slightly more complicated than the standard AIML interpreter,
+		// in that, it permits a category to have multiple patterns and multiple
+		// templates to aid management of large databases.  See file ENGINEERING.
 	}
 	
 	
 	public static function category_delete($in_category_id)
+	/* deletes a category from the database */
 	{
 		$stmt = JxBotDB::$db->prepare('DELETE FROM category WHERE id=?');
-		$stmt->execute(array($in_category_id));
+		$stmt->execute(array($in_category_id)); 
+		
+		// to do - cleanup other data! - 
+		// if we were using foreign keys and InnoDB this would be easier ***
 	}
 	
 	
 	public static function category_fetch($in_category_id)
+	/* fetches a category by ID for editing within the administration interface */
 	{
 		$stmt = JxBotDB::$db->prepare('SELECT that,topic FROM category WHERE id=?');
 		$stmt->execute(array($in_category_id));
@@ -74,11 +90,13 @@ class JxBotNLData
 		return $row[0];
 	}
 	
-	
+
+/********************************************************************************
+Pattern Management
+*/
 	private static function make_sort_key(&$in_term)
-	/* @high		Boolean.  If true, word has the highest matching priority.
-					(AIML 2.0)
-	*/
+	/* computes an internal 'sort key' for the given term expression;
+	and modifies the term as required to simplify matching */
 	{
 		/* match part separator */
 		if ($in_term == ':') return 5;
@@ -92,14 +110,18 @@ class JxBotNLData
 		/* bot property: */
 		else if (substr($in_term, 0, 1) == ':') 
 		{
-			$in_term = substr($in_term, 1);
+			//$in_term = substr($in_term, 1);
+			// ! Note:  May modify term in future, if the match algorithm is 
+			//          adjusted accordingly to use the sort key for term identification
 			return 6;
 		}
 		
 		/* set name: */
 		else if (substr($in_term, strlen($in_term)-1, 1) == ':') 
 		{
-			$in_term = substr($in_term, 0, strlen($in_term)-1);
+			//$in_term = substr($in_term, 0, strlen($in_term)-1);
+			// ! Note:  May modify term in future, if the match algorithm is 
+			//          adjusted accordingly to use the sort key for term identification
 			return 6;
 		}
 		
@@ -115,7 +137,9 @@ class JxBotNLData
 	}
 	
 	
-	public static function pattern_add($in_category_id, $in_text, $in_topic, $in_that)
+	public static function pattern_add($in_category_id, $in_text, $in_that, $in_topic)
+	/* adds a pattern to a category, with the supplied text, that and topic;
+	returns the pattern ID */
 	{
 	//print 'PATTERN: '.$in_text.' : '.$in_that.' : '.$in_topic.'<br>';
 	//return;
@@ -174,6 +198,7 @@ class JxBotNLData
 	
 	
 	public static function pattern_delete($in_pattern_id)
+	/* deletes a pattern from a category; returns the category ID */
 	{
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
 		$stmt->execute(array($in_pattern_id));
@@ -187,10 +212,15 @@ class JxBotNLData
 		$stmt->execute(array($in_pattern_id));
 		
 		return $row[0][0];
+		
+		// to do - cleanup other data! - 
+		// if we were using foreign keys and InnoDB this would be easier ***
+		// however, MyISAM may give better performance for the mostly static pattern_node
 	}
 	
 	
 	public static function fetch_patterns($in_category_id)
+	/* retrieves a list of patterns suitable for display within bot administration */
 	{
 		$stmt = JxBotDB::$db->prepare('SELECT id,value,that,topic FROM pattern WHERE category=?');
 		$stmt->execute(array($in_category_id));
@@ -199,8 +229,11 @@ class JxBotNLData
 	}
 	
 	
-	
+/********************************************************************************
+Template Management
+*/
 	public static function template_add($in_category_id, $in_template)
+	/* adds a template to the specified category */
 	{
 	//print 'TEMPLATE: '.$in_template.'<br>';
 	//return;
@@ -211,6 +244,7 @@ class JxBotNLData
 	
 	
 	public static function template_update($in_template_id, $in_text)
+	/* modifies an existing template; returns the owning category ID */
 	{
 		$stmt = JxBotDB::$db->prepare('UPDATE template SET template=? WHERE id=?');
 		$stmt->execute(array($in_text, $in_template_id));
@@ -222,9 +256,8 @@ class JxBotNLData
 	}
 	
 	
-	
-	
 	public static function template_delete($in_template_id)
+	/* deletes a specified template from a category; returns the owning category ID */
 	{
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM template WHERE id=?');
 		$stmt->execute(array($in_template_id));
@@ -238,20 +271,8 @@ class JxBotNLData
 	}
 	
 	
-	public static function fetch_templates($in_category_id)
-	{
-		$stmt = JxBotDB::$db->prepare('SELECT id,template FROM template WHERE category=?');
-		$stmt->execute(array($in_category_id));
-		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
-		return $rows;
-	}
-	
-	
-	
-	
-	
-	
 	public static function template_fetch($in_template_id)
+	/* retrieves a template for editing within the administration interface */
 	{
 		$stmt = JxBotDB::$db->prepare('SELECT id,template,category FROM template WHERE id=?');
 		$stmt->execute(array($in_template_id));
@@ -260,6 +281,15 @@ class JxBotNLData
 	}
 	
 	
+	public static function fetch_templates($in_category_id)
+	/* retrieves a list of templates either for selection by the output generator,
+	or for listing within the administration interface */
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT id,template FROM template WHERE category=?');
+		$stmt->execute(array($in_category_id));
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		return $rows;
+	}
 }
 
 

@@ -54,7 +54,10 @@ Case Folding
 		return mb_strtolower($in_input);
 	}
 	
-	
+
+/********************************************************************************
+Normalisation
+*/
 	private static function strip_accents($in_utf8)
 	/* strips accents from selected latin characters
 	! Note:  Doesn't recognise all possible characters with accents and currently only

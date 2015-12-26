@@ -30,6 +30,10 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+/* main include for JxBot;
+there are two principal entry modes: i) client chat, ii) administration */
+
+
 require_once(dirname(__FILE__).'/config.php');
 require_once(dirname(__FILE__).'/util.php');
 require_once(dirname(__FILE__).'/db.php');

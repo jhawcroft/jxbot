@@ -29,24 +29,41 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
- 
+
+/* conversation management; initialisation, logging, client predicates ('variables'),
+response generation using the engine */
 
 class JxBotConverse
 {
 
+/********************************************************************************
+Conversaton Specific Properties
+*/
 	private static $convo_id = '';  /* the public ID string associated with the session */
 	private static $session_id = 0; /* the internal session identifier */
 	
-	private static $predicates = array();
+	private static $predicates = array(); /* cache; array of predicate key => values */
 	
-	
+
+/********************************************************************************
+Utilities
+*/
+
 	public static function bot_available()
+	/* returns TRUE if the bot has been made available through the administration panel;
+	if the bot is not available, the public interface should not allow client interaction
+	with the bot. */
 	{
 		return (intval(JxBotConfig::option('bot_active')) !== 0);
 	}
 	
 	
+/********************************************************************************
+Logging
+*/
+
 	private static function log(&$input, &$output)
+	/* logs the latest interaction with the bot for later analysis by the administrator */
 	{
 		if (JxBotConverse::$session_id === 0) return;
 		
@@ -56,6 +73,8 @@ class JxBotConverse
 	
 	
 	public static function latest_sessions()
+	/* retrieves a list of the most recent conversations for use in the administration
+	log explorer */
 	{
 		$stmt = JxBotDB::$db->prepare('
 			SELECT session.id,session.name
@@ -78,8 +97,15 @@ class JxBotConverse
 		return $convos;
 	}
 	
-	
+
+/********************************************************************************
+Client Predicates
+*/
+
 	public static function set_client_name($in_name)
+	/* set's the client name associated with the current conversation;
+	initially this is automatically determined, however, a template may change the value
+	based on interaction with the user */
 	{
 		$stmt = JxBotDB::$db->prepare('UPDATE session SET name=? WHERE id=?');
 		$stmt->execute(array(trim($in_name), JxBotConverse::$session_id));
@@ -89,6 +115,7 @@ class JxBotConverse
 	
 	
 	public static function set_predicate($in_name, $in_value)
+	/* save a predicate value for the client/conversation */
 	{
 		if ($in_name == 'name')
 		{
@@ -116,6 +143,9 @@ class JxBotConverse
 	
 	
 	public static function predicate($in_name)
+	/* retrieve a predicate value for the client/conversation;
+	if a value is used multiple times within a template, the value will be cached
+	to minimise database queries */
 	{
 		if (!isset(JxBotConverse::$predicates[$in_name]))
 		{
@@ -130,8 +160,14 @@ class JxBotConverse
 		return JxBotConverse::$predicates[$in_name];
 	}
 	
-	
+
+/********************************************************************************
+Conversation
+*/
+
 	public static function resume_conversation($in_convo_id)
+	/* begins/resumes a conversation; requires a unique conversation ID which ordinarily
+	should be the session ID used by any cookie in use with the client HTTP browser */
 	{
 		/* check if the conversation is registered */
 		$stmt = JxBotDB::$db->prepare('SELECT id,name FROM session WHERE convo_id=?');
@@ -165,6 +201,7 @@ class JxBotConverse
 
 
 	public static function get_response($in_input)
+	/* causes the bot to generate a response to the supplied client input */
 	{
 		//$words = NLAux::normalise($in_input);
 		//$category_id = NL::match_input($in_input);
@@ -172,7 +209,9 @@ class JxBotConverse
 		//print 'Matched category: '.$category_id.'<br>';
 		
 		if ($category_id === false)
-			$output = '???';
+		/* no match was found; the input was not understood
+		and no default category is available */
+			$output = '???'; // ! TODO: this should probably be configurable **
 		else
 		{
 			$template = JxBotNLData::fetch_templates($category_id);
@@ -187,10 +226,11 @@ class JxBotConverse
 	
 	
 	public static function get_greeting()
-	/* conversation has just begun;
-	return an appropriate salutation */
+	/* returns an appropriate greeting to the client when they first connect */
 	{
 		$output = 'Hello.';
+		
+		// ! TODO: this should probably be configurable **
 		
 		$blank = '';
 		JxBotConverse::log($blank, $output);

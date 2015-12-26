@@ -30,6 +30,8 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+// this file is for development/debugging purposes and will shortly be deleted ***
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 

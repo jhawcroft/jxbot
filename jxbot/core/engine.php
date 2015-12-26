@@ -373,7 +373,7 @@ class JxBotEngine
 		
 		//print 'Matched pattern: '.$matched_pattern.'<br>';
 		
-		print '<p>Wildcard values:<pre>';
+		/*print '<p>Wildcard values:<pre>';
 		var_dump($context->wild_values);
 		print '</pre></p>';
 		
@@ -383,7 +383,7 @@ class JxBotEngine
 		
 		print '<p>Wildcard TOPIC values:<pre>';
 		var_dump($context->wild_topic_values);
-		print '</pre></p>';
+		print '</pre></p>';*/
 		
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
 		$stmt->execute(array($matched_pattern));

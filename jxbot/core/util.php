@@ -29,9 +29,12 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
- 
+
+/* general utilities */
+
 
 function jxbot_die($in_error)
+/* something really bad has happened, print an error message and end the HTTP request */
 {
 	print $in_error;
 	exit;
@@ -39,6 +42,7 @@ function jxbot_die($in_error)
 
 
 
+// am I still using this?
 if (!function_exists("array_column"))
 {
     function array_column($array, $column_name)
@@ -50,13 +54,11 @@ if (!function_exists("array_column"))
 }
 
 
-
-
-
-
 class JxBotUtil
 {
 	public static function phpinfo()
+	/* outputs PHP info, wrapped in an appropriate div for custom styling;
+	used within the administration interface */
 	{
 		ob_start();
 		phpinfo();
@@ -69,6 +71,7 @@ class JxBotUtil
 	
 	
 	public static function request_url()
+	/* safely returns the request URL for the bot - minus any query string */
 	{
 		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != 'off')
 			$protocol = 'https';
@@ -78,6 +81,10 @@ class JxBotUtil
 	
 	
 	public static function inputs($in_names)
+	/* retrieves the specified list of POST/GET variables as an associative array,
+	wherein all specified names are present within the result regardless of whether a 
+	value was submitted in this HTTP request; keys for which no value was submitted
+	will be associated with NULL */
 	{
 		if (is_string($in_names)) $in_names = explode(',', $in_names);
 		$result = array();
@@ -88,6 +95,7 @@ class JxBotUtil
 		}
 		return $result;
 	}
+	
 }
 
 

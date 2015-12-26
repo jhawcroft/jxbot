@@ -30,6 +30,13 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+/* creation of the JxBot MySQL database schema and population with most essential
+default values except those explicitly configured by the install script */
+
+// TODO *** ought to prevent execution of this and other scripts directly
+// unless some constant is defined
+
+
 JxBotDB::$db->exec('
 CREATE TABLE category (
     id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
