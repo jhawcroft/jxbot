@@ -30,3 +30,11 @@ Consider
 * AIML 2.0 'set' implementation
 
 
+
+Server Configuration
+--------------------
+
+* check setting of session.gc_maxlifetime
+  and write a note in documentation about this, 
+  as well as JxBot session handling + integration with other
+  3rd-party systems, eg. Wordpress
