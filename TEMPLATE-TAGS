@@ -7,17 +7,13 @@ specific functions for specific tags.
 
 (1-based indexes; invalid index raises error)
 
+Outstanding for v1:
+—————
+1.  MAPS for the gender, person & person2 tags for v1.
 
-star, thatstar, topicstar [DONE]
-----
-	(optional)
-	index = I
+2.  HISTORY for v1: that & input
 
-where I : input match captured value (wildcard/set)
 
-! would like to rename this; what name could we use?
-  or we can be specific in the documentation about it matching
-  and being named after the * wildcard
 
 
 that
@@ -42,6 +38,21 @@ input
 	index = I
 
 
+
+
+
+star, thatstar, topicstar [DONE]
+----
+	(optional)
+	index = I
+
+where I : input match captured value (wildcard/set)
+
+! would like to rename this; what name could we use?
+  or we can be specific in the documentation about it matching
+  and being named after the * wildcard
+
+
 srai [DONE]
 ——
 	pass the contents to the AIML matching process and return the result
@@ -50,8 +61,6 @@ srai [DONE]
 	ie. without taking into account any prior sentence that may have already
 	been processed for this interaction; seems to make most sense and
 	otherwise ends up being tricky and unclear anyway)
-
-
 
 
 get [DONE]

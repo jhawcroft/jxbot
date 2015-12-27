@@ -6,9 +6,9 @@ Essentials (toward a version 1.0)
 
 * Implement load monitoring
 
-* Implement template-side AIML evaluation, parsing & import
+* Implement template-side AIML evaluation [DONE], parsing [DONE] & import  [** TODO **]
 
-* Continue cleaning up
+* Continue cleaning up [PROGRESSING]
 
 * Fix obvious bugs
 
