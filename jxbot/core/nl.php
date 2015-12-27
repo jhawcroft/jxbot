@@ -65,6 +65,14 @@ Case Folding
 	}
 	
 	
+	public static function explode($in_input)
+	/* puts spaces between all the characters of a string */
+	{
+		$chars = preg_split('/(?<!^)(?!$)/u', $in_input); 
+		return implode(' ', $chars);
+	}
+	
+	
 	public static function sentence($in_input)
 	/* capitalises the first word of each sentence */
 	{

@@ -9,7 +9,7 @@ specific functions for specific tags.
 
 Outstanding for v1:
 —————
-1.  MAPS for the gender, person & person2 tags for v1.
+1.  MAPS for the gender, person & person2 tags for v1. [DONE]
 
 2.  HISTORY for v1: that & input [DONE]
 
@@ -236,9 +236,9 @@ v2 New Elements
 * should be checking aiml & version= attribute
 * already implementing category-side <topic>
 
-request
+request [DONE]
 	like input, but entire inputs (all sentences)
-response 
+response [DONE]
 	last response (all sentences)
 
 condition
@@ -263,7 +263,7 @@ sraix
 		and let server decide
 	default -> override use of SRAIXFAILED pattern on failure
 
-map
+map [DONE]
 	name
 	transforms content from one value to another
 	fairly self-explanatory
@@ -282,7 +282,7 @@ date
 	jformat -> Java simple date format
 		http://docs.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html
 
-explode
+explode [DONE]
 	split a word into characters with spaces between
 
 
@@ -319,7 +319,7 @@ vocabulary
 	for which words can be associated with one-another and meanings added
 	/ imported from CSV
 
-program
+program [DONE]
 	-program name & version string
 	
 interval
