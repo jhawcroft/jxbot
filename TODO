@@ -6,6 +6,12 @@ Essentials (toward a version 1.0)
 
 * Implement load monitoring
 
+* Implement word accumulating dictionary
+
+* Revise table types and character set specification & indexes in v1 schema
+
+* Login security defences & overall audit & patches
+
 * Implement template-side AIML evaluation [DONE], parsing [DONE] & import  [** TODO **]
 
 * Continue cleaning up [PROGRESSING]
@@ -22,14 +28,21 @@ Essentials (toward a version 1.0)
 
 * Substitution maintenance and sentence splitting
 
+* Finish set functionality - admin side 
+
 * Implement sane recursion limits & checks
 
 
 
-Consider
---------
+Roadmap
+-------
 
-* AIML 2.0 'set' implementation
+* 1.1 - implement some kind of cache
+* Remaining AIML v2 features?
+  * date formats
+  * learn, learnf, eval
+  * loop
+  * interval
 
 
 
