@@ -257,8 +257,9 @@ Conversation
 			// implement random
 			$output = $template[0][1];
 		}
-	
+		
 		$template = JxBotAiml::parse_template($output);
+		
 		return $template->generate( $match );
 	}
 	

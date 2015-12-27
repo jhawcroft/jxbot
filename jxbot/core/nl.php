@@ -92,6 +92,29 @@ String Comparison
 		return (mb_strtolower($in_string1) == mb_strtolower($in_string2));
 	}
 	
+	
+/********************************************************************************
+Maps
+*/
+
+	public static function remap($in_map, $in_value)
+	/* converts the value using the specified map, or returns it as-is
+	if the map doesn't have a corresponding mapping */
+	{
+		$in_value = trim($in_value);
+		
+		// ! TODO need to check collation & ensure case insensitivity ******
+		$stmt = JxBotDB::$db->prepare(
+			'SELECT s_to FROM map_item JOIN _map ON map_item.map=_map.id
+			WHERE _map.name=? AND map_item.s_from = ?'
+		);
+		$stmt->execute(array( $in_map, $in_value ));
+		$result = $stmt->fetchAll(PDO::FETCH_NUM);
+		
+		if (count($result) == 0) return $in_value;
+		else return $result[0][0];
+	}
+	
 
 /********************************************************************************
 Normalisation

@@ -324,6 +324,11 @@ class JxBotElement
 			return JxBotNL::formal( $this->text_value($in_context) );
 		case 'sentence':
 			return JxBotNL::sentence( $this->text_value($in_context) );
+			
+		case 'gender':
+			if (count($this->children) == 0)
+				return JxBotNL::remap('gender', $this->get_capture($in_context, 'star', 1) );
+			return JxBotNL::remap('gender', $this->text_value($in_context));
 		
 		case 'that':
 			$indicies = JxBotElement::indicies( $this->child_or_attr_named($in_context, 'index') );
