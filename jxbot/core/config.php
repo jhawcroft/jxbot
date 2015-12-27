@@ -65,6 +65,8 @@ class JxBotConfig
 
 	public static function setup_environment()
 	{
+		mb_internal_encoding('UTF-8');
+	
 		JxBotConfig::$config['bot_url'] = JxBotUtil::request_url();
 
 		$config_file = dirname(dirname(__FILE__)).'/config.php';
@@ -108,8 +110,7 @@ class JxBotConfig
 		
 		JxBotConfig::$is_installed = true;
 		
-		if (isset($jxbot['timezone']))
-			date_default_timezone_set($jxbot['timezone']);
+		date_default_timezone_set( JxBotConfig::option('bot_tz') );
 	}
 	
 	

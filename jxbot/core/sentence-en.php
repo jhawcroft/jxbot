@@ -30,72 +30,18 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-/* main include for JxBot;
-there are two principal entry modes: i) client chat, ii) administration */
+/* English sentence splitter */
 
-define('JXBOT', 1);
-
-
-require_once(dirname(__FILE__).'/config.php');
-require_once(dirname(__FILE__).'/util.php');
-require_once(dirname(__FILE__).'/db.php');
-require_once(dirname(__FILE__).'/nl.php');
-require_once(dirname(__FILE__).'/sentence-en.php');
-require_once(dirname(__FILE__).'/catman.php');
-require_once(dirname(__FILE__).'/generate.php');
-require_once(dirname(__FILE__).'/engine.php');
-require_once(dirname(__FILE__).'/converse.php');
-require_once(dirname(__FILE__).'/aiml.php');
-require_once(dirname(__FILE__).'/widget.php');
+if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 
-
-class JxBot
+class JxBotSplitterEnglish
 {
-	const VERSION = '0.9';
-
-	private $config = array();
-	
-	
-	public static function fatal_error($in_error)
+	public static function split($in_input)
 	{
-		print $in_error; // should be improved **
-		exit;
-	}
-	
-
-	public static function run_admin()
-	{
-		JxBotConfig::setup_environment();
-		
-		require_once(dirname(__FILE__).'/admin.php');
-		
-		session_name(JxBotConfig::SESSION_NAME);
-		session_start();
-		
-		JxBotAdmin::admin_generate();
-		
-	}
-	
-	
-	public static function start_session()
-	{
-		session_name(JxBotConfig::SESSION_NAME);
-		session_start();
-		
-		return session_id();
-	}
-	
-	
-	public static function init_client()
-	{
-		JxBotConfig::setup_environment();
+		return preg_split('/(?<=[.?!;:])\s+/', $in_input, -1, PREG_SPLIT_NO_EMPTY);
 	}
 }
-
-
-
-
 
 
 

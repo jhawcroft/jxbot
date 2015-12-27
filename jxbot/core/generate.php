@@ -73,26 +73,29 @@ class JxBotElement
 	}
 	
 	
+	public function text_value($in_context)
+	{
+		$content = '';
+		foreach ($this->children as $child)
+		{
+			if (is_string($child)) $content .= $child;
+			else $content .= $child->generate($in_context);
+		}
+		return $content;
+	}
+	
+	
 	public function generate($in_context) // pass in a Converse instance / access statically demand
 	{
 		switch ($this->name)
 		{
 		case 'template':
-		case 'li':
-		case 'index':
-		case 'name':
-			$content = '';
-			foreach ($this->children as $child)
-			{
-				if (is_string($child)) $content .= $child;
-				else $content .= $child->generate($in_context);
-			}
-			return $content;
+			return $this->text_value($in_context);
 		
 		case 'random':
 			$count = $this->child_element_count();
 			$index = mt_rand(1, $count) - 1;
-			return $this->child_element($index)->generate($in_context);
+			return $this->child_element($index)->text_value($in_context);
 		
 		case 'star':
 		case 'thatstar':
@@ -101,7 +104,7 @@ class JxBotElement
 				is_object($this->children[0]) &&
 				$this->children[0]->name == 'index')
 			{
-				$index = intval($this->children[0]->generate($in_context));
+				$index = intval( $this->children[0]->text_value($in_context) );
 				return 'STAR['.$index.']'; // ** TO PATCH
 			}
 			break;
@@ -112,14 +115,34 @@ class JxBotElement
 				is_object($this->children[0]) &&
 				$this->children[0]->name == 'name')
 			{
-				$name = trim($this->children[0]->generate($in_context));
+				$name = trim( $this->children[0]->text_value($in_context) );
 				if ($this->name == 'get')
 					return JxBotConverse::predicate($name);
 				else
 					return JxBotConfig::predicate($name);
 			}
-			break;
+			break;	
+		case 'id':
+			return JxBotConverse::predicate('id');
+		case 'size':
+			/* we return the number of patterns, which is equivalent to AIML standard
+			category count; since in JxBot one category != one pattern. */
+			return JxBotNLData::pattern_count();
+		case 'version':
+			return JxBot::VERSION;
 			
+		case 'date':
+			$php_format = 'r'; /* default - AIML 1.0 - we specify date & time format */
+			return date($php_format);
+			
+		case 'uppercase':
+			return JxBotNL::upper( $this->text_value($in_context) );
+		case 'lowercase':
+			return JxBotNL::lower( $this->text_value($in_context) );
+		case 'formal':
+			return JxBotNL::formal( $this->text_value($in_context) );
+		case 'sentence':
+			return JxBotNL::sentence( $this->text_value($in_context) );
 		}
 	}
 }

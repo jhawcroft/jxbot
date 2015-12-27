@@ -45,7 +45,7 @@ Case Folding
          Minimise use of these functions.
 */
 	public static function upper($in_input)
-	/* translates the input to upper-case */
+	/* translates the input to UPPER-CASE */
 	{
 		return mb_strtoupper($in_input);
 	}
@@ -55,6 +55,31 @@ Case Folding
 	/* translates the input to lower-case */
 	{
 		return mb_strtolower($in_input);
+	}
+	
+	
+	public static function formal($in_input)
+	/* translates the input to Title-Case */
+	{
+		return mb_convert_case($in_input, MB_CASE_TITLE);
+	}
+	
+	
+	public static function sentence($in_input)
+	/* capitalises the first word of each sentence */
+	{
+		$sentences = JxBotSplitterEnglish::split($in_input);
+		
+		foreach ($sentences as &$sentence)
+		{
+			$sentence = JxBotNL::upper( mb_substr($sentence, 0, 1) ) . 
+				JxBotNL::lower( mb_substr($sentence, 1) );
+		}
+		
+		// ! REVIEW:  Not sure about the implementation; should it leave characters
+		//            other than the first alone?
+		
+		return implode(' ', $sentences);
 	}
 	
 

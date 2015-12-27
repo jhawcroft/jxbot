@@ -97,6 +97,17 @@ Category Management
 /********************************************************************************
 Pattern Management
 */
+
+	public static function pattern_count()
+	/* returns the total number of unique patterns within the system */
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM pattern');
+		$stmt->execute();
+		$count = $stmt->fetchAll(PDO::FETCH_NUM);
+		return $count[0][0];
+	}
+	
+
 	private static function make_sort_key(&$in_term)
 	/* computes an internal 'sort key' for the given term expression;
 	and modifies the term as required to simplify matching */

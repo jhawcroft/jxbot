@@ -42,7 +42,7 @@ input
 	index = I
 
 
-get
+get [DONE]
 ---
 (client predicate)
 
@@ -52,7 +52,7 @@ No value, return empty string
 (but represent internally as null so can test in v2
 if the predicate is 'bound' and has a value)
 
-bot
+bot [DONE]
 ---
 (bot predicate)
 
@@ -61,24 +61,24 @@ bot
 (return empty string if null/unspecified)
 
 
-date
+date [DONE]
 	Local date & time
 
-id
+id [DONE]
 	user ID - use the internal session ID integer for conciseness ?
 
-size
+size [DONE]
 	number of categories
 
-version
+version [DONE]
 	JxBot version
 
 
 
-uppercase
-lowercase
-formal - ie. Title Case
-sentence - uppercase first letter of each sentence delimited by period (.)
+uppercase [DONE]
+lowercase [DONE]
+formal [DONE] - ie. Title Case
+sentence [DONE] - uppercase first letter of each sentence delimited by period (.)
 	(lets add ? and ! which aren't specified by AIML 1.0.1)
 
 
@@ -107,7 +107,7 @@ condition
 
 
 
-random
+random [DONE]
 	(return one li at random)
 	
 	

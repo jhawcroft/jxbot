@@ -150,6 +150,9 @@ Client Predicates
 	if a value is used multiple times within a template, the value will be cached
 	to minimise database queries */
 	{
+		if ($in_name == 'id')
+			return JxBotConverse::$session_id;
+	
 		if (!isset(JxBotConverse::$predicates[$in_name]))
 		{
 			$stmt = JxBotDB::$db->prepare('SELECT value FROM predicate WHERE session=? AND name=?');
