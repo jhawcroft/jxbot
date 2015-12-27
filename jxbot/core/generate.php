@@ -73,13 +73,39 @@ class JxBotElement
 	}
 	
 	
-	public function text_value($in_context)
+	public function child_with_name($in_name)
+	{
+		foreach ($this->children as $child)
+		{
+			if (!is_string($child))
+			{
+				if ($in_name == $child->name) return $child;
+			}
+		}
+		return null;
+	}
+	
+	
+	public function text_content()
+	{
+		$content = '';
+		foreach ($this->children as $child)
+			if (is_string($child)) $content .= $child;
+		return $content;
+	}
+	
+	
+	public function text_value($in_context, $in_ignore = null)
 	{
 		$content = '';
 		foreach ($this->children as $child)
 		{
 			if (is_string($child)) $content .= $child;
-			else $content .= $child->generate($in_context);
+			else 
+			{
+				if ( ($in_ignore !== null) && (in_array($child->name, $in_ignore)) ) ;
+				else $content .= $child->generate($in_context);
+			}
 		}
 		return $content;
 	}
@@ -130,6 +156,20 @@ class JxBotElement
 			return JxBotNLData::pattern_count();
 		case 'version':
 			return JxBot::VERSION;
+			
+		case 'set':
+			$name_element = $this->child_with_name('name');
+			if ($name_element !== null)
+			{
+				$name = trim( $name_element->text_value($in_context) );
+				$value = $this->text_value($in_context, array('name'));
+				if ($name != '')
+				{
+					JxBotConverse::set_predicate($name, $value);
+					return $value;
+				}
+			}
+			break;
 			
 		case 'date':
 			$php_format = 'r'; /* default - AIML 1.0 - we specify date & time format */

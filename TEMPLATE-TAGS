@@ -112,7 +112,7 @@ random [DONE]
 	
 	
 	
-set name
+set name [DONE]
 	(client-side predicate; to contents)
 	
 	generally returns captured value, but JxBot may be configured
