@@ -47,9 +47,8 @@ class JxBotAdmin
 		array('logs', 'Logs'),
 		array('client', 'Client Defaults'),
 		array('database', 'Database'),
-		/*array('sets', 'Sets'), // should consider putting these as tabs under Database to minimise admin clutter
-		array('maps', 'Maps'),
-		array('subs', 'Substitutions'),*/
+		/*array('sets', 'Sets'), // should consider putting these as tabs under Database to minimise admin clutter*/
+		/*array('subs', 'Substitutions'),*/
 		array('import', 'Import'),
 		array('bot', 'Bot Personality'),
 		array('settings', 'System Settings'),

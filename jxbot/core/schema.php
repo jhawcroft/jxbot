@@ -148,6 +148,25 @@ CREATE TABLE set_item (
 )
 ');
 
+JxBotDB::$db->exec('
+CREATE TABLE _map (
+	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	UNIQUE(name)
+) ENGINE=MyISAM;
+');
+
+JxBotDB::$db->exec('
+CREATE TABLE map_item (
+	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	map INT(11) NOT NULL,
+	s_from VARCHAR(255) NOT NULL,
+	s_to VARCHAR(255) NOT NULL,
+	INDEX(map),
+	INDEX(s_from)
+) ENGINE=MyISAM;
+');
+
 JxBotDB::$db->exec("
 INSERT INTO opt (opt_key, opt_value) VALUES ('def_species', 'human');
 ");

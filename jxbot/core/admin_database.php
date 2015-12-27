@@ -36,27 +36,44 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 //var_dump($_REQUEST);
 
 
-//list($action) = JxBotUtil::inputs('action');
+JxWidget::tabs(array(
+	array('Database', '?page=database', 'subpage', ''),
+	array('Maps', '?page=database&subpage=maps', 'subpage', 'maps'),
+));
 
-$inputs = JxBotUtil::inputs('action,category');
-$action = (isset($_REQUEST['action']) ? $_REQUEST['action'] : '');
+$subpage = JxBotUtil::inputs('subpage');
+if ($subpage['subpage'] != '')
+{
+	require_once('admin_maps.php');
+}
 
-if ($action == '') page_lookup();
-else if ($action == 'lookup') page_lookup_results();
+else
 
-else if ($action == 'new-cat') do_new_category();
-else if ($action == 'edit') page_edit($inputs['category']);
-else if ($action == 'del-cat') do_delete_category();
-else if ($action == 'save-ctx') do_update_category();
+{
 
-else if ($action == 'add-tmpl') do_add_tmpl();
-else if ($action == 'del-tmpl') do_del_tmpl();
-else if ($action == 'edit-tmpl') page_edit_tmpl();
-else if ($action == 'save-tmpl') do_save_tmpl();
 
-else if ($action == 'add-pat') do_add_pat();
-else if ($action == 'del-pat') do_del_pat();
+	//list($action) = JxBotUtil::inputs('action');
 
+	$inputs = JxBotUtil::inputs('action,category');
+	$action = (isset($_REQUEST['action']) ? $_REQUEST['action'] : '');
+
+	if ($action == '') page_lookup();
+	else if ($action == 'lookup') page_lookup_results();
+
+	else if ($action == 'new-cat') do_new_category();
+	else if ($action == 'edit') page_edit($inputs['category']);
+	else if ($action == 'del-cat') do_delete_category();
+	else if ($action == 'save-ctx') do_update_category();
+
+	else if ($action == 'add-tmpl') do_add_tmpl();
+	else if ($action == 'del-tmpl') do_del_tmpl();
+	else if ($action == 'edit-tmpl') page_edit_tmpl();
+	else if ($action == 'save-tmpl') do_save_tmpl();
+
+	else if ($action == 'add-pat') do_add_pat();
+	else if ($action == 'del-pat') do_del_pat();
+
+}
 
 
 

@@ -202,5 +202,29 @@ class JxWidget
 			print '<input type="hidden" name="'.$in_data.'" value="'.$in_values.'">';
 		}
 	}
+	
+	
+	public static function tabs($in_def)
+	{
+		print '<ul class="tabs">';
+		foreach ($in_def as $tab_def)
+		{
+			if (isset($_REQUEST[$tab_def[2]])) $val = $_REQUEST[$tab_def[2]];
+			else $val = '';
+			$is_current = ( $val == $tab_def[3] );
+			
+			print '<li>';
+			print '<a href="'.$tab_def[1].'"'.($is_current ? ' class="current"' : '').'>';
+			print $tab_def[0];
+			print '</a></li>';
+		}
+		print '</ul>';
+		/*
+		
+	<li>Database</li>
+	<li>Maps</li>
+</ul>
+*/
+	}
 }
 

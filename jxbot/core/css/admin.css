@@ -456,3 +456,48 @@ Error notice
 
 
 
+/*
+Tabs
+*/
+
+ul.tabs
+{
+	list-style: none;
+	margin: 0;
+	margin-bottom: 1.5em;
+	padding: 0;
+	border-bottom: 1px solid #AAA;
+}
+
+ul.tabs li
+{
+	display: inline-block;
+	margin: 0;
+	margin-right: 3px;
+	padding: 0;
+	position: relative;
+}
+
+ul.tabs a
+{
+	display: block;
+	position: relative;
+	top: 1px;
+	padding: 6px;
+	border: 1px solid #AAA;
+	border-radius: 5px 5px 0 0;
+}
+
+ul.tabs a.current
+{
+	background-color: #EEE;
+	color: black;
+	border-bottom: 1px solid #EEE;
+}
+
+
+
+
+
+
+
