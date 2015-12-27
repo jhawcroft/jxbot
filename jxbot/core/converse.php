@@ -206,12 +206,41 @@ Conversation
 	}
 	
 	
+	// ! ** may want to improve the efficiency of these
+	// they're operating on a non-indexed column
+	// consider i) indexing the session ID in log,
+	// or ii) providing a dedicated history table
+	// or iii) storing as special session predicate values (as most wont be
+	// accessed regularly anyway)
+	
+	public static function history_request($in_index)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT input FROM log 
+			WHERE session=? ORDER BY id DESC LIMIT '.intval($in_index).',1');
+		$stmt->execute(array(JxBotConverse::$session_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		if (count($row) == 0) return '';
+		else return $row[0][0];
+	}
+	
+	
+	public static function history_response($in_index)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT output FROM log 
+			WHERE session=? ORDER BY id DESC LIMIT '.intval($in_index).',1');
+		$stmt->execute(array(JxBotConverse::$session_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		if (count($row) == 0) return '';
+		else return $row[0][0];
+	}
+	
+	
 	public static function srai($in_input)
 	/* evaluate the input within the current context and generate output,
 	without logging the output or updating the history */
 	{
 		$match = JxBotEngine::match($in_input, 
-			JxBotConverse::predicate('that'), JxBotConverse::predicate('topic') );
+			JxBotConverse::history_response(0), JxBotConverse::predicate('topic') );
 		
 		if ($match === false)
 		/* no match was found; the input was not understood

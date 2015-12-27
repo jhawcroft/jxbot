@@ -75,11 +75,15 @@ else $response = JxBotConverse::get_greeting();
 </div>
 
 
-<!--
-<hr>
 
-<-- STATS GO HERE ->
+<?php
+/*
+print '<pre>'.JxBotConverse::history_request(0).'</pre>'; // should be this input
+print '<pre>'.JxBotConverse::history_request(1).'</pre>';
 
-<h2>Status</h2>
+print '<pre>'.JxBotConverse::history_response(0).'</pre>'; // should be this response now that it's invoked
+print '<pre>'.JxBotConverse::history_response(1).'</pre>';
 
--->
+*/
+?>
+
