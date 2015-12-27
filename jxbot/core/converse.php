@@ -204,10 +204,11 @@ Conversation
 		JxBotConverse::$session_id = $session_id;
 		JxBotConverse::$predicates['name'] = $name;
 	}
-
-
-	public static function get_response($in_input)
-	/* causes the bot to generate a response to the supplied client input */
+	
+	
+	public static function srai($in_input)
+	/* evaluate the input within the current context and generate output,
+	without logging the output or updating the history */
 	{
 		$match = JxBotEngine::match($in_input, 
 			JxBotConverse::predicate('that'), JxBotConverse::predicate('topic') );
@@ -225,6 +226,15 @@ Conversation
 		
 		$template = JxBotAiml::parse_template($output);
 		$output = $template->generate( $match );
+		
+		return $output;
+	}
+
+
+	public static function get_response($in_input)
+	/* causes the bot to generate a response to the supplied client input */
+	{
+		$output = JxBotConverse::srai($in_input);
 		
 		JxBotConverse::log($in_input, $output);
 		JxBotConverse::set_predicate('that', $output); // probably don't need this if we use log

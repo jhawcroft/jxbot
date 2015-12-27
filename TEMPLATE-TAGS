@@ -8,7 +8,7 @@ specific functions for specific tags.
 (1-based indexes; invalid index raises error)
 
 
-star, thatstar, topicstar
+star, thatstar, topicstar [DONE]
 ----
 	(optional)
 	index = I
@@ -42,7 +42,7 @@ input
 	index = I
 
 
-srai
+srai [DONE]
 ——
 	pass the contents to the AIML matching process and return the result
 	(not sure about the processing of that, et al.

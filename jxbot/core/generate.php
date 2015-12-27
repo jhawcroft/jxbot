@@ -170,6 +170,19 @@ class JxBotElement
 		return JxBotNL::strings_equal($in_value, $in_pattern);
 		// ** TODO - implement * wildcard and case-insensitive comparison for AIML 2.0
 	}
+	
+	
+	private function get_capture($in_context, $in_type, $in_index)
+	{
+		if ($in_type == 'star')
+			$value = $in_context->input_capture($in_index - 1);
+		else if ($in_type == 'thatstar')
+			$value = $in_context->that_capture($in_index - 1);
+		else
+			$value = $in_context->topic_capture($in_index - 1);
+		if ($value === null) return ''; // ** should be an error somewhere.... ?
+		return $value;
+	}
 
 	
 	public function generate($in_context) 
@@ -245,22 +258,13 @@ class JxBotElement
 		case 'thatstar':
 		case 'topicstar':
 			$index = intval( $this->child_or_attr_named($in_context, 'index', 1) );
-			if ($this->name == 'star')
-				$value = $in_context->input_capture($index - 1);
-			else if ($this->name == 'thatstar')
-				$value = $in_context->that_capture($index - 1);
-			else
-				$value = $in_context->topic_capture($index - 1);
-			if ($value === null) return ''; // ** should be an error somewhere.... ?
-			return $value;
+			return $this->get_capture($in_context, $this->name, $index);
 			
 		case 'srai':
-			 // ** TO PATCH
-			break;
+			return JxBotConverse::srai( $this->get_value($in_context) );
 		
 		case 'sr': /* srai star /srai */
-			 // ** TO PATCH
-			break;
+			return JxBotConverse::srai( $this->get_capture($in_context, 'star', 1) );
 		
 		case 'bot':
 		case 'get':
