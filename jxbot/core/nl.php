@@ -82,6 +82,16 @@ Case Folding
 		return implode(' ', $sentences);
 	}
 	
+	
+/********************************************************************************
+String Comparison
+*/
+
+	public static function strings_equal($in_string1, $in_string2)
+	{
+		return (mb_strtolower($in_string1) == mb_strtolower($in_string2));
+	}
+	
 
 /********************************************************************************
 Normalisation

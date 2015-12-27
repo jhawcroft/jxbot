@@ -302,18 +302,18 @@ class JxBotAiml
 	
 	private static function _template_open($in_parser, $in_name, $in_attrs)
 	{
-		$element = JxBotAiml::$stack[] = new JxBotElement($in_name);
+		$element = JxBotAiml::$stack[] = new JxBotElement($in_name, $in_attrs);
 		if (count(JxBotAiml::$stack) > 1)
 			JxBotAiml::$stack[count(JxBotAiml::$stack) - 2]->children[] = $element;
 		else
 			JxBotAiml::$root = $element;
 		
-		foreach ($in_attrs as $name => $value)
+		/*foreach ($in_attrs as $name => $value)
 		{
 			$attr_element = new JxBotElement($name);
 			$element->children[] = $attr_element;
 			$attr_element->children[] = $value;
-		}
+		}*/
 	}
 	
 	
