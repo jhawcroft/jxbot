@@ -33,6 +33,28 @@
 if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
+if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge-do'))
+	JxBotNLData::purge_categories();
+
+if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge'))
+	page_warn_purge();
+else
+	page_import_form();
+
+
+function page_warn_purge()
+{
+?>
+<h2>Purge</h2>
+
+<p><strong>Warning: You are about to purge all categories from the database. Are you sure?</strong></p>
+
+<p><button name="action" value="cancel">Cancel</button> <button name="action" value="purge-do">Purge</button></p>
+
+<?php
+}
+
+
 	
 function do_handle_upload()
 {
@@ -61,11 +83,17 @@ function page_import_form()
 
 <p><?php JxWidget::button('Upload', 'upload', ''); ?></p>
 
+<hr>
+
+
+<h2>Purge</h2>
+
+<p><button name="action" value="purge">Purge Categories</button></p>
+
 <?php
 }
 
 
-page_import_form();
 
 
 

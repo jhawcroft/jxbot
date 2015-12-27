@@ -39,9 +39,21 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 class JxBotNLData
 {
 
+
 /********************************************************************************
 Category Management
 */
+
+	public static function purge_categories()
+	{
+		JxBotDB::$db->exec('
+		delete from pattern_node;
+		delete from pattern;
+		delete from template;
+		delete from category;
+		');
+	}
+
 
 	public static function category_new($in_that, $in_topic)
 	/* creates a new category with the specified <that> and <topic>;
