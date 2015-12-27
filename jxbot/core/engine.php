@@ -199,17 +199,17 @@ class JxBotEngine
 		
 		/* always match the first term for a 1+ wildcard;
 		wildcards never match : */
-		if (!$zero_or_more && $term != ':')
+		if (!$zero_or_more)
 		{
-			//print 'accumulate first 1+ term<br>';
+			if ($term == ':') return false;
 			$wildcard_terms[] = $term;
 			$term = $this->get_term(++ $term_index);
 		}
 		
 		/* match as few terms as possible
 		to this wildcard */
-		while ($term_index < $this->term_limit)
-		{			
+		while ($term != '.')
+		{
 			/* try match the current subbranch;
 			effectively looking for the end of the wildcard processing */
 			$matched = $this->walk($in_branch, $term_index);
@@ -220,26 +220,16 @@ class JxBotEngine
 				return $matched;
 			}
 			
-			/* match the term to this wildcard */
 			$wildcard_terms[] = $term;
 			$term = $this->get_term(++ $term_index);
 		}
-	
-		//print 'wildcard ran out of input<br>';
-	
-		/* reached end of input,
-		inspect the wildcard match to see if matching
-		should continue, or if we should fail here */
-		$failed = (!$zero_or_more && count($wildcard_terms) == 0);
-		if (!$failed)
-		{				
-			/* if submatching didn't run till the end,
-			then this wildcard must be terminal */
-			if ($is_terminal) 
-			{
-				$this->accumulate_wild_values($wildcard_terms);
-				return $in_branch;
-			}
+		
+		/* reached end of input, if this term is terminal
+		we have a match, otherwise we don't */
+		if ($is_terminal)
+		{
+			$this->accumulate_wild_values($wildcard_terms);
+			return $in_branch;
 		}
 		
 		/* run out of input on non-terminal; match failed */
@@ -295,11 +285,11 @@ class JxBotEngine
 		$stmt->execute(array($in_parent_id, $current_term));
 		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
 		
-		//print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
+		print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
 		
-		//print '<pre>';
-		//var_dump($possible_branches);
-		//print '</pre>';
+		print '<pre>';
+		var_dump($possible_branches);
+		print '</pre>';
 		
 		foreach ($possible_branches as $possibility)
 		{
@@ -351,16 +341,24 @@ class JxBotEngine
 	/* takes inputs in normal string form, returns some kind of array of information
 	about the match (if any); assumes matching a single sentence (splitting already done) */
 	{
-		if (($in_that === null) || ($in_that === '')) $in_that = '*';
-		if (($in_topic === null) || ($in_topic === '')) $in_topic = '*';
+		if ($in_that === null) $in_that = '';
+		if ($in_topic === null) $in_topic = '';
 	
 		$search_terms = JxBotNL::normalise($in_input);
 		$search_terms[] = ':';
-		if ($in_that == '*') $search_terms[] = $in_that;
-		else $search_terms = array_merge($search_terms, JxBotNL::normalise($in_that));
+		
+		$terms = JxBotNL::normalise($in_that);
+		if (count($terms) == 0) $search_terms[] = '*';
+		else $search_terms = array_merge($search_terms, $terms);
 		$search_terms[] = ':';
-		if ($in_topic == '*') $search_terms[] = $in_topic;
-		else $search_terms = array_merge($search_terms, JxBotNL::normalise($in_topic));
+		
+		$terms = JxBotNL::normalise($in_topic);
+		if (count($terms) == 0) $search_terms[] = '*';
+		else $search_terms = array_merge($search_terms, $terms);
+		
+		/*print 'Search: <pre>';
+		var_dump($search_terms);
+		print '</pre>';*/
 		
 		$context = new JxBotEngine();
 		$context->input_terms = $search_terms;
