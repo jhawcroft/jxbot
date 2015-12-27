@@ -225,47 +225,53 @@ class JxBotElement
 			return $this->child_element($index)->text_value($in_context);
 		
 		case 'condition':
-			$count = $this->child_element_count('li');
-			if ($count == 0)
+			$loop = false; 
+			// preparation for AIML 2 loop; will need to keep a stack & check the stack so it can be toggled
+			// by a <loop/> element anywhere in the depth of the <li>
+			do
 			{
-				$predicate = $this->child_or_attr_named($in_context, 'name');
-				$value = JxBotConverse::predicate($predicate);
-				$pattern = $this->child_or_attr_named($in_context, 'value');
-				if (JxBotElement::matches_simple_pattern($value, $pattern))
-					return $this->text_value($in_context, array('name', 'value'));
-			}
-			else 
-			{
-				$count = $this->child_element_count();
-				$predicate = $this->child_or_attr_named($in_context, 'name', null);
-				if ($predicate !== null)
+				$count = $this->child_element_count('li');
+				if ($count == 0)
 				{
+					$predicate = $this->child_or_attr_named($in_context, 'name');
 					$value = JxBotConverse::predicate($predicate);
-					for ($i = 0; $i < $count; $i++)
-					{
-						$item = $this->child_element($i);
-						$pattern = $item->child_or_attr_named($in_context, 'value', null);
-						if ($pattern === null)
-							return $item->text_value($in_context, array('value'));
-						if (JxBotElement::matches_simple_pattern($value, $pattern))
-							return $item->text_value($in_context, array('value'));
-					}
+					$pattern = $this->child_or_attr_named($in_context, 'value');
+					if (JxBotElement::matches_simple_pattern($value, $pattern))
+						return $this->text_value($in_context, array('name', 'value'));
 				}
-				else
+				else 
 				{
-					for ($i = 0; $i < $count; $i++)
+					$count = $this->child_element_count();
+					$predicate = $this->child_or_attr_named($in_context, 'name', null);
+					if ($predicate !== null)
 					{
-						$item = $this->child_element($i);
-						$predicate = $item->child_or_attr_named($in_context, 'name');
 						$value = JxBotConverse::predicate($predicate);
-						$pattern = $item->child_or_attr_named($in_context, 'value', null);
-						if ($pattern === null)
-							return $item->text_value($in_context, array('value','name'));
-						if (JxBotElement::matches_simple_pattern($value, $pattern))
-							return $item->text_value($in_context, array('value','name'));
+						for ($i = 0; $i < $count; $i++)
+						{
+							$item = $this->child_element($i);
+							$pattern = $item->child_or_attr_named($in_context, 'value', null);
+							if ($pattern === null)
+								return $item->text_value($in_context, array('value'));
+							if (JxBotElement::matches_simple_pattern($value, $pattern))
+								return $item->text_value($in_context, array('value'));
+						}
+					}
+					else
+					{
+						for ($i = 0; $i < $count; $i++)
+						{
+							$item = $this->child_element($i);
+							$predicate = $item->child_or_attr_named($in_context, 'name');
+							$value = JxBotConverse::predicate($predicate);
+							$pattern = $item->child_or_attr_named($in_context, 'value', null);
+							if ($pattern === null)
+								return $item->text_value($in_context, array('value','name'));
+							if (JxBotElement::matches_simple_pattern($value, $pattern))
+								return $item->text_value($in_context, array('value','name'));
+						}
 					}
 				}
-			}
+			} while ($loop);
 			break;
 		
 		case 'star':

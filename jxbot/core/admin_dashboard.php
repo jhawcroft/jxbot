@@ -150,30 +150,22 @@ Status:  is the system online for the public?
 /*
 JxBotConverse::resume_conversation('admin');
 
-$result = JxBotAiml::parse_template('Hello <star index="1"/>, how are you?
-<random>
-  <li>My name is <bot><name>name</name></bot></li>
-  <li>I am <bot name="name"/></li>
-</random>. Today is <date/>! Test result: <program/>.  Upper: <formal>SomE sTuff.</formal>
-
-<condition value="orange"><name>favoritecolor</name>You like the same color as me!</condition>
-
+$result = JxBotAiml::parse_template('
 
 <condition name="age">
-	<li value="30">You\'re 31!</li>
-	<li value="31">Really?</li>
-	<li>Default</li>
-</condition>
-
-<condition>
-	<li name="age" value="30">You\'re 31!</li>
-	<li value="31"><name>age</name>Really?</li>
+	<li value="30">Really?</li>
+	<li value="31">You\'re 31!</li>
 	<li>Default</li>
 </condition>
 
 
 ');
-*/
+
+
+print '<pre>';
+print $result->generate(null);
+print '</pre>';*/
+
 /*
 <random>
   <li>My name is <bot><name>botname</name></bot></li>
