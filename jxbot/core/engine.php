@@ -377,6 +377,8 @@ class JxBotEngine
 		$matched_pattern = $context->walk(0, 0);
 		if ($matched_pattern === false) return false;
 		
+		
+		
 		//print 'Matched pattern: '.$matched_pattern.'<br>';
 		
 		/*print '<p>Wildcard values:<pre>';
@@ -398,6 +400,7 @@ class JxBotEngine
 		$stmt->execute(array($matched_pattern));
 		$category = $stmt->fetchAll(PDO::FETCH_NUM);
 		$context->matched_category_id = $category[0][0];
+		
 		
 		/*return array(
 			'category'=>$category,

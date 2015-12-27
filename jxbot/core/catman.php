@@ -158,7 +158,9 @@ Pattern Management
 	//print 'PATTERN: '.$in_text.' : '.$in_that.' : '.$in_topic.'<br>';
 	//return;
 		$in_full = $in_text . ' : ' . $in_that . ' : ' . $in_topic;
-		$in_full = JxBotAiml::translate_pattern_tags($in_full);
+		$translator = new JxBotAimlPattern();
+		$in_full = $translator->translate($in_full);
+		//$in_full = JxBotAiml::translate_pattern_tags($in_full);
 		$terms = JxBotNL::normalise_pattern($in_full);
 		$in_full = JxBotNL::upper($in_full);
 		

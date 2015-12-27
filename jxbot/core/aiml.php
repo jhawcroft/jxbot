@@ -35,6 +35,148 @@
 if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 
+// ! TODO - these classes need to be incorporated into one
+// which we have an instance of, in all probability 
+
+// THIS FILE IS A HORRIBLE MESS
+
+
+class JxBotAimlPattern
+{
+	private $xml_parser;
+	private $state;
+	private $pattern;
+	private $unnested_info;
+	
+	const STATE_PAT_ENCODE = 6;
+	const STATE_PAT_TXT = 7;
+	const STATE_PAT_BOT = 8;
+	const STATE_PAT_SET = 9;
+	
+	
+	private function set_error($in_error)
+	{
+		if ($this->error === '')
+		{
+			$this->error = $in_error;
+			$this->$error_line = xml_get_current_line_number($this->xml_parser);
+		}
+	}
+	
+
+	public function _element_start($in_parser, $in_name, $in_attrs)
+	{
+		//print '< '.$in_name.'<br>';
+		switch ($this->state)
+		{	
+		case JxBotAimlPattern::STATE_PAT_ENCODE:
+			if ($in_name == 'pattern')
+			{
+				$this->state = JxBotAimlPattern::STATE_PAT_TXT;
+				$this->pattern = '';
+			}
+			else $this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		
+		case JxBotAimlPattern::STATE_PAT_TXT:
+			if ($in_name == 'bot')
+			{
+				$this->state = JxBotAimlPattern::STATE_PAT_BOT;
+				$this->unnested_info = '';
+				if (array_key_exists('name', $in_attrs))
+					JxBotAiml::$unnested_info = ':'.$in_attrs['name'];
+			}
+			else if ($in_name == 'set')
+			{
+				$this->state = JxBotAimlPattern::STATE_PAT_SET;
+				$this->unnested_info = '';
+				if (array_key_exists('name', $in_attrs))
+					$this->unnested_info = $in_attrs['name'].':';
+			}
+			else $this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		case JxBotAimlPattern::STATE_PAT_BOT:
+			$this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		case JxBotAimlPattern::STATE_PAT_SET:
+			$this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		}
+	}
+	
+	
+	public function _element_end($in_parser, $in_name)
+	{
+		//print '/ '.$in_name.'  '.JxBotAiml::$state.'<br>';
+		switch ($this->state)
+		{	
+		case JxBotAimlPattern::STATE_PAT_TXT:
+			if ($in_name != 'pattern')
+				$this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			break;
+		case JxBotAimlPattern::STATE_PAT_BOT:
+			$this->state = JxBotAimlPattern::STATE_PAT_TXT;
+			$this->pattern .= $this->unnested_info;
+			break;
+		case JxBotAimlPattern::STATE_PAT_SET:
+			$this->state = JxBotAimlPattern::STATE_PAT_TXT;
+			$this->pattern .= $this->unnested_info;
+			break;
+		}
+	}
+	
+	
+	public function _element_data($in_parser, $in_data)
+	{
+		//print '=>'.$in_data.'<br>';
+		switch ($this->state)
+		{
+		case JxBotAimlPattern::STATE_PAT_TXT:
+			$this->pattern .= $in_data;
+			break;
+		case JxBotAimlPattern::STATE_PAT_BOT:
+			$this->unnested_info .= $in_data;
+			break;
+		case JxBotAimlPattern::STATE_PAT_SET:
+			$this->unnested_info .= $in_data;
+			break;
+		}
+	}
+	
+	
+	public function __construct()
+	{
+		$this->xml_parser = xml_parser_create();
+		xml_parser_set_option($this->xml_parser, XML_OPTION_CASE_FOLDING, 0);
+		xml_parser_set_option($this->xml_parser, XML_OPTION_TARGET_ENCODING, 'UTF-8');
+		
+		xml_set_object($this->xml_parser, $this);
+		
+		xml_set_element_handler($this->xml_parser, '_element_start', '_element_end');
+		xml_set_character_data_handler($this->xml_parser, '_element_data');
+		
+		$this->pattern = '';
+		$this->state = JxBotAimlPattern::STATE_PAT_ENCODE;
+		$this->error = '';
+	}
+	
+	
+	public function __destruct()
+	{
+		if ($this->xml_parser) xml_parser_free($this->xml_parser);
+		$this->xml_parser = null;
+	}
+	
+	
+	public function translate($in_pattern)
+	{
+		$in_pattern = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pattern>" . $in_pattern . '</pattern>';
+		xml_parse($this->xml_parser, $in_pattern, true);
+		return $this->pattern;
+	}
+}
+
+
 class JxBotAiml
 {
 	private static $state;
@@ -46,10 +188,6 @@ class JxBotAiml
 	const STATE_THT = 4;
 	const STATE_TPC = 5;
 	
-	const STATE_PAT_ENCODE = 6;
-	const STATE_PAT_TXT = 7;
-	const STATE_PAT_BOT = 8;
-	const STATE_PAT_SET = 9;
 	
 	private static $category_id;
 	private static $top_topic;
@@ -86,7 +224,7 @@ class JxBotAiml
 			if ($in_name == 'category')
 			{
 				JxBotAiml::$state = JxBotAiml::STATE_CAT;
-				JxBotAiml::$category_id = JxBotEngine::category_new('*', JxBotAiml::$top_topic);
+				JxBotAiml::$category_id = JxBotNLData::category_new('*', JxBotAiml::$top_topic);
 				JxBotAiml::$that = '*';
 				JxBotAiml::$topic = JxBotAiml::$top_topic;
 			}
@@ -94,6 +232,7 @@ class JxBotAiml
 				JxBotAiml::$top_topic = $in_attribs['name'];
 			break;
 		case JxBotAiml::STATE_CAT:
+			//print $in_name.'<br>';
 			if ($in_name == 'pattern')
 			{
 				JxBotAiml::$state = JxBotAiml::STATE_PAT;
@@ -103,6 +242,7 @@ class JxBotAiml
 			{
 				JxBotAiml::$state = JxBotAiml::STATE_TMP;
 				JxBotAiml::$template = '';
+				//print 'entering template <br>';
 			}
 			elseif ($in_name == 'that')
 			{
@@ -116,45 +256,24 @@ class JxBotAiml
 			}
 			break;
 			
+		case JxBotAiml::STATE_TMP:
+			JxBotAiml::$template .= '<'.$in_name;
+			//var_dump($in_attrs);
+			foreach ($in_attrs as $name => $value)
+			{
+				JxBotAiml::$template .= ' '.$name.'="'.$value.'"';
+			}
+			JxBotAiml::$template .= '>';
+			break;
 			
-		case JxBotAiml::STATE_PAT_ENCODE:
-			if ($in_name == 'pattern')
-			{
-				JxBotAiml::$state = JxBotAiml::STATE_PAT_TXT;
-				JxBotAiml::$pattern = '';
-			}
-			else JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
-			break;
-		case JxBotAiml::STATE_PAT_TXT:
-			if ($in_name == 'bot')
-			{
-				JxBotAiml::$state = JxBotAiml::STATE_PAT_BOT;
-				JxBotAiml::$unnested_info = '';
-				if (array_key_exists('name', $in_attrs))
-					JxBotAiml::$unnested_info = ':'.$in_attrs['name'];
-			}
-			else if ($in_name == 'set')
-			{
-				JxBotAiml::$state = JxBotAiml::STATE_PAT_SET;
-				JxBotAiml::$unnested_info = '';
-				if (array_key_exists('name', $in_attrs))
-					JxBotAiml::$unnested_info = $in_attrs['name'].':';
-			}
-			else JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
-			break;
-		case JxBotAiml::STATE_PAT_BOT:
-			JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
-			break;
-		case JxBotAiml::STATE_PAT_SET:
-			JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
-			break;
+		
 		}
 	}
 	
 	
 	public static function _element_end($in_parser, $in_name)
 	{
-		//print '/ '.$in_name.'<br>';
+		//print '/ '.$in_name.'  '.JxBotAiml::$state.'<br>';
 		switch (JxBotAiml::$state)
 		{
 		case JxBotAiml::STATE_TOP:
@@ -168,22 +287,29 @@ class JxBotAiml
 		case JxBotAiml::STATE_PAT:
 			if ($in_name == 'pattern')
 			{
+				//print 'END patern<br>';
 				JxBotAiml::$state = JxBotAiml::STATE_CAT;
-				JxBotEngine::pattern_add(JxBotAiml::$category_id, JxBotAiml::$pattern,
+				JxBotNLData::pattern_add(JxBotAiml::$category_id, JxBotAiml::$pattern,
 					'*', JxBotAiml::$top_topic);
+				//print 'end pattern<br>';
 			}
 			break;
 		case JxBotAiml::STATE_TMP:
 			if ($in_name == 'template')
 			{
+				//print 'creating template';
 				JxBotAiml::$state = JxBotAiml::STATE_CAT;
-				JxBotEngine::template_add(JxBotAiml::$category_id, JxBotAiml::$template);
+				JxBotNLData::template_add(JxBotAiml::$category_id, JxBotAiml::$template);
+			}
+			else
+			{
+				JxBotAiml::$template .= '</'.$in_name.'>';
 			}
 			break;
 		case JxBotAiml::STATE_THT:
 			if ($in_name == 'that')
 			{
-				JxBotEngine::category_update(JxBotAiml::$category_id, 
+				JxBotNLData::category_update(JxBotAiml::$category_id, 
 					JxBotAiml::$that,
 					JxBotAiml::$topic);
 			}
@@ -191,24 +317,13 @@ class JxBotAiml
 		case JxBotAiml::STATE_TPC:
 			if ($in_name == 'topic')
 			{
-				JxBotEngine::category_update(JxBotAiml::$category_id, 
+				JxBotNLData::category_update(JxBotAiml::$category_id, 
 					JxBotAiml::$that,
 					JxBotAiml::$topic);
 			}
 			break;
 			
-		case JxBotAiml::STATE_PAT_TXT:
-			if ($in_name != 'pattern')
-				JxBotAiml::set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
-			break;
-		case JxBotAiml::STATE_PAT_BOT:
-			JxBotAiml::$state = JxBotAiml::STATE_PAT_TXT;
-			JxBotAiml::$pattern .= JxBotAiml::$unnested_info;
-			break;
-		case JxBotAiml::STATE_PAT_SET:
-			JxBotAiml::$state = JxBotAiml::STATE_PAT_TXT;
-			JxBotAiml::$pattern .= JxBotAiml::$unnested_info;
-			break;
+		
 		}
 	}
 	
@@ -226,15 +341,7 @@ class JxBotAiml
 			break;
 			
 			
-		case JxBotAiml::STATE_PAT_TXT:
-			JxBotAiml::$pattern .= $in_data;
-			break;
-		case JxBotAiml::STATE_PAT_BOT:
-			JxBotAiml::$unnested_info .= $in_data;
-			break;
-		case JxBotAiml::STATE_PAT_SET:
-			JxBotAiml::$unnested_info .= $in_data;
-			break;
+	
 		}
 	}
 	
@@ -270,9 +377,14 @@ class JxBotAiml
 		while ($data = fread($fh, 4096))
 		{
 			if (! xml_parse($parser, $data, feof($fh)) )
+			{
+				print 'ERROR';
 				return 'AIML error: Line ' . xml_get_current_line_number($parser) . ': ' . 
 						xml_error_string(xml_get_error_code($parser));
+			}
 		}
+		
+		xml_parse($parser, '', true);
 		
 		fclose($fh);
 		xml_parser_free($parser);
@@ -281,22 +393,7 @@ class JxBotAiml
 	}
 	
 	
-	public static function translate_pattern_tags($in_pattern)
-	{
-		$in_pattern = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pattern>" . $in_pattern . '</pattern>';
-		
-		$parser = JxBotAiml::parser_create('_element_start', '_element_end', '_element_data');
-			
-		JxBotAiml::$pattern = '';
-		JxBotAiml::$state = JxBotAiml::STATE_PAT_ENCODE;
-		JxBotAiml::$error = '';
-			
-		xml_parse($parser, $in_pattern, true);
-		
-		xml_parser_free($parser);
-		
-		return JxBotAiml::$pattern;
-	}
+	
 	
 	
 	
