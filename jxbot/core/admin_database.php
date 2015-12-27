@@ -190,13 +190,14 @@ JxWidget::hidden($inputs, 'input,that,topic');
 <p>For input: <strong><?php print $inputs['input']; ?> : <?php print $inputs['that']; ?> : <?php print $inputs['topic']; ?></strong></p>
 
 <?php 
-$category_id = JxBotEngine::match($inputs['input'], $inputs['that'], $inputs['topic']);
-if ($category_id === false) {  ?>
+$match = JxBotEngine::match($inputs['input'], $inputs['that'], $inputs['topic']);
+if ($match === false) {  ?>
 <h3>No Exact Match</h3>
 <?php } else { 
 	print '<h3>Exact Match</h3>';
 	
-	$patterns = JxBotNLData::fetch_patterns($category_id);
+	$category_id = $match->matched_category();
+	$patterns = JxBotNLData::fetch_patterns( $category_id );
 	JxWidget::grid(array(
 		array('label'=>'ID', 'id'=>0, 'key'=>true, 'visible'=>false),
 		array('label'=>'Pattern', 'id'=>1, 'link'=>'?page=database&action=edit&category='.$category_id, 'encode'=>true)

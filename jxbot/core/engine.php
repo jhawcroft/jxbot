@@ -56,6 +56,8 @@ class JxBotEngine
 	                                        of the recursive call stack to determine
 	                                        which of the three wildcard value arrays
 	                                        (^ above) in which to store wildcard values */
+	                                        
+	protected $matched_category_id = 0;  /* the ID of the matching category */
 	
 	
 	private function accumulate_wild_values(&$in_values)
@@ -349,14 +351,16 @@ class JxBotEngine
 	/* takes inputs in normal string form, returns some kind of array of information
 	about the match (if any); assumes matching a single sentence (splitting already done) */
 	{
-		if ($in_that == '*' || $in_that == '') $in_that = 'undefined';
-		if ($in_topic == '*' || $in_topic == '') $in_topic = 'undefined';
+		if (($in_that === null) || ($in_that === '')) $in_that = '*';
+		if (($in_topic === null) || ($in_topic === '')) $in_topic = '*';
 	
 		$search_terms = JxBotNL::normalise($in_input);
 		$search_terms[] = ':';
-		$search_terms = array_merge($search_terms, JxBotNL::normalise($in_that));
+		if ($in_that == '*') $search_terms[] = $in_that;
+		else $search_terms = array_merge($search_terms, JxBotNL::normalise($in_that));
 		$search_terms[] = ':';
-		$search_terms = array_merge($search_terms, JxBotNL::normalise($in_topic));
+		if ($in_topic == '*') $search_terms[] = $in_topic;
+		else $search_terms = array_merge($search_terms, JxBotNL::normalise($in_topic));
 		
 		$context = new JxBotEngine();
 		$context->input_terms = $search_terms;
@@ -387,12 +391,46 @@ class JxBotEngine
 		var_dump($context->wild_topic_values);
 		print '</pre></p>';*/
 		
+		
+		// for efficiency, we'd return ourselves as a match!
+		
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
 		$stmt->execute(array($matched_pattern));
 		$category = $stmt->fetchAll(PDO::FETCH_NUM);
-		$category = $category[0][0];
+		$context->matched_category_id = $category[0][0];
 		
-		return $category;
+		/*return array(
+			'category'=>$category,
+			'star'=>$context->wild_values,
+			'thatstar'=>$context->wild_that_values,
+			'topicstar'=>$context->wild_topic_values
+		);*/
+		
+		return $context;
+	}
+	
+	
+	public function matched_category()
+	{
+		return $this->matched_category_id;
+	}
+	
+	
+	public function input_capture($in_index)
+	{
+		return $this->wild_values[$in_index];
+	}
+	
+	
+	public function that_capture($in_index)
+	{
+		return $this->wild_that_values[$in_index];
+	}
+	
+	
+	public function topic_capture($in_index)
+	{
+		return $this->wild_topic_values[$in_index];
 	}
 	
 }

@@ -173,8 +173,6 @@ class JxBotElement
 
 	
 	public function generate($in_context) 
-	// ! TODO:  Will probably remove in context from all these functions
-	// and just access the conversation directly; doesn't seem to be a very useful idea... ***
 	{
 		switch ($this->name)
 		{
@@ -247,8 +245,14 @@ class JxBotElement
 		case 'thatstar':
 		case 'topicstar':
 			$index = intval( $this->child_or_attr_named($in_context, 'index', 1) );
-			return 'STAR['.$index.']'; // ** TO PATCH
-			break;
+			if ($this->name == 'star')
+				$value = $in_context->input_capture($index - 1);
+			else if ($this->name == 'thatstar')
+				$value = $in_context->that_capture($index - 1);
+			else
+				$value = $in_context->topic_capture($index - 1);
+			if ($value === null) return ''; // ** should be an error somewhere.... ?
+			return $value;
 			
 		case 'srai':
 			 // ** TO PATCH

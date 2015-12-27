@@ -209,23 +209,25 @@ Conversation
 	public static function get_response($in_input)
 	/* causes the bot to generate a response to the supplied client input */
 	{
-		//$words = NLAux::normalise($in_input);
-		//$category_id = NL::match_input($in_input);
-		$category_id = JxBotEngine::match($in_input, 'unknown', 'unknown');
-		//print 'Matched category: '.$category_id.'<br>';
+		$match = JxBotEngine::match($in_input, 
+			JxBotConverse::predicate('that'), JxBotConverse::predicate('topic') );
 		
-		if ($category_id === false)
+		if ($match === false)
 		/* no match was found; the input was not understood
 		and no default category is available */
 			$output = '???'; // ! TODO: this should probably be configurable **
 		else
 		{
-			$template = JxBotNLData::fetch_templates($category_id);
+			$template = JxBotNLData::fetch_templates( $match->matched_category() );
+			// implement random
 			$output = $template[0][1];
 		}
-		//$output = NL::make_output($category_id);
+		
+		$template = JxBotAiml::parse_template($output);
+		$output = $template->generate( $match );
 		
 		JxBotConverse::log($in_input, $output);
+		JxBotConverse::set_predicate('that', $output); // probably don't need this if we use log
 		
 		return $output;
 	}
