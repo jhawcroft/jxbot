@@ -11,12 +11,12 @@ Outstanding for v1:
 —————
 1.  MAPS for the gender, person & person2 tags for v1.
 
-2.  HISTORY for v1: that & input
+2.  HISTORY for v1: that & input [DONE]
 
 
 
 
-that
+that [DONE]
 ----
 
 (previous output)
@@ -28,7 +28,7 @@ that
 where R : response, S : sentence
 
 
-input
+input [DONE]
 -----
 
 (previous input; is 1,1 this input?)
@@ -36,9 +36,6 @@ input
 	(optional)
 	index = I, S (sentence)
 	index = I
-
-
-
 
 
 star, thatstar, topicstar [DONE]

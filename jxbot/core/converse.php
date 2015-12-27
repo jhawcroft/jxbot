@@ -215,8 +215,11 @@ Conversation
 	
 	public static function history_request($in_index)
 	{
+		$in_index = intval($in_index);
+		if ($in_index < 0) return '';
+		
 		$stmt = JxBotDB::$db->prepare('SELECT input FROM log 
-			WHERE session=? ORDER BY id DESC LIMIT '.intval($in_index).',1');
+			WHERE session=? ORDER BY id DESC LIMIT '.$in_index.',1');
 		$stmt->execute(array(JxBotConverse::$session_id));
 		$row = $stmt->fetchAll(PDO::FETCH_NUM);
 		if (count($row) == 0) return '';
@@ -226,8 +229,11 @@ Conversation
 	
 	public static function history_response($in_index)
 	{
+		$in_index = intval($in_index);
+		if ($in_index < 0) return '';
+		
 		$stmt = JxBotDB::$db->prepare('SELECT output FROM log 
-			WHERE session=? ORDER BY id DESC LIMIT '.intval($in_index).',1');
+			WHERE session=? ORDER BY id DESC LIMIT '.$in_index.',1');
 		$stmt->execute(array(JxBotConverse::$session_id));
 		$row = $stmt->fetchAll(PDO::FETCH_NUM);
 		if (count($row) == 0) return '';
@@ -235,12 +241,11 @@ Conversation
 	}
 	
 	
-	public static function srai($in_input)
-	/* evaluate the input within the current context and generate output,
-	without logging the output or updating the history */
+	private static function sentence_respond(&$in_input)
 	{
 		$match = JxBotEngine::match($in_input, 
-			JxBotConverse::history_response(0), JxBotConverse::predicate('topic') );
+			JxBotConverse::history_response(0), // review if specific sentence required here?
+			JxBotConverse::predicate('topic') );
 		
 		if ($match === false)
 		/* no match was found; the input was not understood
@@ -252,11 +257,25 @@ Conversation
 			// implement random
 			$output = $template[0][1];
 		}
-		
+	
 		$template = JxBotAiml::parse_template($output);
-		$output = $template->generate( $match );
+		return $template->generate( $match );
+	}
+	
+	
+	public static function srai($in_input)
+	/* evaluate the input within the current context and generate output,
+	without logging the output or updating the history */
+	{
+		$sentences = JxBotNL::split_sentences($in_input);
 		
-		return $output;
+		$output = array();
+		foreach ($sentences as $sentence)
+		{
+			$output[] = JxBotConverse::sentence_respond($sentence);
+		}
+		
+		return implode(' ', $output);
 	}
 
 

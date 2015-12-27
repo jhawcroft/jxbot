@@ -183,6 +183,20 @@ class JxBotElement
 		if ($value === null) return ''; // ** should be an error somewhere.... ?
 		return $value;
 	}
+	
+	
+	private static function indicies($in_value)
+	{
+		$result = array();
+		$parts = explode(',', $in_value);
+		foreach ($parts as $part)
+		{
+			$part = trim($part);
+			if ($part == '') $result[] = 1;
+			else $result[] = intval($part);
+		}
+		return $result;
+	}
 
 	
 	public function generate($in_context) 
@@ -310,6 +324,26 @@ class JxBotElement
 			return JxBotNL::formal( $this->text_value($in_context) );
 		case 'sentence':
 			return JxBotNL::sentence( $this->text_value($in_context) );
+		
+		case 'that':
+			$indicies = JxBotElement::indicies( $this->child_or_attr_named($in_context, 'index') );
+			$in_response = (count($indicies) >= 1 ? $indicies[0] : 1);
+			$in_sentence = (count($indicies) >= 2 ? $indicies[1] : 1);
+		
+			$response = JxBotConverse::history_response($in_response - 1);
+			$sentences = JxBotNL::split_sentences($response);
+			if ( ($in_sentence < 1) || ($in_sentence > count($sentences)) ) return '';
+			return $sentences[$in_sentence - 1];
+		
+		case 'input':
+			$indicies = JxBotElement::indicies( $this->child_or_attr_named($in_context, 'index') );
+			$in_request = (count($indicies) >= 1 ? $indicies[0] : 1);
+			$in_sentence = (count($indicies) >= 2 ? $indicies[1] : 1);
+			
+			$request = JxBotConverse::history_request($in_request - 1);
+			$sentences = JxBotNL::split_sentences($request);
+			if ( ($in_sentence < 1) || ($in_sentence > count($sentences)) ) return '';
+			return $sentences[$in_sentence - 1];
 		
 		default: /* push unknown content & tags through to output */
 			// ! REVIEW:  A better policy might be to tightly control which tags are

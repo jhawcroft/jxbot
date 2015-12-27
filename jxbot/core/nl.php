@@ -68,7 +68,7 @@ Case Folding
 	public static function sentence($in_input)
 	/* capitalises the first word of each sentence */
 	{
-		$sentences = JxBotSplitterEnglish::split($in_input);
+		$sentences = JxBotNL::split_sentences($in_input);
 		
 		foreach ($sentences as &$sentence)
 		{
@@ -96,6 +96,15 @@ String Comparison
 /********************************************************************************
 Normalisation
 */
+	
+	public static function split_sentences($in_input)
+	/* splits the input into sentences, leaving any punctuation intact */
+	{
+		// ! TODO: can make this utilise a plug-in architecture & system option eventually
+		return JxBotSplitterEnglish::split($in_input);
+	}
+	
+	
 	private static function strip_accents($in_utf8)
 	/* strips accents from selected latin characters
 	! Note:  Doesn't recognise all possible characters with accents and currently only

@@ -39,7 +39,7 @@ class JxBotSplitterEnglish
 {
 	public static function split($in_input)
 	{
-		return preg_split('/(?<=[.?!;:])\s+/', $in_input, -1, PREG_SPLIT_NO_EMPTY);
+		return preg_split('/(?<=[.?!])\s+/', $in_input, -1, PREG_SPLIT_NO_EMPTY);
 	}
 }
 
