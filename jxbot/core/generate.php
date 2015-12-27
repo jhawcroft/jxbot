@@ -329,6 +329,14 @@ class JxBotElement
 			if (count($this->children) == 0)
 				return JxBotNL::remap('gender', $this->get_capture($in_context, 'star', 1) );
 			return JxBotNL::remap('gender', $this->text_value($in_context));
+		case 'person':
+			if (count($this->children) == 0)
+				return JxBotNL::remap('person', $this->get_capture($in_context, 'star', 1) );
+			return JxBotNL::remap('person', $this->text_value($in_context));
+		case 'person2':
+			if (count($this->children) == 0)
+				return JxBotNL::remap('person2', $this->get_capture($in_context, 'star', 1) );
+			return JxBotNL::remap('person2', $this->text_value($in_context));
 		
 		case 'that':
 			$indicies = JxBotElement::indicies( $this->child_or_attr_named($in_context, 'index') );

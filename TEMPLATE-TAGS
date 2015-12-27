@@ -178,20 +178,22 @@ as I think it may be related.
 Add for version 1 - but not 0.92
 
 
-person2  1st person -> third person (words)
+person2  1st person -> third person (words) [DONE]  - English lists to be compiled
          3rd person -> first person (words)
 
 (v2 supports maps, and no specific implementaiton is specified,
 we will probably implement using an extension of maps ?)
 
-person
+person [DONE] - English lists in map to be compiled
 	1st -> second person (words)
 	2nd -> first person (words)
 	
-gender
+gender [DONE] - English lists in map to be compiled
 	male -> female (words)
 	female -> male (words)
 
+
+* possibly add a bi-directonal map flag
 
 
 
@@ -203,10 +205,10 @@ Convenience Elements
 =======
 (do these last)
 
-sr => srai star /srai
-person2 => person2 star /person2
-person => person star /person
-gender => gender star /gender
+sr => srai star /srai [DONE]
+person2 => person2 star /person2 [DONE]
+person => person star /person [DONE]
+gender => gender star /gender [DONE]
 
 
 

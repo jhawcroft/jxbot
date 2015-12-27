@@ -168,6 +168,44 @@ CREATE TABLE map_item (
 ');
 
 JxBotDB::$db->exec("
+INSERT INTO _map (id, name) VALUES (1, 'gender');
+INSERT INTO map_item (map, s_from, s_to) VALUES (1, 'he', 'she');
+INSERT INTO map_item (map, s_from, s_to) VALUES (1, 'she', 'he');
+INSERT INTO map_item (map, s_from, s_to) VALUES (1, 'his', 'hers');
+INSERT INTO map_item (map, s_from, s_to) VALUES (1, 'hers', 'his');
+INSERT INTO map_item (map, s_from, s_to) VALUES (1, 'him', 'her');
+INSERT INTO map_item (map, s_from, s_to) VALUES (1, 'her', 'him');
+
+INSERT INTO _map (id, name) VALUES (2, 'person');
+INSERT INTO map_item (map, s_from, s_to) VALUES (2, 'I was', 'he or she was');
+INSERT INTO map_item (map, s_from, s_to) VALUES (2, 'he was', 'I was');
+INSERT INTO map_item (map, s_from, s_to) VALUES (2, 'she was', 'I was');
+INSERT INTO map_item (map, s_from, s_to) VALUES (2, 'I am', 'he or she is');
+INSERT INTO map_item (map, s_from, s_to) VALUES (2, 'me', 'him or her');
+INSERT INTO map_item (map, s_from, s_to) VALUES (2, 'my', 'his or her');
+INSERT INTO map_item (map, s_from, s_to) VALUES (2, 'myself', 'him or herself');
+INSERT INTO map_item (map, s_from, s_to) VALUES (2, 'mine', 'his or hers');
+
+INSERT INTO _map (id, name) VALUES (3, 'person2');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'with you', 'with me');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'with me', 'with you');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'to you', 'to me');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'to me', 'to you');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'of you', 'of me');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'of me', 'of you');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'for you', 'for me');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'for me', 'for you');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'give you', 'give me');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'give me', 'give you');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'giving you', 'giving me');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'giving me', 'giving you');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'gave you', 'gave me');
+INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'gave me', 'gave you');
+");
+
+
+
+JxBotDB::$db->exec("
 INSERT INTO opt (opt_key, opt_value) VALUES ('def_species', 'human');
 ");
 
