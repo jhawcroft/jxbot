@@ -42,6 +42,18 @@ input
 	index = I
 
 
+srai
+——
+	pass the contents to the AIML matching process and return the result
+	(not sure about the processing of that, et al.
+	in these instances? - suggest we process as with the original match
+	ie. without taking into account any prior sentence that may have already
+	been processed for this interaction; seems to make most sense and
+	otherwise ends up being tricky and unclear anyway)
+
+
+
+
 get [DONE]
 ---
 (client predicate)
@@ -119,16 +131,6 @@ set name [DONE]
 	to recognise certain client-side predicates as return name not value?
 	(probably wont do that, but it's in the v1 spec as an option)
 
-
-
-
-srai
-	pass the contents to the AIML matching process and return the result
-	(not sure about the processing of that, et al.
-	in these instances? - suggest we process as with the original match
-	ie. without taking into account any prior sentence that may have already
-	been processed for this interaction; seems to make most sense and
-	otherwise ends up being tricky and unclear anyway)
 
 
 think [DONE]

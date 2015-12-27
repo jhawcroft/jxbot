@@ -53,6 +53,7 @@ require_once(dirname(__FILE__).'/widget.php');
 class JxBot
 {
 	const VERSION = '0.9';
+	const PROGRAM = 'JxBot';
 
 	private $config = array();
 	

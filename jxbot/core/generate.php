@@ -277,6 +277,8 @@ class JxBotElement
 			return JxBotNLData::pattern_count();
 		case 'version':
 			return JxBot::VERSION;
+		case 'program':
+			return JxBot::PROGRAM . ' ' . JxBot::VERSION;
 			
 		case 'set':
 			$name = trim( $this->child_or_attr_named($in_context, 'name') );
