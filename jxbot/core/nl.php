@@ -91,6 +91,30 @@ Case Folding
 	}
 	
 	
+	public static function template_normalize($in_input)
+	{
+		$output = $in_input;
+		
+		$output = JxBotNL::upper($output);
+		$output = JxBotNL::strip_punctuation($output);
+  		
+  		return $output;
+	}
+	
+	
+	public static function template_denormalize($in_input)
+	{
+		$output = $in_input;
+		
+		$output = JxBotNL::lower($output);
+		
+		// ! TODO:  This should be more useful once substitutions are implemented,
+		// contractions, etc.
+		
+		return $output;
+	}
+	
+	
 /********************************************************************************
 String Comparison
 */

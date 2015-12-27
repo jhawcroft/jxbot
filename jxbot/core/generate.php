@@ -333,6 +333,10 @@ class JxBotElement
 			
 		case 'explode':
 			return JxBotNL::explode( $this->text_value($in_context) );
+		case 'normalize':
+			return JxBotNL::template_normalize( $this->text_value($in_context) );
+		case 'denormalize':
+			return JxBotNL::template_denormalize( $this->text_value($in_context) );
 			
 		case 'gender':
 			if (count($this->children) == 0)

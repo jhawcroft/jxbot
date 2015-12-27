@@ -236,43 +236,6 @@ v2 New Elements
 * should be checking aiml & version= attribute
 * already implementing category-side <topic>
 
-request [DONE]
-	like input, but entire inputs (all sentences)
-response [DONE]
-	last response (all sentences)
-
-condition
-	<loop/>
-	(condition is repeatedly evaluated & output concatentated,
-	until an li is matched that doesn't contain a <loop/>
-	
-	(obviously requires a recursion limit, to be provided in system settings
-	and given sane default values for server sanity)
-
-
-sraix
-	external service usage
-	default service: Pannous
-	bot - destination bot on same server 'username/botname'
-	botid - same server 'bot id'
-	limit - first N sentences of response
-	service - as above
-	apikey (if relevant)
-	server - where to call
-	hint - poorly defined, but tends to indicate a type of service
-		and let server decide
-	default -> override use of SRAIXFAILED pattern on failure
-
-map [DONE]
-	name
-	transforms content from one value to another
-	fairly self-explanatory
-	map files look like this
-		value:value2
-	in database will probably just store as a map table.
-
-	(can use this as the basis of person in all likelihood;
-	provide example built-in maps)
 
 date
 	additional attributes:
@@ -282,14 +245,32 @@ date
 	jformat -> Java simple date format
 		http://docs.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html
 
-explode [DONE]
-	split a word into characters with spaces between
+vocabulary
+	-total number of distinct words in sets and patterns
+	(work with a dictionary facility, for which words will be added
+	when patterns are defined - tho not deleted - same with sets
+	not great from an accidental mistaken spelling perspective, 
+	but can always provide a timestamp
+	so latest words can be reviewed) ; can double as a dictionary/theasurus
+	for which words can be associated with one-another and meanings added
+	/ imported from CSV
 
 
-normalize and denormalize
-	(up to the administrator to configure)
+<loop/> (condition, li)
+	(condition is repeatedly evaluated & output concatentated,
+	until an li is matched that doesn't contain a <loop/>
+	
+	(obviously requires a recursion limit, to be provided in system settings
+	and given sane default values for server sanity)
 
 
+interval
+	-time between two dates
+	attributes:
+		style - minutes, hours, days, weeks, months or years
+		jformat / format
+		from
+		to
 
 (compatibility; v1 files will produce learn tags that don't do anything as above)
 v2 files will produce v2 working learn)
@@ -309,26 +290,46 @@ learnf
 eval - seems to be redundant given it's description - not sure what they're thinking?
 
 
-vocabulary
-	-total number of distinct words in sets and patterns
-	(work with a dictionary facility, for which words will be added
-	when patterns are defined - tho not deleted - same with sets
-	not great from an accidental mistaken spelling perspective, 
-	but can always provide a timestamp
-	so latest words can be reviewed) ; can double as a dictionary/theasurus
-	for which words can be associated with one-another and meanings added
-	/ imported from CSV
+sraix
+	external service usage
+	default service: Pannous
+	bot - destination bot on same server 'username/botname'
+	botid - same server 'bot id'
+	limit - first N sentences of response
+	service - as above
+	apikey (if relevant)
+	server - where to call
+	hint - poorly defined, but tends to indicate a type of service
+		and let server decide
+	default -> override use of SRAIXFAILED pattern on failure
+
+
+request [DONE]
+	like input, but entire inputs (all sentences)
+response [DONE]
+	last response (all sentences)
+
+map [DONE]
+	name
+	transforms content from one value to another
+	fairly self-explanatory
+	map files look like this
+		value:value2
+	in database will probably just store as a map table.
+
+	(can use this as the basis of person in all likelihood;
+	provide example built-in maps)
+
+explode [DONE]
+	split a word into characters with spaces between
+
+normalize and denormalize [DONE]
+	(up to the administrator to configure)
 
 program [DONE]
 	-program name & version string
 	
-interval
-	-time between two dates
-	attributes:
-		style - minutes, hours, days, weeks, months or years
-		jformat / format
-		from
-		to
+
 
 
 	
