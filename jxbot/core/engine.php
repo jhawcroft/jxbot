@@ -285,11 +285,11 @@ class JxBotEngine
 		$stmt->execute(array($in_parent_id, $current_term));
 		$possible_branches = $stmt->fetchAll(PDO::FETCH_NUM);
 		
-		print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
+		//print "Walk  parent=$in_parent_id, term_index=$in_term_index, term=$current_term<br>";
 		
-		print '<pre>';
-		var_dump($possible_branches);
-		print '</pre>';
+		//print '<pre>';
+		//var_dump($possible_branches);
+		//print '</pre>';
 		
 		foreach ($possible_branches as $possibility)
 		{
