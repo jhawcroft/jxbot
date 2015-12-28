@@ -39,6 +39,9 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 class JxBotNL
 {
 
+	private static $subs = null;
+
+
 /********************************************************************************
 Case Folding
 ! Note:  Case folding operations in some languages are not reliably reversable.
@@ -222,20 +225,49 @@ Normalisation
 	}
 	
 	
-	public static function normalise($in_input, $in_keep_wildcards = false)
+	private static function load_substitutions()
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT s_from,s_to FROM map_item JOIN _map ON map_item.map=_map.id 
+			WHERE _map.name=? ORDER BY s_from');
+		$stmt->execute(array( 'substitutions' ));
+		$subs = array();
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		foreach ($rows as $row)
+			$subs[JxBotNL::upper($row[0])] = JxBotNL::upper($row[1]);
+		JxBotNL::$subs = $subs;
+	}
+	
+	
+	private static function apply_substitutions($in_input)
+	{
+		if (JxBotNL::$subs == null) JxBotNL::load_substitutions();
+		foreach (JxBotNL::$subs as $search => $replace)
+		{
+			$in_input = str_replace($search, $replace, $in_input);
+		}
+		return $in_input;
+	}
+	
+	
+	public static function normalise($in_input)
 	/* splits the user input into words, removes punctuation, folds the case for 
 	optimal matching and strips accents */
 	{
-		if ($in_keep_wildcards) return JxBotNL::normalise_pattern($in_input);
+		//if ($in_keep_wildcards) return JxBotNL::normalise_pattern($in_input);
 	
-		$output = $in_input;
-		
+		/* preparation */
+		$output = ' '.$in_input.' '; // leading & trailing space to help with substitution matching
+		// consider replacing vertical & unusual horizontal whitespace (tabs) with all spaces here
 		$output = JxBotNL::upper($output);
 		
-		/* ! not sure about hard-coding this;
-	         probably this ought to be handled through AIML substitutions so that
-	         foreign language support isn't problematic? */
-		$output = JxBotNL::strip_accents($output);
+		/* do `tagging` in a different routine; really a pre-normalisation function */
+		
+		/* `substitution` normalisations; substitutions, abbreviations, spelling */
+		$output = JxBotNL::apply_substitutions($output);
+		
+		/* `pattern fitting` normalisations */
+	    if (JxBotConfig::option('pre_strip_accents', 0) == 1)
+			$output = JxBotNL::strip_accents($output);
 		
 		$output = JxBotNL::strip_punctuation($output);
   		$output = JxBotNL::split_words($output);

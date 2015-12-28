@@ -161,6 +161,7 @@ class JxWidget
 				
 				print '<td';
 				if ($col['id'] == ':delete') print ' style="width: 3em;"';
+				if (isset($col['whitespace']) && ($col['whitespace'] == 'preserve')) print ' class="showspace"';
 				print '>';
 				if ($is_link) 
 				{

@@ -141,10 +141,10 @@ class JxBotConfig
 	}
 	
 	
-	public static function option($in_key)
+	public static function option($in_key, $in_default = null)
 	{
 		if (isset(JxBotConfig::$config[$in_key])) return JxBotConfig::$config[$in_key];
-		return null;
+		return $in_default;
 	}	
 	
 	

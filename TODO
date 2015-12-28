@@ -14,17 +14,18 @@ Essentials (toward a version 1.0)
 ---
 
 
-* implement substitutions in normalisation
-* Improvements to database admin; pandora-bots as a model UI?
 * consider adding 'Tags' wherein information that is usually filtered out, such as punctuation,
   laughter, etc. is picked up and converted to 'tags' which are applied to the sentence,
   and which are accessible via a custom <tag> or predicate relative to each sentence / the whole thing (index=)
   * tags could be a map too, ie. search string => tag name
-* 'spelling' separate substitution map
+* 'spelling' separate substitution map [DONE]
 
 * have age and birthday special bot predicates, with age auto-calculated [DONE]
 * Substitution maintenance [maps, DONE] - use whitespace prefixed & postfix'd content, prior to punctuation norm
 * Finish set functionality [DONE]
+* implement substitutions in normalisation [DONE]
+
+* Improvements to database admin; pandora-bots as a model UI?
 
 ---
 
@@ -45,6 +46,11 @@ Roadmap
 
 * checks for questions and provides a question flag/predicate to aid
   writing creative responses to unknown statements
+  
+* potentially things like web addresses and dates
+  could be tagged and prevented from the usual normalisation,
+  and required to match a wildcard/built-in set
+  which would make this side of things a bit neater
 
 
 
@@ -55,3 +61,18 @@ Server Configuration
   and write a note in documentation about this, 
   as well as JxBot session handling + integration with other
   3rd-party systems, eg. Wordpress
+  
+  
+Normalisation Sequence
+----------------------
+
+-	split sentences - (AIML 1 has this below substitutions but it shouldn't matter too much; can review later)
+-	apply `tags` to sentences
+-	run spelling corrections? 
+-	run substitutions
+	(abbreviations, contractions, etc.)
+-	strip punctuation & accents (if required) & split into words & uppercase
+
+There may be performance issues with the AIML 1 proposed normalisation sequence.  It's essentially got to be run rule by rule.
+To be reviewed later.
+Spelling might be better processed in a different way.

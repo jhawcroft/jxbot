@@ -74,8 +74,8 @@ function do_delete_item()
 function do_new_item()
 {
 	$inputs = JxBotUtil::inputs('item-from,item-to,map');
-	$item_from = trim($inputs['item-from']);
-	$item_to = trim($inputs['item-to']);
+	$item_from = $inputs['item-from'];
+	$item_to = $inputs['item-to'];
 	
 	$stmt = JxBotDB::$db->prepare('INSERT INTO map_item (s_from, s_to, map) VALUES (?, ?, ?)');
 	$stmt->execute(array($inputs['item-from'], $inputs['item-to'], $inputs['map']));
@@ -144,8 +144,8 @@ function list_items($in_map)
 	$items = $stmt->fetchAll(PDO::FETCH_NUM);
 	JxWidget::grid(array(
 		array('label'=>'ID', 'id'=>0, 'key'=>true, 'visible'=>false),
-		array('label'=>'From', 'id'=>1),
-		array('label'=>'To', 'id'=>2),
+		array('label'=>'From', 'id'=>1, 'whitespace'=>'preserve'),
+		array('label'=>'To', 'id'=>2, 'whitespace'=>'preserve'),
 		array('label'=>'Delete', 'id'=>':delete', 'link'=>'?page=database&subpage=maps&action=delete-item&item=$$')
 	), $items);
 	

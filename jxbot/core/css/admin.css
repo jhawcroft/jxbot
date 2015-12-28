@@ -683,4 +683,14 @@ div.meter-dynamic-scale.dms110 div:nth-child(n+12)
 }
 
 
+/*
+Admin - Show Whitespace as-is
+*/
+
+.showspace
+{
+	white-space: pre-wrap;
+}
+
+
 

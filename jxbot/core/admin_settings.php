@@ -39,6 +39,8 @@ if (isset($_POST['bot_tz']))
 	JxBotConfig::set_option('bot_tz', $_POST['bot_tz']);
 	JxBotConfig::set_option('bot_active', $_POST['bot_active']);
 	
+	JxBotConfig::set_option('pre_strip_accents', $_POST['pre_strip_accents']);
+	
 	JxBotConfig::set_option('admin_user', $_POST['admin_user']);
 	JxBotConfig::set_option('admin_timeout', intval($_POST['admin_timeout']));
 	
@@ -56,6 +58,9 @@ if (isset($_POST['bot_tz']))
 
 <div class="field"><label for="bot_tz">Timezone: </label>
 <?php JxBotConfig::widget_timezone(); ?></div>
+
+<div class="field"><label for="pre_strip_accents">Strip Accents:</label>
+<?php JxWidget::toggle_switch('pre_strip_accents', JxBotConfig::option('pre_strip_accents')); ?> (strip accents during normalisation; good for English)</div>
 
 <div class="field"><label for="admin_user">Administration Username: </label>
 <input type="text" name="admin_user" id="admin_user" size="20" value="<?php print JxBotConfig::option('admin_user'); ?>"></div>
