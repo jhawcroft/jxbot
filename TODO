@@ -4,8 +4,6 @@ TODO
 Essentials (toward a version 1.0)
 ----------
 
-
-* Implement word accumulating dictionary
 * Fix bot predicate labeling for maximum compatibility with existing AIML
 * Finish set functionality - admin side 
 * Substitution maintenance 
@@ -13,6 +11,7 @@ Essentials (toward a version 1.0)
 * Improvements to database admin; pandora-bots as a model UI?
 
 * Fix obvious bugs
+* fix response IQ; ie. actually do a calculation based on wild/word ratio + pattern length
 * Implement error handling and check for common data malformations
 * Get installer to ask for admin username & any other pertinent settings
 * Write documentation
@@ -26,6 +25,7 @@ Essentials (toward a version 1.0)
 * Basic sentence splitting [DONE]
 * Implement template-side AIML evaluation [DONE], parsing [DONE] & import [DONE]
 * Implement sane recursion limits & checks [DONE]
+* Implement word accumulating dictionary [DONE]
 
 
 Roadmap
@@ -37,6 +37,9 @@ Roadmap
   * learn, learnf, eval
   * loop
   * interval
+
+* checks for questions and provides a question flag/predicate to aid
+  writing creative responses to unknown statements
 
 
 

@@ -39,6 +39,43 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 class JxBotNLData
 {
 
+/********************************************************************************
+Dictionary
+*/
+// eventually can be extended to provide definitions and thesaurus functionality
+// loaded from external CSV files, as well as word counts
+// dictionary only grows at present - unless explicitly maintained by user
+
+	public static function word_add_lookup($in_word)
+	/* looks up a word in the dictionary and adds it if it doesn't exist;
+	returns only the word ID */
+	{
+		$in_word = JxBotNL::upper(trim($in_word));
+		
+		$stmt = JxBotDB::$db->prepare('SELECT id FROM word WHERE word=?');
+		$stmt->execute(array($in_word));
+		$id = $stmt->fetchAll(PDO::FETCH_NUM);
+		if (count($id) == 0)
+		{
+			$stmt = JxBotDB::$db->prepare('INSERT INTO word (word) VALUES (?)');
+			$stmt->execute(array($in_word));
+			$id = JxBotDB::$db->lastInsertId();
+		}
+		else $id = $id[0][0];
+		
+		return $id;
+	}
+	
+	
+	public static function word_count()
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM word');
+		$stmt->execute();
+		$count = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+		return $count;
+	}
+	
+	
 
 /********************************************************************************
 Category Management
@@ -206,6 +243,12 @@ Pattern Management
 					(($index + 1 >= $count) ? 1 : 0)
 					));
 				$last_node = JxBotDB::$db->lastInsertId();
+				
+				if ( (($sort_key == 5) || ($sort_key == 0)) && ($expression != ':') 
+					&& (!is_numeric($expression)) && (trim($expression) != ''))
+				{
+					JxBotNLData::word_add_lookup($expression);
+				}
 			}
 			else
 			{

@@ -238,7 +238,7 @@ $metrics = compute_metrics();
 	</tr>
 	<tr>
 		<td>Recognised Vocabulary</td>
-		<td><?php print $metrics['template_count']; ?></td>
+		<td><?php print $metrics['recognised_vocab']; ?></td>
 	</tr>
 	<tr>
 		<td>Lifetime Interactions</td>

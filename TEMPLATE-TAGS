@@ -245,15 +245,6 @@ date
 	jformat -> Java simple date format
 		http://docs.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html
 
-vocabulary
-	-total number of distinct words in sets and patterns
-	(work with a dictionary facility, for which words will be added
-	when patterns are defined - tho not deleted - same with sets
-	not great from an accidental mistaken spelling perspective, 
-	but can always provide a timestamp
-	so latest words can be reviewed) ; can double as a dictionary/theasurus
-	for which words can be associated with one-another and meanings added
-	/ imported from CSV
 
 
 <loop/> (condition, li)
@@ -329,6 +320,15 @@ normalize and denormalize [DONE]
 program [DONE]
 	-program name & version string
 	
+vocabulary [DONE]
+	-total number of distinct words in sets and patterns
+	(work with a dictionary facility, for which words will be added
+	when patterns are defined - tho not deleted - same with sets
+	not great from an accidental mistaken spelling perspective, 
+	but can always provide a timestamp
+	so latest words can be reviewed) ; can double as a dictionary/theasurus
+	for which words can be associated with one-another and meanings added
+	/ imported from CSV
 
 
 

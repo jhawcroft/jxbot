@@ -294,7 +294,10 @@ class JxBotElement
 				if ($this->name == 'get')
 					return JxBotConverse::predicate($name);
 				else
-					return JxBotConfig::predicate($name);
+				{
+					if ($name == 'size') return JxBotNLData::pattern_count();
+					else return JxBotConfig::predicate($name);
+				}
 			}
 			break;	
 		case 'id':
@@ -303,6 +306,8 @@ class JxBotElement
 			/* we return the number of patterns, which is equivalent to AIML standard
 			category count; since in JxBot one category != one pattern. */
 			return JxBotNLData::pattern_count();
+		case 'vocabulary':
+			return JxBotNLData::word_count();
 		case 'version':
 			return JxBot::VERSION;
 		case 'program':
