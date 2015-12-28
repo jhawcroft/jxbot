@@ -13,9 +13,17 @@ Essentials (toward a version 1.0)
 
 ---
 
+* have age and birthday special bot predicates, with age auto-calculated
 * Finish set functionality - admin side 
-* Substitution maintenance 
+* implement substitutions in normalisation
 * Improvements to database admin; pandora-bots as a model UI?
+* consider adding 'Tags' wherein information that is usually filtered out, such as punctuation,
+  laughter, etc. is picked up and converted to 'tags' which are applied to the sentence,
+  and which are accessible via a custom <tag> or predicate relative to each sentence / the whole thing (index=)
+  * tags could be a map too, ie. search string => tag name
+* 'spelling' separate substitution map
+
+* Substitution maintenance [maps, DONE] - use whitespace prefixed & postfix'd content, prior to punctuation norm
 
 ---
 

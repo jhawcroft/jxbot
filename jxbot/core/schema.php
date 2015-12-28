@@ -42,6 +42,8 @@ class JxBotSchema
 	public static function install()
 	{
 	
+/* Table Definitions: */
+	
 JxBotDB::$db->exec('
 CREATE TABLE category (
     id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
@@ -80,12 +82,6 @@ ENGINE=MyISAM
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 ');
-
-
-JxBotDB::$db->exec("
-INSERT INTO pattern_node (id, parent, expression, sort_key, is_terminal) 
-VALUES (0, 0, ':ROOT:', 0, 0);
-");
 
 
 JxBotDB::$db->exec('
@@ -212,6 +208,14 @@ CHARACTER SET utf8
 COLLATE utf8_general_ci;
 ');
 
+
+/* Data Initialization */
+
+JxBotDB::$db->exec("
+INSERT INTO pattern_node (id, parent, expression, sort_key, is_terminal) 
+VALUES (0, 0, ':ROOT:', 0, 0);
+");
+
 JxBotDB::$db->exec("
 INSERT INTO _map (id, name) VALUES (1, 'gender');
 INSERT INTO map_item (map, s_from, s_to) VALUES (1, 'he', 'she');
@@ -246,6 +250,43 @@ INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'giving you', 'giving me');
 INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'giving me', 'giving you');
 INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'gave you', 'gave me');
 INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'gave me', 'gave you');
+
+INSERT INTO _map (id, name) VALUES (4, 'substitutions');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'CAN''T', 'CAN NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'COULDN''T', 'COULD NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'ISN''T', 'IS NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'YOU''RE', 'YOU ARE');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'IT''S', 'IT IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'YOU''VE', 'YOU HAVE');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'YOU''LL', 'YOU WILL');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'DID''NT', 'DID NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'AINT, 'IS NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'AIN''T', 'IS NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'ISN''T', 'IS NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'ISNT', 'IS NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'AREN''T', 'ARE NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'ARENT', 'ARE NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'WHERE''S', 'WHERE IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'HAVEN''T', 'HAVE NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'HASN''T', 'HAS NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'CAN''T', 'CAN NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'WHOS', 'WHO IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'IT''S', 'IT IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'HOW''S', 'HOW IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'HOW''D', 'HOW WOULD');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'HOWS', 'HOW IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'WHATS', 'WHAT IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'THERES', 'THERE IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'THERE''S', 'THERE IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'THATS', 'THAT IS');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'DON''T', 'DO NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, 'WON''T', 'WILL NOT');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, ' O K ', ' OK ');
+INSERT INTO map_item (map, s_from, s_to) VALUES (4, ' OHH ', ' OHH ');
+
+INSERT INTO _map (id, name) VALUES (5, 'spelling');
+
+INSERT INTO _map (id, name) VALUES (6, 'tags');
 ");
 
 
