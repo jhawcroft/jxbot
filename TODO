@@ -14,7 +14,6 @@ Essentials (toward a version 1.0)
   * Registration of THAT and TOPIC; which currently require category UPDATEs
     and for example, during AIML loading, are not working correctly.
     
-* fix response IQ; ie. actually do a calculation based on wild/word ratio + pattern length
 * Implement error handling and check for common data malformations
 * Get installer to ask for admin username & any other pertinent settings
 * Write documentation
@@ -30,6 +29,7 @@ Essentials (toward a version 1.0)
 * Implement sane recursion limits & checks [DONE]
 * Implement word accumulating dictionary [DONE]
 * Fix bot predicate labeling for maximum compatibility with existing AIML [DONE]
+* fix response IQ; ie. actually do a calculation based on wild/word ratio + pattern length [DONE]
 
 
 Roadmap

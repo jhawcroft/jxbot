@@ -261,8 +261,20 @@ Pattern Management
 			}
 		}
 		
-		$stmt = JxBotDB::$db->prepare('INSERT INTO pattern (id, category, value, that, topic) VALUES (?, ?, ?, ?, ?)');
-		$stmt->execute(array($last_node, $in_category_id, $in_text, $in_that, $in_topic));
+		try
+		{
+			$stmt = JxBotDB::$db->prepare('
+				INSERT INTO pattern (id, category, value, that, topic, term_count) 
+				VALUES (?, ?, ?, ?, ?, ?)');
+			$stmt->execute(array( $last_node, $in_category_id, $in_text, 
+				$in_that, $in_topic, count($terms) - 2 ));
+		}
+		catch (Exception $err)
+		{
+			/* detected duplicate pattern */
+			// for now, just ignore
+			print 'Duplicate pattern: '.$in_full.'<br>';
+		}
 		
 		return $last_node;
 	}

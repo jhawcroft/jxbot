@@ -55,6 +55,8 @@ Conversaton Specific Properties
 	private static $srai_level = 0;   /* track how deep in srai() we are
 	                                     to prevent infinite recursion */
 	                                     
+	private static $iq_score = 0.0;   /* total IQ score for top-level activated patterns */
+	                                     
 	
 	const MAX_SRAI_RECURSION = 15;
 	
@@ -276,6 +278,9 @@ Conversation
 			$template = JxBotNLData::fetch_templates( $match->matched_category() );
 			// implement random
 			$output = $template[0][1];
+			
+			if (JxBotConverse::$srai_level == 1)
+				JxBotConverse::$iq_score += $match->iq_score();
 		}
 		
 		$template = JxBotAiml::parse_template($output);
@@ -332,6 +337,7 @@ Conversation
 		$start_time = microtime(true);
 		JxBotConverse::$match_time = 0.0;
 		JxBotConverse::$service_time = 0.0;
+		JxBotConverse::$iq_score = 0.0;
 		
 		/* run the bot */
 		$output = JxBotConverse::srai($in_input);
@@ -339,10 +345,12 @@ Conversation
 		/* end timer */
 		$end_time = microtime(true);
 		
+		//print 'IQ '.JxBotConverse::$iq_score. '<br>';
+		
 		/* log this interaction */
 		JxBotConverse::log($in_input, $output, 
 			($end_time - $start_time), JxBotConverse::$match_time, 
-			JxBotConverse::$service_time, 1.0);
+			JxBotConverse::$service_time, JxBotConverse::$iq_score);
 		//JxBotConverse::set_predicate('that', $output); // probably don't need this if we use log
 		
 		/* return the bot response */

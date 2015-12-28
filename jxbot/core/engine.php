@@ -61,6 +61,8 @@ class JxBotEngine
 	
 	protected $search_depth = 0;         /* depth of recursive walk() calls */
 	
+	protected $term_count = 0;           /* number of terms in matched pattern */
+	
 	
 	const MAX_SEARCH_DEPTH = 200;
 	
@@ -391,10 +393,11 @@ class JxBotEngine
 		
 		//print 'Matched pattern: '.$matched_pattern.' ('.$context->search_depth.')<br>';
 		
-		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
+		$stmt = JxBotDB::$db->prepare('SELECT category,term_count FROM pattern WHERE id=?');
 		$stmt->execute(array($matched_pattern));
 		$category = $stmt->fetchAll(PDO::FETCH_NUM);
 		$context->matched_category_id = $category[0][0];
+		$context->term_count = $category[0][1];
 		
 		return $context;
 	}
@@ -421,6 +424,21 @@ class JxBotEngine
 	public function topic_capture($in_index)
 	{
 		return $this->wild_topic_values[$in_index];
+	}
+	
+	
+	public function iq_score()
+	/* Computes a number that is somewhat, relatively representative of the intelligence 
+	& depth of the latest response;
+	A number of factors are considered, including: wildcard-to-word ratio, pattern size,
+	pattern specificity, length of terms, etc. */
+	{
+		$wildcard_count = count($this->wild_values) + 
+			count($this->wild_that_values) + count($this->wild_topic_values);
+		$wild_term_score = 1.0 - ($wildcard_count / $this->term_count); // 0 - 1 (1 is best)
+		return $wild_term_score * $this->term_count;
+		
+		// ! to be improved
 	}
 	
 }
