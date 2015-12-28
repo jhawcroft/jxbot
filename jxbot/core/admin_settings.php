@@ -40,6 +40,7 @@ if (isset($_POST['bot_tz']))
 	JxBotConfig::set_option('bot_active', $_POST['bot_active']);
 	
 	JxBotConfig::set_option('admin_user', $_POST['admin_user']);
+	JxBotConfig::set_option('admin_timeout', intval($_POST['admin_timeout']));
 	
 	if (isset($_POST['bot_password']) && trim($_POST['bot_password']) !== '')
 		JxBotConfig::set_option('admin_hash', hash('sha256', $_POST['bot_password']));
@@ -63,6 +64,9 @@ if (isset($_POST['bot_tz']))
 
 <div class="field"><label for="bot_password">Change Password: </label>
 <input type="text" name="bot_password" id="bot_password" size="20"></div>
+
+<div class="field"><label for="admin_timeout">Administration Timeout: </label>
+<input type="text" name="admin_timeout" id="admin_timeout" size="6" value="<?php print JxBotConfig::option('admin_timeout'); ?>"> (minutes; 0 = no timeout)</div>
 
 
 

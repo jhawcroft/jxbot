@@ -4,25 +4,25 @@ Admin Security
 Core
 ----
 
--	log admin logins
--	record originating IP (which may be spoofed
-	or change frequently for some users) in log
--	record user agent as part of session ID check
--	ensure sessions expire when inactive
--	prevent frequent login attempts to same account
+-	log admin logins [DONE]
+-	ensure sessions expire when inactive [DONE]
+-	prevent frequent login attempts to same account [DONE]
 -	provide advisory on using SSL/TLS
 
 
 Todo Soon
 ---------
 
--	forgot password
+-	forgot password recovery via admin email
+-	add multiple admin users?
 
 
 
 Other Ideas
 -----------
 
+-	consider using a 3rd party library/login system
+-	record user agent as part of session ID check
 -	disallow multiple simultaneous admin logins
 	(maybe if we go multi-user)
 -	notify admin of frequent login attempts
@@ -30,6 +30,6 @@ Other Ideas
 -	be sure to check usability on mobile
 	where IP may change very frequently
 	(eg. every request)
-	
-
+-	record originating IP (which may be spoofed
+	or change frequently for some users) in log ?
 

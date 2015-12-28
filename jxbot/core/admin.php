@@ -97,18 +97,38 @@ class JxBotAdmin
 	}
 	
 	
-	
-public static function admin_generate()
-{
-	if ((!isset($_SESSION['jxbot-admin'])) || ($_SESSION['jxbot-admin'] !== 1))
+	private static function ensure_logged_in()
 	{
-		require(dirname(__FILE__).'/login.php');
-		exit;
+		/* is the client logged in? */
+		if ( (!isset($_SESSION['jxbot-admin'])) || 
+			($_SESSION['jxbot-admin'] !== 1) ||
+			(!isset($_SESSION['jxbot-last'])) )
+		{
+			require(dirname(__FILE__).'/login.php');
+			exit;
+		}
+	
+		/* has the session expired? */
+		$admin_timeout = intval(JxBotConfig::option('admin_timeout')) * 60;
+		if (($admin_timeout != 0) && ((time() - $_SESSION['jxbot-last']) > $admin_timeout))
+		{
+			unset($_SESSION['jxbot-admin']);
+			session_destroy();
+			
+			require(dirname(__FILE__).'/login.php');
+			exit;
+		}
+	
+		/* continue as logged in */
+		define('JXBOT_ADMIN', 1);
+		$_SESSION['jxbot-last'] = time();
 	}
 	
 	
-	define('JXBOT_ADMIN', 1);
-
+public static function admin_generate()
+{
+	JxBotAdmin::ensure_logged_in();
+	
 
 	JxBotAdmin::determine_page();
 	
@@ -190,16 +210,44 @@ require_once(dirname(__FILE__).'/admin_'.JxBotAdmin::$page[0].'.php');
 
 
 	public static function check_and_login()
+	/* checks user credentials and logs them in if they're valid */
 	{
 		$inputs = JxBotUtil::inputs('username,password');
 		
+		/* check the user hasn't logged in too often recently */
+		$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM login
+			WHERE stamp > DATE_SUB(NOW(), INTERVAL 1 MINUTE)
+				AND username=?');
+		$stmt->execute(array($inputs['username']));
+		$recent_logins = intval( $stmt->fetchAll(PDO::FETCH_NUM)[0][0] );
+		
+		if ($recent_logins > 5) 
+		{
+			return false;
+		}
+		
+		/* are credentials wrong? */
 		if ((JxBotConfig::option('admin_user') != $inputs['username']) ||
 			(JxBotConfig::option('admin_hash') != hash('sha256', $inputs['password'])))
+		{
+			$stmt = JxBotDB::$db->prepare('INSERT INTO login
+				(username, note) VALUES (?, ?)');
+			$stmt->execute(array($inputs['username'], 'failure'));
+		
 			return false;
-		
+		}
+			
+		/* do the login */
 		$_SESSION['jxbot-admin'] = 1;
+		$stmt = JxBotDB::$db->prepare('INSERT INTO login
+			(username, note) VALUES (?, ?)');
+		$stmt->execute(array($inputs['username'], 'success'));
+		$_SESSION['jxbot-last'] = time();
 		
+		/* generate the admin page */
 		JxBotAdmin::admin_generate();
+		
+		return true;
 	}
 
 }

@@ -279,14 +279,15 @@ INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_food', '');
 
 JxBotDB::$db->exec("
 INSERT INTO opt (opt_key, opt_value) VALUES ('admin_user', 'admin');
+INSERT INTO opt (opt_key, opt_value) VALUES ('admin_timeout', '60');
 ");
 
 JxBotDB::$db->exec('
-CREATE TABLE logins (
+CREATE TABLE login (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	stamp TIMESTAMP NOT NULL,
 	username VARCHAR(30) NOT NULL,
-	remote_desc TEXT,
+	note TEXT,
 	INDEX(stamp)
 )
 ENGINE=InnoDB

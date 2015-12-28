@@ -4,15 +4,17 @@ TODO
 Essentials (toward a version 1.0)
 ----------
 
-* Implement load monitoring [DONE; improve later & do history]
+
 
 * Implement word accumulating dictionary
 
 * Fix bot predicate labeling for maximum compatibility with existing AIML
 
+* Login security defences [DONE] & overall audit & patches
+* Implement load monitoring [DONE; improve later & do history]
 * Revise table types and character set specification [DONE] & indexes in v1 schema [DONE]
 
-* Login security defences & overall audit & patches
+
 
 * Fix obvious bugs
 
