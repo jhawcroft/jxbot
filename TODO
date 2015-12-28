@@ -10,7 +10,9 @@ Essentials (toward a version 1.0)
 
 * Fix bot predicate labeling for maximum compatibility with existing AIML
 
-* Login security defences [DONE] & overall audit & patches
+* Improvements to Database admin
+
+* Login security defences [DONE] & overall audit [PARTIAL] & patches
 * Implement load monitoring [DONE; improve later & do history]
 * Revise table types and character set specification [DONE] & indexes in v1 schema [DONE]
 
@@ -21,10 +23,9 @@ Essentials (toward a version 1.0)
 * Get installer to ask for admin username
 
 * Write documentation
-
 * Write sample AIML, possibly to be preloaded with new bots
 
-* Improvements to Database admin
+
 
 * Substitution maintenance and sentence splitting
 

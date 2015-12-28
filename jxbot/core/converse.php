@@ -264,7 +264,7 @@ Conversation
 		if ($match === false)
 		/* no match was found; the input was not understood
 		and no default category is available */
-			$output = '???'; // ! TODO: this should probably be configurable **
+			$output = '???';
 		else
 		{
 			$template = JxBotNLData::fetch_templates( $match->matched_category() );
@@ -294,22 +294,47 @@ Conversation
 	}
 
 
+	private static function user_input_looks_strange(&$in_input)
+	{
+		if (mb_strlen($in_input) > 255) return true;
+		
+		// could also check for stuff that looks like computer code,
+		// or lots of low-level control characters ** TODO
+		
+		return false;
+	}
+
+
 	public static function get_response($in_input)
 	/* causes the bot to generate a response to the supplied client input */
 	{
+		if (JxBotConverse::user_input_looks_strange($in_input))
+			return 'Your last comment looks a bit strange.'; // ** configurable?
+	
+		/* prevent frequent consecutive requests by client */
+		// **TODO
+		
+		/* cap general server requests (safety); should be configurable */
+		// **TODO
+	
+		/* start timer */
 		$start_time = microtime(true);
 		JxBotConverse::$match_time = 0.0;
 		JxBotConverse::$service_time = 0.0;
 		
+		/* run the bot */
 		$output = JxBotConverse::srai($in_input);
 		
+		/* end timer */
 		$end_time = microtime(true);
 		
+		/* log this interaction */
 		JxBotConverse::log($in_input, $output, 
 			($end_time - $start_time), JxBotConverse::$match_time, 
 			JxBotConverse::$service_time, 1.0);
-		JxBotConverse::set_predicate('that', $output); // probably don't need this if we use log
+		//JxBotConverse::set_predicate('that', $output); // probably don't need this if we use log
 		
+		/* return the bot response */
 		return $output;
 	}
 	
