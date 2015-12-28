@@ -281,5 +281,20 @@ JxBotDB::$db->exec("
 INSERT INTO opt (opt_key, opt_value) VALUES ('admin_user', 'admin');
 ");
 
+JxBotDB::$db->exec('
+CREATE TABLE logins (
+	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+	stamp TIMESTAMP NOT NULL,
+	username VARCHAR(30) NOT NULL,
+	remote_desc TEXT,
+	INDEX(stamp)
+)
+ENGINE=InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
+');
+
+
+
 	}
 }
