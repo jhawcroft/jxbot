@@ -231,6 +231,8 @@ class JxBotConfig
 		{
 			if (substr($row[0], 0, 4) !== 'bot_') continue;
 			if ($row[0] === 'bot_name') continue;
+			if ($row[0] === 'bot_birthday') continue;
+			if ($row[0] === 'bot_age') continue;
 			if ($row[0] === 'bot_tz') continue;
 			if ($row[0] === 'bot_active') continue;
 			

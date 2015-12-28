@@ -51,13 +51,11 @@ if (isset($_POST['bot_tz']))
 ?>
 
 
-<div class="field"><label for="bot_name">Active:</label>
+<div class="field"><label for="bot_active">Online:</label>
 <?php JxWidget::toggle_switch('bot_active', JxBotConfig::option('bot_active')); ?></div>
-
 
 <div class="field"><label for="bot_tz">Timezone: </label>
 <?php JxBotConfig::widget_timezone(); ?></div>
-
 
 <div class="field"><label for="admin_user">Administration Username: </label>
 <input type="text" name="admin_user" id="admin_user" size="20" value="<?php print JxBotConfig::option('admin_user'); ?>"></div>

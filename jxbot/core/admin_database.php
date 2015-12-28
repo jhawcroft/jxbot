@@ -38,14 +38,16 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 JxWidget::tabs(array(
 	array('Categories', '?page=database', 'subpage', ''),
+	array('Sets', '?page=database&subpage=sets', 'subpage', 'sets'),
 	array('Maps', '?page=database&subpage=maps', 'subpage', 'maps'),
 ));
 
 $subpage = JxBotUtil::inputs('subpage');
-if ($subpage['subpage'] != '')
-{
+if ($subpage['subpage'] == 'maps')
 	require_once('admin_maps.php');
-}
+
+else if ($subpage['subpage'] == 'sets')
+	require_once('admin_sets.php');
 
 else
 

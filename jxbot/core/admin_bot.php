@@ -61,6 +61,9 @@ if (isset($_POST['bot_name']))
 <p><div class="field"><label for="bot_name">Bot Name: </label>
 <input type="text" name="bot_name" id="bot_name" size="40" value="<?php print JxBotConfig::option('bot_name'); ?>"></div></p>
 
+<div class="field"><label for="bot_birthday">Birthday: </label>
+<input type="text" name="bot_birthday" id="bot_birthday" size="12" value="<?php print JxBotConfig::option('bot_birthday'); ?>"> (YYYY/MM/DD)</div>
+
 <!-- consider putting birthday here and automatically calculating age -->
 
 

@@ -373,6 +373,27 @@ Template Management
 		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 		return $rows;
 	}
+	
+	
+	
+/********************************************************************************
+Sets
+*/
+
+	public static function set_values($in_set_name)
+	{
+		$stmt = JxBotDB::$db->prepare('
+			SELECT phrase FROM set_item JOIN _set ON set_item.id=_set.id WHERE _set.name=? ORDER BY phrase');
+		$stmt->execute(array( trim($in_set_name) ));
+		$values = array();
+		$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+		foreach ($rows as $row)
+		{
+			$values[] = JxBotNL::normalise($row[0]);
+		}
+		return $values;
+	}
+	
 }
 
 

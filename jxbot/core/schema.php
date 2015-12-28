@@ -175,7 +175,7 @@ COLLATE utf8_general_ci;
 JxBotDB::$db->exec('
 CREATE TABLE set_item (
 	id INT(11) NOT NULL,
-	phrase VARCHAR(150) NOT NULL,
+	phrase VARCHAR(150) NOT NULL PRIMARY KEY,
 	INDEX(id)
 )
 ENGINE=MyISAM

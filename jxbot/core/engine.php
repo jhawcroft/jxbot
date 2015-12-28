@@ -327,8 +327,16 @@ class JxBotEngine
 			if (($bot_ref !== false) || ($set_ref !== false))
 			{
 				/* match:  bot predicate or set reference: */
-				$values = array( JxBotNL::normalise( JxBotConfig::bot($bot_ref) ) );
-				$match = $this->try_match_values($br_parent, $values, false, $in_term_index, $br_terminal);
+				if ($bot_ref !== false)
+				{
+					$values = array( JxBotNL::normalise( JxBotConfig::bot($bot_ref) ) );
+					$match = $this->try_match_values($br_parent, $values, false, $in_term_index, $br_terminal);
+				}
+				else
+				{
+					$values = JxBotNLData::set_values($set_ref);
+					$match = $this->try_match_values($br_parent, $values, true, $in_term_index, $br_terminal);
+				}
 			}
 			else if (!$is_wildcard)
 			{

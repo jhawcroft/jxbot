@@ -199,6 +199,42 @@ class JxBotElement
 	}
 
 	
+	public static function compute_age()
+	/* calculates an approximate age in years/months for the bot */
+	{
+		$birthday = JxBotConfig::bot('birthday');
+		if ($birthday == '') return '';
+		
+		$birthtime = strtotime(trim($birthday));
+		$now = time();
+		
+		$age_in_months = round(($now - $birthtime) / 2628000);
+		$age_in_years = round($age_in_months / 12);
+		
+		if ($age_in_years < 1)
+		{
+			if ($age_in_months <= 1) return 'less than 1 month';
+			else return number_format($age_in_months, 0) . ' months';
+		}
+		else
+		{
+			if ($age_in_years == 1) return '1 year';
+			else return $age_in_years . ' years';
+		}
+	}
+	
+	
+	public static function birthday()
+	{
+		$birthday = JxBotConfig::bot('birthday');
+		if ($birthday == '') return '';
+		
+		$birthtime = strtotime(trim($birthday));
+		
+		return date('F j, Y', $birthtime);
+	}
+
+	
 	public function generate($in_context) 
 	{
 		switch ($this->name)
@@ -296,6 +332,8 @@ class JxBotElement
 				else
 				{
 					if ($name == 'size') return JxBotNLData::pattern_count();
+					else if ($name == 'age') return JxBotElement::compute_age();
+					else if ($name == 'birthday') return JxBotElement::birthday();
 					else return JxBotConfig::predicate($name);
 				}
 			}

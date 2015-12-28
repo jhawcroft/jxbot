@@ -13,8 +13,7 @@ Essentials (toward a version 1.0)
 
 ---
 
-* have age and birthday special bot predicates, with age auto-calculated
-* Finish set functionality - admin side 
+
 * implement substitutions in normalisation
 * Improvements to database admin; pandora-bots as a model UI?
 * consider adding 'Tags' wherein information that is usually filtered out, such as punctuation,
@@ -23,7 +22,9 @@ Essentials (toward a version 1.0)
   * tags could be a map too, ie. search string => tag name
 * 'spelling' separate substitution map
 
+* have age and birthday special bot predicates, with age auto-calculated [DONE]
 * Substitution maintenance [maps, DONE] - use whitespace prefixed & postfix'd content, prior to punctuation norm
+* Finish set functionality [DONE]
 
 ---
 

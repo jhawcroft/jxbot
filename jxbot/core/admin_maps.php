@@ -87,6 +87,10 @@ function do_new_item()
 function do_delete_map()
 {
 	$inputs = JxBotUtil::inputs('map');
+	
+	$stmt = JxBotDB::$db->prepare('DELETE FROM map_item WHERE id=?');
+	$stmt->execute(array($inputs['map']));
+	
 	$stmt = JxBotDB::$db->prepare('DELETE FROM _map WHERE id=?');
 	$stmt->execute(array($inputs['map']));
 	
