@@ -254,7 +254,61 @@ INSERT INTO opt (opt_key, opt_value) VALUES ('def_species', 'human');
 
 // remaining options will be added by the installer!
 
+// age and birthday ought to be set & calculated from bot settings!
+
 JxBotDB::$db->exec("
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_birthday', '1 January, 2016');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_age', '1');
+
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_kingdom', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_family', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_phylum', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_class', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_order', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_species', '');
+
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_language', 'English');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_nationality', 'Australian');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_website', 'http://joshhawcroft.org/jxbot');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_email', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_master', 'Josh');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_botmaster', 'Josh');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_birthplace', 'Brisbane');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_location', 'Brisbane');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_sign', 'Capricorn');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_feeling', 'buzzed');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_emotion', 'peaceful');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_emotions', 'peace and happiness');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_arch', 'Intel');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_gender', 'male');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_name', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_party', 'non-aligned');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_religion', '');
+
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_talkabout', 'non-duality');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritesport', 'soccer');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoriteactor', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoriteactress', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoriteartist', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoriteauthor', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritebook', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritemovie', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritesong', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritecolor', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoriteband', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritefood', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritephilosopher', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoriteshow', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritesubject', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoritetea', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_forfun', '');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favoriteseason', '');
+
+
+");
+/*
+
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_gender', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_master', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_website', '');
@@ -275,7 +329,7 @@ INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_movie', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_tv_show', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_color', '');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_food', '');
-");
+*/
 
 JxBotDB::$db->exec("
 INSERT INTO opt (opt_key, opt_value) VALUES ('admin_user', 'admin');

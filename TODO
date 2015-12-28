@@ -4,7 +4,7 @@ TODO
 Essentials (toward a version 1.0)
 ----------
 
-* Fix bot predicate labeling for maximum compatibility with existing AIML
+
 * Finish set functionality - admin side 
 * Substitution maintenance 
 
@@ -26,6 +26,7 @@ Essentials (toward a version 1.0)
 * Implement template-side AIML evaluation [DONE], parsing [DONE] & import [DONE]
 * Implement sane recursion limits & checks [DONE]
 * Implement word accumulating dictionary [DONE]
+* Fix bot predicate labeling for maximum compatibility with existing AIML [DONE]
 
 
 Roadmap
