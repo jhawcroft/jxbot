@@ -113,6 +113,10 @@ CREATE TABLE log (
 	session INT(11) NOT NULL,
 	input TEXT NOT NULL,
 	output TEXT NOT NULL,
+	time_respond float not null,
+	time_match float not null,
+	time_service float not null,
+	avg_word_wild_ratio float not null,
 	stamp TIMESTAMP NOT NULL
 )
 ');

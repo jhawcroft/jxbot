@@ -47,6 +47,11 @@ Conversaton Specific Properties
 	
 	private static $predicates = array(); /* cache; array of predicate key => values */
 	
+	private static $match_time = 0.0; /* total accumulated match time
+	                                     during this interaction / HTTP request */
+	private static $service_time = 0.0; /* total accumulated external service req.
+	                                     time during this interaction / HTTP request */
+	
 
 /********************************************************************************
 Utilities
@@ -65,13 +70,16 @@ Utilities
 Logging
 */
 
-	private static function log(&$input, &$output)
+	private static function log(&$input, &$output, $time_total, $time_match, $time_service)
 	/* logs the latest interaction with the bot for later analysis by the administrator */
 	{
 		if (JxBotConverse::$session_id === 0) return;
 		
-		$stmt = JxBotDB::$db->prepare('INSERT INTO log (session, input, output) VALUES (?, ?, ?)');
-		$stmt->execute(array(JxBotConverse::$session_id, $input, $output));
+		$stmt = JxBotDB::$db->prepare('
+			INSERT INTO log (session, input, output, time_respond, time_match, time_service) 
+			VALUES (?, ?, ?, ?, ?, ?)');
+		$stmt->execute(array(JxBotConverse::$session_id, $input, $output, 
+			$time_total, $time_match, $time_service));
 	}
 	
 	
@@ -243,9 +251,14 @@ Conversation
 	
 	private static function sentence_respond(&$in_input)
 	{
+		$start_time = microtime(true);
+		
 		$match = JxBotEngine::match($in_input, 
 			JxBotConverse::history_response(0), // review if specific sentence required here?
 			JxBotConverse::predicate('topic') );
+			
+		$end_time = microtime(true);
+		JxBotConverse::$match_time += ($end_time - $start_time);
 		
 		if ($match === false)
 		/* no match was found; the input was not understood
@@ -283,9 +296,16 @@ Conversation
 	public static function get_response($in_input)
 	/* causes the bot to generate a response to the supplied client input */
 	{
+		$start_time = microtime(true);
+		JxBotConverse::$match_time = 0.0;
+		JxBotConverse::$service_time = 0.0;
+		
 		$output = JxBotConverse::srai($in_input);
 		
-		JxBotConverse::log($in_input, $output);
+		$end_time = microtime(true);
+		
+		JxBotConverse::log($in_input, $output, 
+			($end_time - $start_time), JxBotConverse::$match_time, JxBotConverse::$service_time);
 		JxBotConverse::set_predicate('that', $output); // probably don't need this if we use log
 		
 		return $output;
@@ -300,7 +320,7 @@ Conversation
 		// ! TODO: this should probably be configurable **
 		
 		$blank = '';
-		JxBotConverse::log($blank, $output);
+		//JxBotConverse::log($blank, $output, 0, 0);
 		
 		return $output;
 	}
