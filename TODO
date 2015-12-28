@@ -12,10 +12,6 @@ Essentials (toward a version 1.0)
 
 * Login security defences & overall audit & patches
 
-* Implement template-side AIML evaluation [DONE], parsing [DONE] & import  [** TODO **]
-
-* Continue cleaning up [PROGRESSING]
-
 * Fix obvious bugs
 
 * Get installer to ask for admin username
@@ -31,6 +27,11 @@ Essentials (toward a version 1.0)
 * Finish set functionality - admin side 
 
 * Implement sane recursion limits & checks
+
+
+* Implement template-side AIML evaluation [DONE], parsing [DONE] & import [DONE]
+
+* Continue cleaning up [PROGRESSING]
 
 
 
