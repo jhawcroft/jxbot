@@ -17,6 +17,7 @@ _map
 map_item
 opt
 
+-	performance critical
 -	99% reads
 -	low integrity concern
 
@@ -24,21 +25,31 @@ opt
 	we could use separate pattern storage if the operations were going to run frequently,
 	and compare two match patterns to find the highest priority one
 
+=> suggest MyISAM
+
 
 predicate
 session
+-	performance not critical
 -	50/50 read/write
 -	low integrity concern
 
+=> suggest InnoDB
+
 
 log
+-	performance critical
 -	20/80 read/write
 -	low integrity concern
 
+=> suggest InnoDB
+
 
 word
+-	performance not critical
 -	infrequent access
 -	99% reads
 -	low integrity concern
 
+=> suggest MyISAM
 

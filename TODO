@@ -8,7 +8,9 @@ Essentials (toward a version 1.0)
 
 * Implement word accumulating dictionary
 
-* Revise table types and character set specification & indexes in v1 schema
+* Fix bot predicate labeling for maximum compatibility with existing AIML
+
+* Revise table types and character set specification [DONE] & indexes in v1 schema [DONE]
 
 * Login security defences & overall audit & patches
 

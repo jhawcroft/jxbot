@@ -47,7 +47,10 @@ CREATE TABLE category (
     id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
     that VARCHAR(255) NOT NULL,
     topic VARCHAR(255) NOT NULL
-) ENGINE=MyISAM;
+) 
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -57,7 +60,10 @@ CREATE TABLE pattern (
 	value VARCHAR(255) NOT NULL,
 	that VARCHAR(255) NOT NULL,
 	topic VARCHAR(255) NOT NULL
-) ENGINE=MyISAM;
+) 
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -68,7 +74,10 @@ CREATE TABLE pattern_node (
 	sort_key TINYINT(1) NOT NULL,
 	is_terminal TINYINT(1) NOT NULL DEFAULT 0,
 	UNIQUE(parent,expression)
-) ENGINE=MyISAM;
+) 
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 
@@ -84,7 +93,10 @@ CREATE TABLE template (
 	category INT(11) NOT NULL,
     template TEXT,
     INDEX (category)
-) ENGINE=MyISAM;
+) 
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 
@@ -96,6 +108,9 @@ CREATE TABLE session (
 	accessed TIMESTAMP NOT NULL,
 	UNIQUE(convo_id)
 )
+ENGINE=InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -105,6 +120,9 @@ CREATE TABLE predicate (
 	value VARCHAR(255) NOT NULL,
 	PRIMARY KEY (session, name)
 )
+ENGINE=InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -117,8 +135,12 @@ CREATE TABLE log (
 	time_match float not null,
 	time_service float not null,
 	intel_score float not null,
-	stamp TIMESTAMP NOT NULL
+	stamp TIMESTAMP NOT NULL,
+	INDEX(session)
 )
+ENGINE=InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -126,6 +148,9 @@ CREATE TABLE opt (
 	opt_key VARCHAR(100) NOT NULL PRIMARY KEY,
 	opt_value VARCHAR(100) NOT NULL
 )
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -134,6 +159,9 @@ CREATE TABLE word (
     word VARCHAR(30) NOT NULL,
     UNIQUE(word)
 )
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -142,6 +170,9 @@ CREATE TABLE _set (
 	name VARCHAR(50) NOT NULL,
 	UNIQUE(name)
 )
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -150,6 +181,9 @@ CREATE TABLE set_item (
 	phrase VARCHAR(150) NOT NULL,
 	INDEX(id)
 )
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -157,7 +191,10 @@ CREATE TABLE _map (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
 	UNIQUE(name)
-) ENGINE=MyISAM;
+) 
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
@@ -168,7 +205,10 @@ CREATE TABLE map_item (
 	s_to VARCHAR(255) NOT NULL,
 	INDEX(map),
 	INDEX(s_from)
-) ENGINE=MyISAM;
+) 
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec("
@@ -206,7 +246,6 @@ INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'giving me', 'giving you');
 INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'gave you', 'gave me');
 INSERT INTO map_item (map, s_from, s_to) VALUES (3, 'gave me', 'gave you');
 ");
-
 
 
 JxBotDB::$db->exec("
