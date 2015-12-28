@@ -251,6 +251,8 @@ $metrics = compute_metrics();
 <div class="dashboard-widget">
 <h2>Active Load</h2>
 
+<p><?php JxWidget::dynamic_meter(200, $metrics['active_load']); ?></p>
+
 	<table>
 	<tr>
 		<td>Current Clients</td>

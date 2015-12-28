@@ -226,5 +226,14 @@ class JxWidget
 </ul>
 */
 	}
+	
+	
+	public static function dynamic_meter($in_width, $in_percent)
+	{
+		$pc = number_format(round($in_percent, -1), 0);
+		if ($pc < 10) $pc = 10;
+		else if ($pc > 120) $pc = 120;
+		?><div class="meter-dynamic-scale dms<?php print $pc; ?>" style="width:<?php print $in_width; ?>px;"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div><?php
+	}
 }
 
