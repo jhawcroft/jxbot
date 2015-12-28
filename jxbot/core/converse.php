@@ -70,16 +70,17 @@ Utilities
 Logging
 */
 
-	private static function log(&$input, &$output, $time_total, $time_match, $time_service)
+	private static function log(&$input, &$output, $time_total, $time_match, $time_service, $intel)
 	/* logs the latest interaction with the bot for later analysis by the administrator */
 	{
 		if (JxBotConverse::$session_id === 0) return;
 		
 		$stmt = JxBotDB::$db->prepare('
-			INSERT INTO log (session, input, output, time_respond, time_match, time_service) 
-			VALUES (?, ?, ?, ?, ?, ?)');
+			INSERT INTO log (session, input, output, 
+				time_respond, time_match, time_service, intel_score) 
+			VALUES (?, ?, ?, ?, ?, ?, ?)');
 		$stmt->execute(array(JxBotConverse::$session_id, $input, $output, 
-			$time_total, $time_match, $time_service));
+			$time_total, $time_match, $time_service, $intel));
 	}
 	
 	
@@ -305,7 +306,8 @@ Conversation
 		$end_time = microtime(true);
 		
 		JxBotConverse::log($in_input, $output, 
-			($end_time - $start_time), JxBotConverse::$match_time, JxBotConverse::$service_time);
+			($end_time - $start_time), JxBotConverse::$match_time, 
+			JxBotConverse::$service_time, 1.0);
 		JxBotConverse::set_predicate('that', $output); // probably don't need this if we use log
 		
 		return $output;

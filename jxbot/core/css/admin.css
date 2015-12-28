@@ -497,6 +497,38 @@ ul.tabs a.current
 
 
 
+/*
+Dashboard
+*/
+
+div.dashboard-widget
+{
+	float: left;
+	margin-right: 2em;
+}
+
+div.dashboard-widget h2
+{
+	margin-top: 0;
+}
+
+table#dashboard-general
+{
+	width: auto;
+}
+
+table#dashboard-general td:first-child
+{
+	text-align: right;
+	padding: 0.2em 1em 0.2em 1em;
+}
+
+table#dashboard-general td:last-child
+{
+	padding: 0.2em 1em 0.2em 0;
+}
+
+
 
 
 

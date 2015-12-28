@@ -33,23 +33,14 @@
 if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
-
-// count size of dictionary
-// count number of categories
-// count number of distinct sequences (patterns)
-// count number of templates
-
-// eventually provide some idea of load/performance (keep track of response times
-// and number of almost simultaneous sessions)
-
 function compute_metrics()
 {
 	$metrics = array();
-	
-	/*$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM word');
-	$stmt->execute();
-	$metrics['dictionary_size'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];*/
-	
+
+/********************************************************************************
+Bot Statistics
+*/
+
 	/* complexity/scale;
 	   How many categories of interaction does the system accomodate? */
 	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM category');
@@ -68,12 +59,107 @@ function compute_metrics()
 	$stmt->execute();
 	$metrics['template_count'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	
+	/* complexity/scale;
+	   How many distinct words are *recognised* within the bot vocabulary? */
+	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM word');
+	$stmt->execute();
+	$metrics['recognised_vocab'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	
+	/* general;
+	   How many interactions has the bot had over it's lifetime? */
+	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM log');
+	$stmt->execute();
+	$metrics['interaction_count'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	// in future, could also include words in templates as a separate figure
+	// ie. total vocabulary
+	
+/********************************************************************************
+Active Load and Performance
+*/
+
+	/* active load;
+	   How many clients are currently in conversaton with the bot? */
 	$stmt = JxBotDB::$db->prepare('SELECT COUNT(DISTINCT session) FROM log
 		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
 	$stmt->execute();
 	$metrics['active_clients'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	
+	/* active load;
+	   What is the total average response time for active clients? */
+	$stmt = JxBotDB::$db->prepare('SELECT AVG(time_respond) FROM log
+		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
+	$stmt->execute();
+	$metrics['active_response'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	/* active load;
+	   How well is the system coping with the load;
+	   ie. is the matching & templating logic maintaining acceptably small
+	   response times? */
+	$max_sys_time = 0.1; // maximum time in seconds the core system can take to respond acceptably
+	$stmt = JxBotDB::$db->prepare('SELECT MAX(time_respond - time_service) FROM log
+		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
+	$stmt->execute();
+	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	if ($raw === null) $raw = 0;
+	$load = $raw / ($max_sys_time * 0.8);
+	$metrics['active_load'] = $load;
+	unset($raw);
+	
+	/* active performance:
+	   How well is the chat system performing at the present moment;
+	   user perceived response time (worst case) */
+	$stmt = JxBotDB::$db->prepare('SELECT MAX(time_respond) FROM log
+		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
+	$stmt->execute();
+	$metrics['active_max_response'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	/* active performance:
+	   How relivant / intelligent is the response;
+	   based upon word-wildcard ratio and pattern length (ie. pattern specificity) */
+	$percent_best_is_good = 0.51;
+	$stmt = JxBotDB::$db->prepare('SELECT MAX(intel_score) FROM log');
+	$stmt->execute();
+	$max_score = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	$stmt = JxBotDB::$db->prepare('SELECT AVG(intel_score) FROM log
+		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
+	$stmt->execute();
+	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	$score = $raw / ($max_score * $percent_best_is_good);
+	// a score of 1.0 is good
+	// a score of 0.5 is ordinary
+	// a score of less is mediocre
+	// a score of 1.5 is very good
+	// a score of 2+ is excellent
+	
+	// translate to human type 'IQ', with 100 being average, 150 being very smart, etc.
+	$metrics['active_resp_intel'] = $score * 100;
+	
+
+	
+/********************************************************************************
+Historical and Trends
+*/
+
+// ie. when the system has been in conversation over various periods:
+// hour, day, week, month, year
+// how well has it performed and handled load
+
+// load v performance
+// load refers to how well the system is coping with the shear number of users
+// currently interacting with it.
+// performance refers to how well the system is acting as a chat robot
+// (which is related to load, but not the same)
+// for example, how intelligent the conversation is, is also a valid performance
+// metric.
+
+// repeat clients & number of client interactions:
+// how many interactions on average are had with any given user (in total,
+// and for a given conversation)
+// are users returning, and how many separate conversations are they having?
+// (conversation breaks are defined to be >= 15-minutes)
+
+
 	
 	$stmt = JxBotDB::$db->prepare('SELECT COUNT(DISTINCT session) FROM log
 		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
@@ -105,77 +191,23 @@ function compute_metrics()
 	$metrics['clients_month'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	
 	
-	$stmt = JxBotDB::$db->prepare('SELECT AVG(time_respond) FROM log
-		WHERE time_respond IS NOT NULL AND
-		stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
-	$stmt->execute();
-	$metrics['active_response'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	
-	
-	/* active load;
-	   How well is the system coping with the load;
-	   ie. is the matching & templating logic maintaining acceptably small
-	   response times? */
-	$stmt = JxBotDB::$db->prepare('SELECT MAX(time_respond - time_service) FROM log
-		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
-	$stmt->execute();
-	$metrics['active_load'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
-	
-	/* active performance:
-	   How well is the chat system performing at the present moment;
-	   user perceived response time */
-	$stmt = JxBotDB::$db->prepare('SELECT MAX(time_respond) FROM log
-		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
-	$stmt->execute();
-	$metrics['active_max_response'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
-	
-	/* active performance:
-	   How relivant / intelligent is the response;
-	   based upon word-wildcard ratio and pattern length */
-	$stmt = JxBotDB::$db->prepare('SELECT AVG(avg_word_wild_ratio) FROM log
-		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
-	$stmt->execute();
-	$metrics['active_resp_intel'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
-	
-	
-	// load:
-	// average response time whenever it's had periods of interaction 
-	// and most recently
-	
-	// obviously if it hasn't had interaction for a minute or more,
-	// load should show as zero
-	
-	// if interaction is current,
-	// within the last minute, we want average response time
-	// and number of users
-	
-	// should we use maximum or average ? or both?
-	
-	// worst case seems reasonable
-	
-	// 1. Stat average of the most recent periods of activity (more than a couple 
-	// of interactions) - rationale, is the system performing well when it's performing?
-	
-	// this could be extended to graph when the system is performing well and when it's not
-	// wherein, not servicing requests at all is considered good performance too
-	
-	// also be interesting to track the number of requests for a given user 
-	// and repeat users, along with how many times they return
-	
-	//  2. active load - ? 1 -minute window,NOW, maximum response time - external service requests
-	
-	// consider these metrics in-terms of some established UI guidance on load times
-	// for websites.
-	// and also with respect to human chat and typing speeds; which does allow some room
-	// particularly if the interface shows the 'computer as typing'.
-	
-	// normal website:
-	//eg. 0.1 second ideal - green
+// find some established guidance on UI response times for
+// websites
+// and chat systems	
+
+	// eg. normal website:
+	// 0.1 second ideal - green
 	// 1.0 second limit of good performance faded green?
 	// 1.1-3.0 seconds feels slow - yellow-orange
 	// 3.1-6.0 seconds - feels very slow - orange-red
 	//6.1 + really poor and indicates server issues anyway
 	// 8 seconds - lost client - black
+	//http://www.loadtestingtool.com/help/response-time.shtml
+	
+// consideration given to awkward silence?!
+// eg. http://healthland.time.com/2010/12/30/awkward-silences-4-seconds-is-all-it-takes-to-feel-rejected/
+// 4 seconds maximum
 	
 	return $metrics;
 }
@@ -187,58 +219,96 @@ $metrics = compute_metrics();
 
 ?>
 
-<style type="text/css">
-table.dashboard-stats td:first-child
-{
-	width: 10em;
-}
-</style>
+
+<div class="dashboard-widget">
+<h2>Bot Statistics</h2>
+
+	<table id="dashboard-general">
+	<tr>
+		<td>Interaction Categories</td>
+		<td><?php print $metrics['category_count']; ?></td>
+	</tr>
+	<tr>
+		<td>Input Patterns</td>
+		<td><?php print $metrics['pattern_count']; ?></td>
+	</tr>
+	<tr>
+		<td>Output Templates</td>
+		<td><?php print $metrics['template_count']; ?></td>
+	</tr>
+	<tr>
+		<td>Recognised Vocabulary</td>
+		<td><?php print $metrics['template_count']; ?></td>
+	</tr>
+	<tr>
+		<td>Lifetime Interactions</td>
+		<td><?php print $metrics['interaction_count']; ?></td>
+	</tr>
+	</table>
+</div>
 
 
-<table class="dashboard-stats">
-<tr>
-	<td>Categories</td>
-	<td><?php print $metrics['category_count']; ?></td>
-</tr>
-<tr>
-	<td>Patterns</td>
-	<td><?php print $metrics['pattern_count']; ?></td>
-</tr>
-<tr>
-	<td>Templates</td>
-	<td><?php print $metrics['template_count']; ?></td>
-</tr>
-<tr>
-	<td>Active Clients</td>
-	<td><?php print $metrics['active_clients']; ?></td>
-</tr>
-<tr>
-	<td>Clients</td>
-	<td><?php print $metrics['clients_5min']; ?> (last 5 minutes)</td>
-</tr>
-<tr>
-	<td>Clients</td>
-	<td><?php print $metrics['clients_hour']; ?> (last hour)</td>
-</tr>
-<tr>
-	<td>Clients</td>
-	<td><?php print $metrics['clients_day']; ?> (last 24 hours)</td>
-</tr>
-<tr>
-	<td>Clients</td>
-	<td><?php print $metrics['clients_week']; ?> (last 7 days)</td>
-</tr>
-<tr>
-	<td>Clients</td>
-	<td><?php print $metrics['clients_month']; ?> (last 30 days)</td>
-</tr>
+<div class="dashboard-widget">
+<h2>Active Load</h2>
 
-<!--<tr>
-	<td>Dictionary Size</td>
-	<td><?php print $metrics['dictionary_size']; ?></td>
-</tr>-->
+	<table>
+	<tr>
+		<td>Current Clients</td>
+		<td><?php print $metrics['active_clients']; ?></td>
+	</tr>
+	<tr>
+		<td>Average Response Time</td>
+		<td><?php 
+		
+		if ($metrics['active_clients'] > 0)
+			print number_format($metrics['active_response'], 3).' seconds'; 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	<tr>
+		<td>Bot Load</td>
+		<td><?php print number_format($metrics['active_load'], 2); ?> %</td>
+	</tr>
+	</table>
+</div>
 
-</table>
+
+<div class="dashboard-widget">
+<h2>Active Performance</h2>
+
+	<table>
+	<tr>
+		<td>Worst Response Time</td>
+		<td><?php 
+		
+		if ($metrics['active_clients'] > 0)
+			print number_format($metrics['active_max_response'], 3).' seconds'; 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	<tr>
+		<td>Response IQ</td>
+		<td><?php 
+		
+		if ($metrics['active_clients'] > 0)
+			print number_format($metrics['active_resp_intel'], 0); 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	</table>
+</div>
+
+
+<div class="clear"></div>
+
+
+
 
 
 
@@ -325,5 +395,12 @@ print '</pre>';*/
 ?>
 
 
+<script type="text/javascript">
+/*
+window.setTimeout(function() {
+	location.reload();
+}, 60000);
+*/
+</script>
 
 

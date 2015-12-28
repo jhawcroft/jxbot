@@ -116,7 +116,7 @@ CREATE TABLE log (
 	time_respond float not null,
 	time_match float not null,
 	time_service float not null,
-	avg_word_wild_ratio float not null,
+	intel_score float not null,
 	stamp TIMESTAMP NOT NULL
 )
 ');
