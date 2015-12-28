@@ -51,6 +51,12 @@ Conversaton Specific Properties
 	                                     during this interaction / HTTP request */
 	private static $service_time = 0.0; /* total accumulated external service req.
 	                                     time during this interaction / HTTP request */
+	                                     
+	private static $srai_level = 0;   /* track how deep in srai() we are
+	                                     to prevent infinite recursion */
+	                                     
+	
+	const MAX_SRAI_RECURSION = 15;
 	
 
 /********************************************************************************
@@ -282,15 +288,20 @@ Conversation
 	/* evaluate the input within the current context and generate output,
 	without logging the output or updating the history */
 	{
+		/* check recursion level */
+		JxBotConverse::$srai_level ++;
+		if (JxBotConverse::$srai_level > JxBotConverse::MAX_SRAI_RECURSION)
+			throw new Exception('Too much recursion (in SRAI)');
+	
+		/* process each sentence separately */
 		$sentences = JxBotNL::split_sentences($in_input);
-		
 		$output = array();
 		foreach ($sentences as $sentence)
-		{
 			$output[] = JxBotConverse::sentence_respond($sentence);
-		}
+		$output = implode(' ', $output);
 		
-		return implode(' ', $output);
+		JxBotConverse::$srai_level --;
+		return $output;
 	}
 
 

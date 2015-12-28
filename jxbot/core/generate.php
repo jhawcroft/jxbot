@@ -281,7 +281,7 @@ class JxBotElement
 			return $this->get_capture($in_context, $this->name, $index);
 			
 		case 'srai':
-			return JxBotConverse::srai( $this->get_value($in_context) );
+			return JxBotConverse::srai( $this->text_value($in_context) );
 		
 		case 'sr': /* srai star /srai */
 			return JxBotConverse::srai( $this->get_capture($in_context, 'star', 1) );

@@ -5,39 +5,27 @@ Essentials (toward a version 1.0)
 ----------
 
 
-
 * Implement word accumulating dictionary
-
 * Fix bot predicate labeling for maximum compatibility with existing AIML
+* Finish set functionality - admin side 
+* Substitution maintenance 
 
-* Improvements to Database admin
+* Improvements to database admin; pandora-bots as a model UI?
+
+* Fix obvious bugs
+* Implement error handling and check for common data malformations
+* Get installer to ask for admin username & any other pertinent settings
+* Write documentation
+* Write sample AIML, possibly to be preloaded with new bots
+
+* Continue cleaning up [PROGRESSING]
 
 * Login security defences [DONE] & overall audit [PARTIAL] & patches
 * Implement load monitoring [DONE; improve later & do history]
 * Revise table types and character set specification [DONE] & indexes in v1 schema [DONE]
-
-
-
-* Fix obvious bugs
-
-* Get installer to ask for admin username
-
-* Write documentation
-* Write sample AIML, possibly to be preloaded with new bots
-
-
-
-* Substitution maintenance and sentence splitting
-
-* Finish set functionality - admin side 
-
-* Implement sane recursion limits & checks
-
-
+* Basic sentence splitting [DONE]
 * Implement template-side AIML evaluation [DONE], parsing [DONE] & import [DONE]
-
-* Continue cleaning up [PROGRESSING]
-
+* Implement sane recursion limits & checks [DONE]
 
 
 Roadmap

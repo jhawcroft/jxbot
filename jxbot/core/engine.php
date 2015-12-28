@@ -59,6 +59,12 @@ class JxBotEngine
 	                                        
 	protected $matched_category_id = 0;  /* the ID of the matching category */
 	
+	protected $search_depth = 0;         /* depth of recursive walk() calls */
+	
+	
+	const MAX_SEARCH_DEPTH = 200;
+	
+	
 	
 	private function accumulate_wild_values(&$in_values)
 	/* registers the specified value in the appropriate array for later use in
@@ -275,6 +281,12 @@ class JxBotEngine
 	user input; looks for a match with the remainder of the input.  If a match is found,
 	returns the matching pattern ID, otherwise, returns FALSE. */
 	{
+		/* check search depth to prevent infinite recursion */
+		$this->search_depth++;
+		if ($this->search_depth > JxBotEngine::MAX_SEARCH_DEPTH)
+			throw new Exception('Too much recursion (in pattern search)');
+	
+	
 		/* look in this branch for all possible matching sub-branches;
 		ie. an exact match with the input term, or, a wildcard or complex pattern term
 		such as a bot property or AIML 2 'set' */
@@ -314,17 +326,17 @@ class JxBotEngine
 			{
 				/* match:  bot predicate or set reference: */
 				$values = array( JxBotNL::normalise( JxBotConfig::bot($bot_ref) ) );
-				$match = JxBotEngine::try_match_values($br_parent, $values, false, $in_term_index, $br_terminal);
+				$match = $this->try_match_values($br_parent, $values, false, $in_term_index, $br_terminal);
 			}
 			else if (!$is_wildcard)
 			{
 				/* match:  normal word or pattern clause separator: */
-				$match = JxBotEngine::try_match_word($br_parent, $br_expr, $in_term_index, $br_terminal);
+				$match = $this->try_match_word($br_parent, $br_expr, $in_term_index, $br_terminal);
 			}
 			else
 			{
 				/* match:  wildcard */
-				$match = JxBotEngine::try_match_wildcard($br_parent, $br_expr, $in_term_index, $br_terminal);
+				$match = $this->try_match_wildcard($br_parent, $br_expr, $in_term_index, $br_terminal);
 			}
 			
 			/* if matching was successful, return the matching pattern,
@@ -333,6 +345,7 @@ class JxBotEngine
 		}
 		
 		/* no possible subbranches; no match this branch */
+		$this->search_depth--;
 		return false;
 	}
 	
@@ -368,6 +381,7 @@ class JxBotEngine
 		$context->wild_that_values = array();
 		$context->wild_topic_values = array();
 		$context->unwind_stage = 2;
+		$context->search_depth = 0;
 
 		//var_dump($search_terms);
 		//print '<br>';
@@ -375,37 +389,12 @@ class JxBotEngine
 		$matched_pattern = $context->walk(0, 0);
 		if ($matched_pattern === false) return false;
 		
-		
-		
-		//print 'Matched pattern: '.$matched_pattern.'<br>';
-		
-		/*print '<p>Wildcard values:<pre>';
-		var_dump($context->wild_values);
-		print '</pre></p>';
-		
-		print '<p>Wildcard THAT values:<pre>';
-		var_dump($context->wild_that_values);
-		print '</pre></p>';
-		
-		print '<p>Wildcard TOPIC values:<pre>';
-		var_dump($context->wild_topic_values);
-		print '</pre></p>';*/
-		
-		
-		// for efficiency, we'd return ourselves as a match!
+		//print 'Matched pattern: '.$matched_pattern.' ('.$context->search_depth.')<br>';
 		
 		$stmt = JxBotDB::$db->prepare('SELECT category FROM pattern WHERE id=?');
 		$stmt->execute(array($matched_pattern));
 		$category = $stmt->fetchAll(PDO::FETCH_NUM);
 		$context->matched_category_id = $category[0][0];
-		
-		
-		/*return array(
-			'category'=>$category,
-			'star'=>$context->wild_values,
-			'thatstar'=>$context->wild_that_values,
-			'topicstar'=>$context->wild_topic_values
-		);*/
 		
 		return $context;
 	}
