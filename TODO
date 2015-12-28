@@ -4,7 +4,7 @@ TODO
 Essentials (toward a version 1.0)
 ----------
 
-* Implement load monitoring
+* Implement load monitoring [DONE; improve later & do history]
 
 * Implement word accumulating dictionary
 

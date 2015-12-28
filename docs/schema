@@ -1,0 +1,44 @@
+Database Schema
+Basic Performance Requirements and Integrity Concerns
+========
+
+
+Summary of Tables
+-----------------
+
+
+category
+pattern
+pattern_node
+template
+_set
+set_item
+_map
+map_item
+opt
+
+-	99% reads
+-	low integrity concern
+
+-	even if we add AIML 2.0 learn and learnf functionality;
+	we could use separate pattern storage if the operations were going to run frequently,
+	and compare two match patterns to find the highest priority one
+
+
+predicate
+session
+-	50/50 read/write
+-	low integrity concern
+
+
+log
+-	20/80 read/write
+-	low integrity concern
+
+
+word
+-	infrequent access
+-	99% reads
+-	low integrity concern
+
+
