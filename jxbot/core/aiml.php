@@ -309,6 +309,7 @@ class JxBotAiml
 		case JxBotAiml::STATE_THT:
 			if ($in_name == 'that')
 			{
+				JxBotAiml::$state = JxBotAiml::STATE_CAT;
 				JxBotNLData::category_update(JxBotAiml::$category_id, 
 					JxBotAiml::$that,
 					JxBotAiml::$topic);
@@ -317,6 +318,7 @@ class JxBotAiml
 		case JxBotAiml::STATE_TPC:
 			if ($in_name == 'topic')
 			{
+				JxBotAiml::$state = JxBotAiml::STATE_CAT;
 				JxBotNLData::category_update(JxBotAiml::$category_id, 
 					JxBotAiml::$that,
 					JxBotAiml::$topic);
@@ -340,7 +342,12 @@ class JxBotAiml
 			JxBotAiml::$template .= $in_data;
 			break;
 			
-			
+		case JxBotAiml::STATE_THT:
+			JxBotAiml::$that .= $in_data;
+			break;
+		case JxBotAiml::STATE_TPC:
+			JxBotAiml::$topic .= $in_data;
+			break;
 	
 		}
 	}

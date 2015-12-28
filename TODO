@@ -11,6 +11,9 @@ Essentials (toward a version 1.0)
 * Improvements to database admin; pandora-bots as a model UI?
 
 * Fix obvious bugs
+  * Registration of THAT and TOPIC; which currently require category UPDATEs
+    and for example, during AIML loading, are not working correctly.
+    
 * fix response IQ; ie. actually do a calculation based on wild/word ratio + pattern length
 * Implement error handling and check for common data malformations
 * Get installer to ask for admin username & any other pertinent settings
