@@ -338,6 +338,11 @@ class JxBotElement
 				}
 			}
 			break;	
+			
+		case 'tag': /* non-standard Tag feature */
+			$name = trim( $this->child_or_attr_named($in_context, 'name') );
+			return $in_context->tag_value( $name );
+			
 		case 'id':
 			return JxBotConverse::predicate('id');
 		case 'size':

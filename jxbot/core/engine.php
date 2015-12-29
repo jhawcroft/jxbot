@@ -360,12 +360,43 @@ class JxBotEngine
 	}
 	
 	
+	private static function compute_tags($in_input)
+	{
+		$tags = array();
+		$in_input = trim($in_input);
+		
+		// initially we can start with hard-coded tags,
+		// soon we might be able to have configurable via regex or simple pattern expressions
+		
+		/* identify questions */
+		if (substr($in_input, strlen($in_input) - 1, 1) == '?')
+			$tags['question'] = 'yes';
+		if (preg_match("/^(WHAT|WHERE|WHEN|HOW|ARE|CAN|WILL|IS|AM|DID|WHO|WHY|DO)/i", $in_input) === 1)
+			$tags['question'] = 'yes';
+			
+		/* check for common emotions */
+		if (preg_match("/(\:\-\)|\:\)|\:D|\:oD|\:-D|\:o\))/i", $in_input) === 1)
+			$tags['emotion'] = 'happy';
+		
+		/* check for laughter */
+		if (preg_match("/(ROFL|LOL|HEHE|HAHA)/i", $in_input) === 1)
+			$tags['laughter'] = 'yes';
+		
+		return $tags;
+	}
+	
+	
 	public static function match($in_input, $in_that, $in_topic)
 	/* takes inputs in normal string form, returns some kind of array of information
 	about the match (if any); assumes matching a single sentence (splitting already done) */
 	{
 		if ($in_that === null) $in_that = '';
 		if ($in_topic === null) $in_topic = '';
+		
+		$context = new JxBotEngine();
+		
+		$context->tags = JxBotEngine::compute_tags($in_input);
+		var_dump($context->tags);
 	
 		$search_terms = JxBotNL::normalise($in_input);
 		$search_terms[] = ':';
@@ -383,7 +414,7 @@ class JxBotEngine
 		var_dump($search_terms);
 		print '</pre>';*/
 		
-		$context = new JxBotEngine();
+		
 		$context->input_terms = $search_terms;
 		$context->term_index = 0;
 		$context->term_limit = count($search_terms);
@@ -432,6 +463,13 @@ class JxBotEngine
 	public function topic_capture($in_index)
 	{
 		return $this->wild_topic_values[$in_index];
+	}
+	
+	
+	public function tag_value($in_name)
+	{
+		if (isset($this->tags[$in_name])) return $this->tags[$in_name];
+		else return '';
 	}
 	
 	
