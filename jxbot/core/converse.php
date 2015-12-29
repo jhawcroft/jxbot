@@ -380,9 +380,18 @@ Conversation
 		JxBotConverse::$service_time = 0.0;
 		JxBotConverse::$iq_score = 0.0;
 		JxBotConverse::$category_stack = array();
+		$fault = false;
 		
 		/* run the bot */
-		$output = JxBotConverse::srai($in_input);
+		try
+		{
+			$output = JxBotConverse::srai($in_input);
+		}
+		catch (Exception $err)
+		{
+			$output = $err->getMessage();
+			$fault = true;
+		}
 		
 		/* end timer */
 		$end_time = microtime(true);
@@ -390,11 +399,15 @@ Conversation
 		//print 'IQ '.JxBotConverse::$iq_score. '<br>';
 		
 		/* log this interaction */
+		if (trim($output) == '') $fault = true;
+		if ($fault) JxBotConverse::$iq_score = -1;
 		JxBotConverse::log($in_input, $output, 
 			($end_time - $start_time), JxBotConverse::$match_time, 
 			JxBotConverse::$service_time, JxBotConverse::$iq_score);
 		
 		/* return the bot response */
+		if ($fault)
+			return 'I do apologise.  I seem to be experiencing a positronic malfunction.';
 		return $output;
 	}
 	
