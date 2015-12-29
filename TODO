@@ -6,12 +6,14 @@ Essentials (toward a version 1.0)
 
 * bulk import & replace from server folder feature?
 
+* Write documentation
+* Write sample AIML, possibly to be preloaded with new bots
+* provide historical stats & dash information
+
+
+Ongoing
+----
 * Implement error handling and check for common data malformations
-  * recursion is an issue with the default AIML sets - too much sraing -
-    could adopt an alternative /optional mechanism wherein the same category can't
-    be entered twice recursively as a switch turned on by default.
-  * failures shouldn't stop logging - ie. catch the exception
-  
 * Fix obvious bugs
 * Get installer to ask for admin username & any other pertinent settings
 * Continue cleaning up [PROGRESSING]
@@ -19,9 +21,7 @@ Essentials (toward a version 1.0)
 
 ---
 
-* Write documentation
-* Write sample AIML, possibly to be preloaded with new bots
-* provide historical stats & dash information
+
 
 
 ---
@@ -37,6 +37,10 @@ Essentials (toward a version 1.0)
   * question = 'yes'
   * emotion = 'happy'
   * laughter = 'yes'
+* recursion is an issue with the default AIML sets - too much sraing -
+    could adopt an alternative /optional mechanism wherein the same category can't
+    be entered twice recursively as a switch turned on by default. [DONE]
+* failures shouldn't stop logging - ie. catch the exception [DONE]
 
 
 
