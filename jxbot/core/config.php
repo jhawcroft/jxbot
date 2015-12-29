@@ -141,6 +141,12 @@ class JxBotConfig
 	}
 	
 	
+	public static function aiml_dir()
+	{
+		return dirname(dirname(__FILE__)).'/aiml/';
+	}
+	
+	
 	public static function option($in_key, $in_default = null)
 	{
 		if (isset(JxBotConfig::$config[$in_key])) return JxBotConfig::$config[$in_key];

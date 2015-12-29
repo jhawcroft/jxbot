@@ -33,6 +33,9 @@
 if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
+
+
+
 if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge-do'))
 	JxBotNLData::purge_categories();
 
@@ -55,25 +58,32 @@ function page_warn_purge()
 }
 
 
+
+function do_delete_file()
+{
+	$inputs = JxBotUtil::inputs('file');
+	$file = JxBotConfig::aiml_dir() . str_replace(array('/', './', '../'), '', $inputs['file']);
+	unlink($file);
+}
+
+
 	
 function do_handle_upload()
 {
 	if ($_FILES['data_file']['error'] === UPLOAD_ERR_OK)
 	{
-		$filename = $_FILES['data_file']['tmp_name'];
-		$importer = new JxBotAimlImport();
-		$result = $importer->import($filename);
-		if (is_array($result))
+		$file_name = $_FILES['data_file']['name'];
+		$extension = pathinfo($file_name)['extension'];
+		if (strtolower($extension) != 'aiml')
+			print '<p>Invalid file format.</p>';
+		else
 		{
-			print '<p>AIML imported successfully.';
-			foreach ($result as $notice)
-			{
-				print '<br>'.htmlentities($notice);
-			}
-			print '</p>';
+			$in_dest = JxBotConfig::aiml_dir() . $file_name;
+			if (!@move_uploaded_file($_FILES['data_file']['tmp_name'], $in_dest))
+				print '<p>Couldn\'t save file. Check the permissions on the aiml directory.</p>';
+			else
+				print '<p>File uploaded successfully.</p>';
 		}
-		else // error
-			print '<p>'.$result.'</p>';
 	}
 	else
 		print '<p>Error uploading file.</p>';
@@ -84,7 +94,16 @@ function page_import_form()
 {
 ?>
 
+<?php 
+if (isset($_FILES['data_file']) && ($_POST['action'] == 'upload')) do_handle_upload(); 
+if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'delete-file')) do_delete_file();
+?>
+
 <h2>Bulk Reload</h2>
+
+<?php
+show_server_files();
+?>
 
 <?php
 
@@ -93,13 +112,10 @@ if (isset($_POST['action']) && ($_POST['action'] == 'bulk-reload'))
 
 ?>
 
-<p><button type="submit" name="action" value="bulk-reload">Purge & Reload</button></p>
+<p><button type="submit" name="action" value="bulk-auto">Bulk Load</button> <button type="submit" name="action" value="purge">Purge All</button></p>
 
 
-
-<h2>Individual File</h2>
-
-<?php if (isset($_FILES['data_file']) && ($_POST['action'] == 'upload')) do_handle_upload(); ?>
+<h2>Upload File</h2>
 
 <p><label for="data_file">File:</label>
 <input type="file" name="data_file" id="data_file" size="50"></p>
@@ -108,13 +124,92 @@ if (isset($_POST['action']) && ($_POST['action'] == 'bulk-reload'))
 
 
 
-<h2>Purge</h2>
-
-<p><button type="submit" name="action" value="purge">Purge Categories</button></p>
-
 
 
 <?php
+}
+
+
+function server_file_list()
+{
+	$dir = JxBotConfig::aiml_dir();
+	
+	$list = array();
+	$index = array();
+	
+	$stmt = JxBotDB::$db->prepare('SELECT id,name,status,last_update FROM file ORDER BY name');
+	$stmt->execute();
+	$rows = $stmt->fetchAll(PDO::FETCH_NUM);
+	foreach ($rows as $row)
+	{
+		$index[$row[1]] = count($list);
+		$list[] = array($row[0], $row[1], $row[2]);
+	}
+
+	$dh = opendir($dir);
+	while (($file = readdir($dh)) !== false)
+	{
+		if (substr($file, 0, 1) == '.') continue;
+		if (strtolower(pathinfo($file)['extension']) != 'aiml') continue;
+		
+		if (!isset($index[$file]))
+			$list[] = array(null, $file, 'Not Loaded');
+	}
+	closedir($dh);
+	
+	return $list;
+}
+
+
+
+function show_server_files()
+{
+	$list = server_file_list();
+	$next_file = null;
+?><table style="width: auto; min-width: 30em;">
+<tr>
+	<th>File</th>
+	<th style="width: 7em;">Status</th>
+	<th style="width: 1.5em;"></th>
+</tr>
+<?php
+	foreach ($list as $file)
+	{
+		print '<tr>';
+		print '<td>'.$file[1].'</td>';
+		print '<td>'.$file[2].'</td>';
+		print '<td><a href="?page=import&action=delete-file&file='.$file[1].'">';
+		JxWidget::small_delete_icon();
+		print '</a></td>';
+		print '</tr>';
+		
+		if (($file[2] == 'Not Loaded') ||
+			($file[2] == 'Has Update'))
+		{
+			if ($next_file === null) $next_file = $file[1];
+		}
+	}
+?></table><?php
+
+	/* if the user has requested automatic load,
+	include a javascript which will use AJAX to request the next import */
+	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'bulk-auto') &&
+		$next_file !== null)
+	{
+?><script type="text/javascript">
+
+var req = new XMLHttpRequest();
+req.onreadystatechange = function() 
+{
+	if (req.readyState == 4)
+		window.location = '?page=import&action=bulk-auto';
+};
+req.open('GET', '?ajax=load&file=<?php print $next_file; ?>', true);
+req.send();
+
+</script><?php
+	}
+	
 }
 
 

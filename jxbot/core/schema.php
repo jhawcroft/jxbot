@@ -43,12 +43,26 @@ class JxBotSchema
 	{
 	
 /* Table Definitions: */
-	
+
+JxBotDB::$db->exec('
+CREATE TABLE file (
+    id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    status VARCHAR(15) NOT NULL,
+    last_update TIMESTAMP,
+    UNIQUE(name)
+) 
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
+');
+
 JxBotDB::$db->exec('
 CREATE TABLE category (
     id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
     that VARCHAR(255) NOT NULL,
-    topic VARCHAR(255) NOT NULL
+    topic VARCHAR(255) NOT NULL,
+    file INT(11) NULL
 ) 
 ENGINE=MyISAM
 CHARACTER SET utf8
@@ -401,7 +415,7 @@ CREATE TABLE login (
 	id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	stamp TIMESTAMP NOT NULL,
 	username VARCHAR(30) NOT NULL,
-	note TEXT,
+	note VARCHAR(255),
 	INDEX(stamp)
 )
 ENGINE=InnoDB

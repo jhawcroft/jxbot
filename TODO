@@ -4,6 +4,7 @@ TODO
 Essentials (toward a version 1.0)
 ----------
 
+* handle duplicate pattern error more gracefully
 * bulk import & replace from server folder feature?
 
 * Write documentation

@@ -36,6 +36,16 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 
 
+if (isset($_REQUEST['ajax']) && ($_REQUEST['ajax'] == 'load'))
+{
+	require_once('admin_ajax.php');
+	JxBotAjax::load();
+	exit;
+}
+
+
+
+
 
 class JxBotAdmin
 {

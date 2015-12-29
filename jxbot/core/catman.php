@@ -88,6 +88,7 @@ Category Management
 		delete from pattern;
 		delete from template;
 		delete from category;
+		update file set status=\'Not Loaded\';
 		');
 	}
 
