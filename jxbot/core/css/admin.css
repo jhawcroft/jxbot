@@ -271,7 +271,17 @@ div.field
 	margin-bottom: 0.9em;
 }
 
+
+/*
+Heading Space 
+*/
+
 div.field + h2
+{
+	margin-top: 1.5em;
+}
+
+p + h2
 {
 	margin-top: 1.5em;
 }
@@ -700,6 +710,22 @@ Admin - Show Whitespace as-is
 {
 	white-space: pre-wrap;
 }
+
+
+/*
+Status Colors
+*/
+
+.green
+{
+	color: #009933;
+}
+
+.red
+{
+	color: #cc0000;
+}
+
 
 
 
