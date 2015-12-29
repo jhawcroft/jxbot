@@ -59,6 +59,13 @@ class JxBotAjax
 		$inputs = JxBotUtil::inputs('file');
 		$file = JxBotConfig::aiml_dir() . str_replace(array('/', './', '../'), '', $inputs['file']);
 	
+		if (!file_exists($file))
+		{
+			print 'DONE';
+			JxBotAjax::set_file_status($inputs['file'], 'Not Available');
+			return;
+		}
+		
 		//print $file;
 	
 		header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1

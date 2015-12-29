@@ -63,7 +63,11 @@ function do_delete_file()
 {
 	$inputs = JxBotUtil::inputs('file');
 	$file = JxBotConfig::aiml_dir() . str_replace(array('/', './', '../'), '', $inputs['file']);
-	unlink($file);
+	
+	$stmt = JxBotDB::$db->prepare('DELETE FROM file WHERE name=?');
+	$stmt->execute(array( $inputs['file'] ));
+				
+	@unlink($file);
 }
 
 
@@ -82,7 +86,11 @@ function do_handle_upload()
 			if (!@move_uploaded_file($_FILES['data_file']['tmp_name'], $in_dest))
 				print '<p>Couldn\'t save file. Check the permissions on the aiml directory.</p>';
 			else
-				print '<p>File uploaded successfully.</p>';
+			{
+				//print '<p>File uploaded successfully.</p>';
+				$stmt = JxBotDB::$db->prepare('UPDATE file SET status=? WHERE name=?');
+				$stmt->execute(array( 'Needs Reload', $file_name ));
+			}
 		}
 	}
 	else
@@ -112,7 +120,7 @@ if (isset($_POST['action']) && ($_POST['action'] == 'bulk-reload'))
 
 ?>
 
-<p><button type="submit" name="action" value="bulk-auto">Bulk Load</button> <button type="submit" name="action" value="purge">Purge All</button></p>
+<p><button type="submit" name="action" value="bulk-auto">Bulk Load</button> <button type="submit" name="action" value="purge">Unload All</button></p>
 
 
 <h2>Upload File</h2>
@@ -177,7 +185,12 @@ function show_server_files()
 	{
 		print '<tr>';
 		print '<td>'.$file[1].'</td>';
-		print '<td>'.$file[2].'</td>';
+		
+		if ($file[2] == 'Loaded') $color = ' class="green"';
+		else if ($file[2] == 'Load Error') $color = ' class="red"';
+		else $color = '';
+		
+		print '<td'.$color.'>'.$file[2].'</td>';
 		print '<td><a href="?page=import&action=delete-file&file='.$file[1].'">';
 		JxWidget::small_delete_icon();
 		print '</a></td>';
@@ -210,55 +223,6 @@ req.send();
 </script><?php
 	}
 	
-}
-
-
-function bulk_reload()
-{
-
-// regarding sending updates to the browser:
-// best bet is to update the file listing in a table,
-// put status: loaded, errors, loading into the table for each file
-// have a periodic refresh that enquires as to the upload progress
-
-// another option,
-// provide the list, and let javascript run through the list
-// and send an ajax request/normal page request for each
-
-	print '<p>';
-	
-	print 'Purging existing database...';
-	JxBotNLData::purge_categories();
-	
-	print '<span class="green">DONE</span>. <br>';
-
-	$aiml_directory = dirname(dirname(__FILE__)).'/aiml/';
-	
-	$dh = opendir($aiml_directory);
-	while (($file = readdir($dh)) !== false)
-	{
-		if (substr($file, 0, 1) == '.') continue;
-		if (pathinfo($file)['extension'] != 'aiml') continue;
-		
-		print 'Importing '.$file.'...';
-		
-		$filename = $aiml_directory . $file;
-		$importer = new JxBotAimlImport();
-		$result = $importer->import($filename);
-		
-		if (is_array($result)) 
-		{
-			print '<span class="green">DONE</span><br>';
-			print implode('<br>', $result);
-		}
-		else
-			print '<span class="red">'.$result.'</span>';
-		
-		print '<br>';
-	}
-	closedir($dh);
-	
-	print '</p>';
 }
 
 
