@@ -112,6 +112,8 @@ Category Management
 		$stmt = JxBotDB::$db->prepare('UPDATE category SET that=?, topic=? WHERE id=?');
 		$stmt->execute(array($in_that, $in_topic, $in_category_id));
 		
+		
+		
 		// this actually needs to do more - because strictly speaking
 		// it should remove all patterns and recreate with modified that & topic values  **
 		// in the meantime, can simply prevent category updates in the UI
@@ -287,18 +289,33 @@ Pattern Management
 		$stmt->execute(array($in_pattern_id));
 		$row = $stmt->fetchAll(PDO::FETCH_NUM);
 		if (count($row) == 0) return NULL;
+		$category = $row[0][0];
 		
 		$stmt = JxBotDB::$db->prepare('DELETE FROM pattern WHERE id=?');
 		$stmt->execute(array($in_pattern_id));
 		
-		$stmt = JxBotDB::$db->prepare('UPDATE pattern_node SET is_terminal=0 WHERE id=?');
-		$stmt->execute(array($in_pattern_id));
+		/* cleanup the tree */
+		$parent = 0;
+		for ($node = $in_pattern_id; $node != 0; $node = $parent)
+		{
+			/* only delete the node if it has no children */
+			$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM pattern_node WHERE parent=?');
+			$stmt->execute(array($node));
+			$count = intval( $stmt->fetchAll(PDO::FETCH_NUM)[0][0] );
+			if ($count > 0) break;
+			
+			/* grab the node's parent prior to deletion */
+			$stmt = JxBotDB::$db->prepare('SELECT parent FROM pattern_node WHERE id=?');
+			$stmt->execute(array($node));
+			$parent = intval( $stmt->fetchAll(PDO::FETCH_NUM)[0][0] );
+			
+			/* delete the node */
+			$stmt = JxBotDB::$db->prepare('DELETE FROM pattern_node WHERE id=?');
+			$stmt->execute(array($node));
+			//print 'Deleted node #'.$node.'<br>';
+		}
 		
-		return $row[0][0];
-		
-		// to do - cleanup other data! - 
-		// if we were using foreign keys and InnoDB this would be easier ***
-		// however, MyISAM may give better performance for the mostly static pattern_node
+		return $category;
 	}
 	
 	

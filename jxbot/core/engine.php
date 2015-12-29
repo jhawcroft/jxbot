@@ -396,7 +396,7 @@ class JxBotEngine
 		$context = new JxBotEngine();
 		
 		$context->tags = JxBotEngine::compute_tags($in_input);
-		var_dump($context->tags);
+		//var_dump($context->tags);
 	
 		$search_terms = JxBotNL::normalise($in_input);
 		$search_terms[] = ':';
