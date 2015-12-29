@@ -57,6 +57,14 @@ html, body
 	clear: both;
 }
 
+hr
+{
+	height: 1px;
+	border: 0;
+	border-bottom: 1px dotted black;
+}
+
+
 
 /* 
 Navigation
@@ -237,7 +245,7 @@ label, input, select, fieldset
 
 label
 {
-	width: 10em;
+	width: 13em;
 	margin-top: 0.1em;
 }
 
@@ -262,7 +270,12 @@ fieldset
 div.field
 {
 	display: block;
-	margin-bottom: 0.5em;
+	margin-bottom: 0.9em;
+}
+
+div.field + h2
+{
+	margin-top: 1.5em;
 }
 
 

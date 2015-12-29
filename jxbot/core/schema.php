@@ -307,6 +307,8 @@ INSERT INTO map_item (map, s_from, s_to) VALUES (4, ' OHH ', ' OHH ');
 
 JxBotDB::$db->exec("
 INSERT INTO opt (opt_key, opt_value) VALUES ('def_species', 'human');
+
+
 ");
 
 // remaining options will be added by the installer!
@@ -391,6 +393,7 @@ INSERT INTO opt (opt_key, opt_value) VALUES ('bot_favorite_food', '');
 JxBotDB::$db->exec("
 INSERT INTO opt (opt_key, opt_value) VALUES ('admin_user', 'admin');
 INSERT INTO opt (opt_key, opt_value) VALUES ('admin_timeout', '60');
+INSERT INTO opt (opt_key, opt_value) VALUES ('sys_cap_bot_ipm', '300');
 ");
 
 JxBotDB::$db->exec('

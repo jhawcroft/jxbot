@@ -351,14 +351,18 @@ Conversation
 		if (JxBotConverse::user_input_looks_strange($in_input))
 			return 'Your last comment looks a bit strange.'; // ** configurable?
 	
-		/* prevent frequent consecutive requests by client */
-		// **TODO - suggest 20/minute
-		// not as important as the total cap (below) since it's harder to enforce anyway
-		
 		/* cap general server requests (safety); should be configurable
-		as people have different host specs */
-		// **TODO - suggest 300/minute for shared host
-		
+		as people have different host specs; 300 recommended for small shared host */
+		$cap_bot_ipm = JxBotConfig::option('sys_cap_bot_ipm', 300);
+		if ($cap_bot_ipm > 0)
+		{
+			$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM log 
+				WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
+			$stmt->execute();
+			$last_min_total = intval( $stmt->fetchAll(PDO::FETCH_NUM)[0][0] );
+			if ($last_min_total >= $cap_bot_ipm)
+				return 'Sorry, I\'m too busy to chat right now.  Please come back later.';
+		}
 		
 		/* count interaction */
 		JxBotDB::$db->exec('UPDATE stats SET interactions = interactions + 1');

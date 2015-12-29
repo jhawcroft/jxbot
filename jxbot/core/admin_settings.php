@@ -41,6 +41,8 @@ if (isset($_POST['bot_tz']))
 	
 	JxBotConfig::set_option('pre_strip_accents', $_POST['pre_strip_accents']);
 	
+	JxBotConfig::set_option('sys_cap_bot_ipm', $_POST['sys_cap_bot_ipm']);
+	
 	JxBotConfig::set_option('admin_user', $_POST['admin_user']);
 	JxBotConfig::set_option('admin_timeout', intval($_POST['admin_timeout']));
 	
@@ -53,14 +55,25 @@ if (isset($_POST['bot_tz']))
 ?>
 
 
+<h2>General</h2>
+
 <div class="field"><label for="bot_active">Online:</label>
 <?php JxWidget::toggle_switch('bot_active', JxBotConfig::option('bot_active')); ?></div>
 
 <div class="field"><label for="bot_tz">Timezone: </label>
 <?php JxBotConfig::widget_timezone(); ?></div>
 
+
+<h2>Language Processing</h2>
+
 <div class="field"><label for="pre_strip_accents">Strip Accents:</label>
-<?php JxWidget::toggle_switch('pre_strip_accents', JxBotConfig::option('pre_strip_accents')); ?> (strip accents during normalisation; good for English)</div>
+<?php JxWidget::toggle_switch('pre_strip_accents', JxBotConfig::option('pre_strip_accents')); ?><br><small>(strip accents during normalisation; good for English)</small></div>
+
+
+<h2>Security</h2>
+
+<div class="field"><label for="sys_cap_bot_ipm">Bot Load Maximum: </label>
+<input type="text" name="sys_cap_bot_ipm" id="sys_cap_bot_ipm" size="6" value="<?php print JxBotConfig::option('sys_cap_bot_ipm'); ?>"><br><small>(interactions per minute; 0 = unlimited)</small></div>
 
 <div class="field"><label for="admin_user">Administration Username: </label>
 <input type="text" name="admin_user" id="admin_user" size="20" value="<?php print JxBotConfig::option('admin_user'); ?>"></div>
@@ -69,7 +82,7 @@ if (isset($_POST['bot_tz']))
 <input type="text" name="bot_password" id="bot_password" size="20"></div>
 
 <div class="field"><label for="admin_timeout">Administration Timeout: </label>
-<input type="text" name="admin_timeout" id="admin_timeout" size="6" value="<?php print JxBotConfig::option('admin_timeout'); ?>"> (minutes; 0 = no timeout)</div>
+<input type="text" name="admin_timeout" id="admin_timeout" size="6" value="<?php print JxBotConfig::option('admin_timeout'); ?>"><br><small>(minutes; 0 = no timeout)</small></div>
 
 
 
