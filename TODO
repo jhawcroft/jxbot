@@ -6,8 +6,6 @@ Essentials (toward a version 1.0)
 
 * Implement error handling and check for common data malformations
 * Fix obvious bugs
-  * Registration of THAT and TOPIC; which currently require category UPDATEs
-    and for example, during AIML loading, are not working correctly.
 * Get installer to ask for admin username & any other pertinent settings
 * Continue cleaning up [PROGRESSING]
 * Improvements to database admin; pandora-bots as a model UI
@@ -25,6 +23,8 @@ Essentials (toward a version 1.0)
 * Substitution maintenance [maps, DONE] - use whitespace prefixed & postfix'd content, prior to punctuation norm
 * Finish set functionality [DONE]
 * implement substitutions in normalisation [DONE]
+* Registration of THAT and TOPIC; which currently require category UPDATEs
+    and for example, during AIML loading, are not working correctly. [DONE]
 * implemented prototype `tag` feature and <tag name="..."/> with support for:
   * question = 'yes'
   * emotion = 'happy'
