@@ -293,11 +293,16 @@ Conversation
 			$output = '???';
 		else
 		{
-			/* select a template */
+			/* select a template at random */
 			$template = JxBotNLData::fetch_templates( $category );
-			// implement random
-			$output = $template[0][1];
-			
+			$count = count($template);
+			if ($count == 0) $output = '???';
+			else 
+			{
+				if ($count == 1) $index = 0;
+				else $index = mt_rand(1, $count) - 1;
+				$output = $template[$index][1];
+			}
 			if (JxBotConverse::$srai_level == 1)
 				JxBotConverse::$iq_score += $match->iq_score();
 		}
@@ -388,7 +393,6 @@ Conversation
 		JxBotConverse::log($in_input, $output, 
 			($end_time - $start_time), JxBotConverse::$match_time, 
 			JxBotConverse::$service_time, JxBotConverse::$iq_score);
-		//JxBotConverse::set_predicate('that', $output); // probably don't need this if we use log
 		
 		/* return the bot response */
 		return $output;
