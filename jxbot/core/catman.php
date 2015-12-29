@@ -109,18 +109,43 @@ Category Management
 	public static function category_update($in_category_id, $in_that, $in_topic)
 	/* updates the <that> and <topic> of the specified category */
 	{
+		/* check inputs and apply defaults */
+		if (trim($in_that) == '') $in_that = '*';
+		if (trim($in_topic) == '') $in_topic = '*';
+	
+		/* update the main category record */
 		$stmt = JxBotDB::$db->prepare('UPDATE category SET that=?, topic=? WHERE id=?');
 		$stmt->execute(array($in_that, $in_topic, $in_category_id));
 		
+		/* ! NOTE:  unlike a standard AIML interpreter, JxBot allows multiple patterns 
+		for each category - see file ENGINEERING for more information */
 		
+		/* re-add all the patterns, whose that & topic values will have changed;
+		this is not efficient for AIML load but necessary for some admin operations,
+		thus AIML load should collate patterns, that and topic and only add at completion
+		of a category. */
+		$stmt = JxBotDB::$db->prepare('SELECT that,topic FROM category WHERE id=?');
+		$stmt->execute(array($in_category_id));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM)[0];
+		$that = $row[0];
+		$topic = $row[1];
 		
-		// this actually needs to do more - because strictly speaking
-		// it should remove all patterns and recreate with modified that & topic values  **
-		// in the meantime, can simply prevent category updates in the UI
+		$stmt = JxBotDB::$db->prepare('SELECT id,value FROM pattern WHERE category=?');
+		$stmt->execute(array($in_category_id));
+		$patterns = $stmt->fetchAll(PDO::FETCH_NUM);
+		foreach ($patterns as $row)
+		{
+			$text = $row[1];
+			$pattern = $row[0];
+			
+			/* remove the pattern */
+			JxBotNLData::pattern_delete($pattern);
+			
+			/* reinsert the pattern */
+			JxBotNLData::pattern_add($in_category_id, $text, $that, $topic);
+		}
 		
-		// this software is slightly more complicated than the standard AIML interpreter,
-		// in that, it permits a category to have multiple patterns and multiple
-		// templates to aid management of large databases.  See file ENGINEERING.
+		return $in_category_id;
 	}
 	
 	
