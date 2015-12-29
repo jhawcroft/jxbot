@@ -75,8 +75,12 @@ function do_handle_upload()
 	if ($_FILES['data_file']['error'] === UPLOAD_ERR_OK)
 	{
 		$file_name = $_FILES['data_file']['name'];
-		$extension = pathinfo($file_name)['extension'];
-		if (strtolower($extension) != 'aiml')
+		
+		$extension = pathinfo($file_name);
+		if (!isset($extension['extension'])) $extension = '';
+		else $extension = strtolower($extension['extension']);
+		
+		if ($extension != 'aiml')
 			print '<p>Invalid file format.</p>';
 		else
 		{
@@ -155,7 +159,10 @@ function server_file_list()
 	while (($file = readdir($dh)) !== false)
 	{
 		if (substr($file, 0, 1) == '.') continue;
-		if (strtolower(pathinfo($file)['extension']) != 'aiml') continue;
+		$info = pathinfo($file);
+		if (!isset($info['extension'])) continue;
+		$ext = strtolower($info['extension']);
+		if ($ext != 'aiml') continue;
 		
 		if (!isset($index[$file]))
 			$list[] = array(null, $file, 'Not Loaded');
