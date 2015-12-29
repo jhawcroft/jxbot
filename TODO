@@ -6,6 +6,11 @@ Essentials (toward a version 1.0)
 
 * bulk import & replace from server folder feature?
 * Implement error handling and check for common data malformations
+  * recursion is an issue with the default AIML sets - too much sraing -
+    could adopt an alternative /optional mechanism wherein the same category can't
+    be entered twice recursively as a switch turned on by default.
+  * failures shouldn't stop logging - ie. catch the exception
+  
 * Fix obvious bugs
 * Get installer to ask for admin username & any other pertinent settings
 * Continue cleaning up [PROGRESSING]
