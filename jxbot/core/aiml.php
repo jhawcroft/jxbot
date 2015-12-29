@@ -196,6 +196,17 @@ class JxBotAimlImport
 	private $content;
 	
 	private $unrecognised;
+	private $has_aiml1_learn;
+	private $has_aiml1_gossip;
+	private $has_aiml2_learn;
+	private $has_aiml2_sraix;
+	private $has_aiml2_loop;
+	private $has_aiml2_interval;
+	private $has_aiml_javascript;
+	private $has_aiml_system;
+	private $has_multi_pattern_cats;
+	private $has_tag;
+	
 	
 	const STATE_FILE = 1;
 	const STATE_AIML = 2;
@@ -291,6 +302,25 @@ class JxBotAimlImport
 		case JxBotAimlImport::STATE_TEMPLATE:
 			if (!in_array($in_name, $this->recognised_template_tags))
 				$this->unrecognised[$in_name] = true;
+			if ($in_name == 'tag')
+				$this->has_tag = true;
+			else if (($in_name == 'learn') && ($this->aiml_version == '1.0'))
+				$this->has_aiml1_learn = true;
+			else if (($in_name == 'learn') || ($in_name == 'learnf'))
+				$this->has_aiml2_learn = true;
+			else if ($in_name == 'gossip')
+				$this->has_aiml1_gossip = true;
+			else if ($in_name == 'sraix')
+				$this->has_aiml2_sraix = true;
+			else if ($in_name == 'loop')
+				$this->has_aiml2_loop = true;
+			else if ($in_name == 'interval')
+				$this->has_aiml2_interval = true;
+			else if ($in_name == 'javascript')
+				$this->has_aiml_javascript = true;
+			else if ($in_name == 'system')
+				$this->has_aiml_system = true;
+				
 			$this->content .= '<'.$in_name;
 			foreach ($in_attrs as $name => $value)
 				$this->content .= ' '.$name.'="'.$value.'"';
@@ -321,6 +351,8 @@ class JxBotAimlImport
 				{
 					JxBotNLData::template_add($category_id, $template);
 				}
+				if ((count($this->cat_patterns) > 1) || (count($this->cat_templates) > 1))
+					$this->has_multi_pattern_cats = true;
 			}
 			break;
 		case JxBotAimlImport::STATE_AIML_TOPIC:
@@ -447,11 +479,14 @@ class JxBotAimlImport
 	
 	public function import($in_filename)
 	{
+		/* reset the importer */
 		$this->reset();
 		
+		/* open the file */
 		$fh = fopen($in_filename, 'r');
 		if (!$fh) return "Server Error: Couldn't open AIML file.";
 		
+		/* parse the file */
 		while ($data = fread($fh, 4096))
 		{
 			if (! xml_parse($this->xml_parser, $data, feof($fh)) )
@@ -461,14 +496,49 @@ class JxBotAimlImport
 			}
 		}
 		xml_parse($this->xml_parser, '', true);
-		
 		fclose($fh);
 		
+		/* report errors */
 		if ($this->_error != '') return $this->_error;
+		
+		/* prepare additional notices */
+		if (count($this->unrecognised) > 0)
+			$this->notice('The following unrecognised tags were ignored: '.
+				implode(', ', array_keys($this->unrecognised)));
+		
+		if ($this->has_aiml1_learn)
+			$this->notice('This AIML file expects the AIML 1.0 semantics of the learn tag, which are not supported by JxBot.');
+		if ($this->has_aiml1_gossip)
+			$this->notice('This AIML file utilises the old AIML 1.0 gossip tag, which is not supported by JxBot.');
+		
+		if ($this->has_aiml2_learn)
+			$this->notice('This AIML file utilises the AIML 2.0 learn feature which is not yet supported by JxBot.');
+		if ($this->has_aiml2_sraix)
+			$this->notice('This AIML file utilises the AIML 2.0 sraix feature which is not yet supported by JxBot.');
+		if ($this->has_aiml2_loop)
+			$this->notice('This AIML file utilises the AIML 2.0 loop feature which is not yet supported by JxBot.');
+		if ($this->has_aiml2_interval)
+			$this->notice('This AIML file utilises the AIML 2.0 interval tag which is not yet supported by JxBot.');
+		
+		if ($this->has_aiml_javascript)
+			$this->notice('This AIML file utilises the AIML server-side javascript feature, which is not supported by JxBot.');
+		if ($this->has_aiml_system)
+			$this->notice('This AIML file utilises the AIML system call feature, which is not yet supported by JxBot.');
+			
+		if ($this->has_multi_pattern_cats)
+			$this->notice('This AIML file utilises the JxBot consolidated category representation, which may not be compatible with other AIML interpreters.');
+		
+		if ($this->has_tag)
+			$this->notice('This AIML file utilises the JxBot tag feature, which may not be compatible with other AIML interpreters.');
+		
+		/* return the result */
 		return $this->notices;
 	}
 }
 
+
+
+// This needs revision and is now only being used for template parsing:
 
 class JxBotAiml
 {
@@ -507,7 +577,7 @@ class JxBotAiml
 		}
 	}
 	
-
+/*
 	public static function _element_start($in_parser, $in_name, $in_attrs)
 	{
 		//print '< '.$in_name.'<br>';
@@ -643,7 +713,7 @@ class JxBotAiml
 			break;
 	
 		}
-	}
+	}*/
 	
 	
 	private static function parser_create($in_start, $in_end, $in_data)
@@ -661,7 +731,7 @@ class JxBotAiml
 		return $parser;
 	}
 	
-	
+	/*
 	public static function import($in_filename)
 	{
 		set_time_limit(300); // 5-minutes
@@ -693,7 +763,7 @@ class JxBotAiml
 	}
 	
 	
-	
+	*/
 	
 	
 	
