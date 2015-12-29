@@ -141,6 +141,15 @@ COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
+CREATE TABLE stats (
+	interactions INT(11) NOT NULL DEFAULT 0
+)
+ENGINE=InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
+');
+
+JxBotDB::$db->exec('
 CREATE TABLE opt (
 	opt_key VARCHAR(100) NOT NULL PRIMARY KEY,
 	opt_value VARCHAR(100) NOT NULL
@@ -214,6 +223,10 @@ COLLATE utf8_general_ci;
 JxBotDB::$db->exec("
 INSERT INTO pattern_node (id, parent, expression, sort_key, is_terminal) 
 VALUES (0, 0, ':ROOT:', 0, 0);
+");
+
+JxBotDB::$db->exec("
+INSERT INTO stats (interactions) VALUES (0);
 ");
 
 JxBotDB::$db->exec("

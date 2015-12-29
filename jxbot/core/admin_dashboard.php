@@ -67,7 +67,7 @@ Bot Statistics
 	
 	/* general;
 	   How many interactions has the bot had over it's lifetime? */
-	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM log');
+	$stmt = JxBotDB::$db->prepare('SELECT interactions FROM stats');
 	$stmt->execute();
 	$metrics['interaction_count'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	

@@ -282,7 +282,7 @@ Conversation
 			if ($nested_category == $category) $count++;
 		if ($count >= JxBotConverse::MAX_CATEGORY_NESTING) 
 		{
-			print 'CATEGORY LIMIT<br>';
+			//print 'CATEGORY LIMIT<br>';
 			return '';
 		}
 		JxBotConverse::$category_stack[] = $category;
@@ -352,10 +352,16 @@ Conversation
 			return 'Your last comment looks a bit strange.'; // ** configurable?
 	
 		/* prevent frequent consecutive requests by client */
-		// **TODO
+		// **TODO - suggest 20/minute
+		// not as important as the total cap (below) since it's harder to enforce anyway
 		
-		/* cap general server requests (safety); should be configurable */
-		// **TODO
+		/* cap general server requests (safety); should be configurable
+		as people have different host specs */
+		// **TODO - suggest 300/minute for shared host
+		
+		
+		/* count interaction */
+		JxBotDB::$db->exec('UPDATE stats SET interactions = interactions + 1');
 	
 		/* start timer */
 		$start_time = microtime(true);
