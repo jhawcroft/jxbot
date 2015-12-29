@@ -86,8 +86,7 @@ function do_handle_upload()
 			else
 			{
 				//print '<p>File uploaded successfully.</p>';
-				$stmt = JxBotDB::$db->prepare('UPDATE file SET status=? WHERE name=?');
-				$stmt->execute(array( 'Needs Reload', $file_name ));
+				JxBotNLData::set_file_status( $file_name, 'Not Loaded' );
 			}
 		}
 	}
