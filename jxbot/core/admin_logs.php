@@ -77,7 +77,7 @@ if (!isset($_REQUEST['convo'])) {
 <?php
 } else {
 
-	$stmt = JxBotDB::$db->prepare('SELECT stamp,input,output FROM log WHERE session=? ORDER BY id ASC');
+	$stmt = JxBotDB::$db->prepare('SELECT stamp,input,output FROM log WHERE session=? ORDER BY id DESC');
 	$stmt->execute(array($_REQUEST['convo']));
 	$rows = $stmt->fetchAll(PDO::FETCH_NUM);
 
@@ -88,9 +88,10 @@ if (!isset($_REQUEST['convo'])) {
 		foreach ($rows as $row)
 		{
 			//print $row[0].'<br>';
+			
+			print '<strong><span class="log-bl">Bot:</span> '.$row[2].'</strong><br>';
 			if ($row[1] !== '') 
 				print '<span class="log-cl">Client:</span> '.$row[1].'<br>';
-			print '<strong><span class="log-bl">Bot:</span> '.$row[2].'</strong><br>';
 		}
 		print '</div>';
 	}

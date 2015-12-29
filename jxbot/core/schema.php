@@ -133,7 +133,8 @@ CREATE TABLE log (
 	time_service float not null,
 	intel_score float not null,
 	stamp TIMESTAMP NOT NULL,
-	INDEX(session)
+	INDEX(session),
+	INDEX(stamp)
 )
 ENGINE=InnoDB
 CHARACTER SET utf8
