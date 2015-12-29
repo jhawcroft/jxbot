@@ -199,6 +199,16 @@ function show_server_files()
 <?php
 	foreach ($list as $file)
 	{
+		if ($inputs['action'] == 'bulk-auto')
+		{
+			try
+			{
+				$stmt = JxBotDB::$db->prepare('INSERT INTO file (name, status) VALUES (?, ?)');
+				$stmt->execute(array($file[1], 'Scheduled'));
+			}
+			catch (Exception $err) {}
+		}
+	
 		print '<tr>';
 		print '<td>'.$file[1].'</td>';
 		

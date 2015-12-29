@@ -316,7 +316,8 @@ Pattern Management
 		{
 			/* detected duplicate pattern */
 			// for now, just ignore
-			print 'Duplicate pattern: '.$in_full.'<br>';
+			throw new Exception('Pattern already exists.');
+			//print 'Duplicate pattern: '.$in_full.'<br>';
 		}
 		
 		return $last_node;

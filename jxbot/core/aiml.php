@@ -355,7 +355,16 @@ class JxBotAimlImport
 				$category_id = JxBotNLData::category_new($that, $topic);
 				foreach ($this->cat_patterns as $pattern)
 				{
-					JxBotNLData::pattern_add($category_id, trim($pattern), $that, $topic);
+					try
+					{
+						JxBotNLData::pattern_add($category_id, trim($pattern), $that, $topic);
+					}
+					catch (Exception $err)
+					{
+						// pattern already exists?
+						// ignore, but do a notice
+						$this->notice($err->getMessage());
+					}
 				}
 				foreach ($this->cat_templates as $template)
 				{
@@ -504,7 +513,7 @@ class JxBotAimlImport
 		{
 			if (! xml_parse($this->xml_parser, $data, feof($fh)) )
 			{
-				$this->error( xml_error_string(xml_get_error_code($parser)) );
+				$this->error( xml_error_string(xml_get_error_code($this->xml_parser)) );
 				break;
 			}
 			

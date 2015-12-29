@@ -58,6 +58,18 @@ COLLATE utf8_general_ci;
 ');
 
 JxBotDB::$db->exec('
+CREATE TABLE aiml_log (
+    id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    file VARCHAR(100) NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    stamp TIMESTAMP
+) 
+ENGINE=MyISAM
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
+');
+
+JxBotDB::$db->exec('
 CREATE TABLE category (
     id INT(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
     that VARCHAR(255) NOT NULL,

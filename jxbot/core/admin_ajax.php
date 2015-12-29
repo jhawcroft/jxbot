@@ -43,22 +43,29 @@ class JxBotAjax
 
 	public static function load()
 	{
+		/* send no content and close remote client connection */
+		/*ignore_user_abort(true);
+		session_write_close();
+		header("Content-Encoding: none");
+		header("Content-Length: ".ob_get_length());
+		header("Connection: close");
+		ob_end_flush();
+		flush();*/
+		
+		/* grab the request */
 		$inputs = JxBotUtil::inputs('file');
 		$file = JxBotConfig::aiml_dir() . str_replace(array('/', './', '../'), '', $inputs['file']);
 	
+		/* check if we can action it */
 		if (!file_exists($file))
 		{
-			print 'DONE';
+			//print 'DONE';
 			JxBotNLData::set_file_status($inputs['file'], 'Not Available');
 			return;
 		}
 		
-		//print $file;
-	
-		header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-		header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-		header("Content-type: text/plain; charset=utf-8");
-
+		
+		/* start loading the AIML */
 		JxBotNLData::set_file_status($inputs['file'], 'Loading...');
 	
 		$importer = new JxBotAimlImport();
@@ -67,17 +74,26 @@ class JxBotAjax
 		{
 			JxBotNLData::set_file_status($inputs['file'], 'Loaded');
 			
-			print "DONE\n";
-			foreach ($result as $notice)
+			$stmt = JxBotDB::$db->prepare('INSERT INTO aiml_log (file, message) VALUES (?, ?)');
+			$stmt->execute(array( $inputs['file'], 'Loaded.' ));
+				
+			/* log the results */
+			foreach($result as $notice)
 			{
-				print $notice."\n";
+				$stmt = JxBotDB::$db->prepare('INSERT INTO aiml_log (file, message) VALUES (?, ?)');
+				$stmt->execute(array( $inputs['file'], substr($notice, 0, 255) ));
 			}
+			
 		}
 		else // error
 		{
 			JxBotNLData::set_file_status($inputs['file'], 'Load Error');
 			
-			print 'ERROR '.$result."\n";
+			/* log the result */
+			$stmt = JxBotDB::$db->prepare('INSERT INTO aiml_log (file, message) VALUES (?, ?)');
+			$stmt->execute(array( $inputs['file'], substr($result, 0, 255) ));
+			
+			
 		}
 	}
 	

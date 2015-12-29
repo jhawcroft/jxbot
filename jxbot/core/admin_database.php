@@ -113,7 +113,15 @@ function do_add_pat()
 	}
 	
 	/* go ahead and add the new pattern */
-	JxBotNLData::pattern_add($inputs['category'], $inputs['new-pat'], $inputs['that'], $inputs['topic']);
+	try
+	{
+		JxBotNLData::pattern_add($inputs['category'], $inputs['new-pat'], $inputs['that'], $inputs['topic']);
+	}
+	catch (Exception $err)
+	{
+		// pattern already exists?
+		print '<p>'.$err->getMessage().'</p>';
+	}
 	page_edit($inputs['category']);
 }
 
