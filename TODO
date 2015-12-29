@@ -4,6 +4,7 @@ TODO
 Essentials (toward a version 1.0)
 ----------
 
+* bulk import & replace from server folder feature?
 * Implement error handling and check for common data malformations
 * Fix obvious bugs
 * Get installer to ask for admin username & any other pertinent settings

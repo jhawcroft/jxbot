@@ -228,9 +228,13 @@ class JxBotAimlImport
 	}
 	
 	
-	private function notice($in_notice)
+	private function notice($in_notice, $in_no_line_num = false)
 	{
-		$this->notices[] = $in_notice;
+		if ($in_no_line_num)
+			$this->notices[] = 'AIML Notice: '.$in_notice;
+		else
+			$this->notices[] = 'AIML Notice: Line '.
+				xml_get_current_line_number($this->xml_parser).': '.$in_notice;
 	}
 	
 
@@ -285,6 +289,12 @@ class JxBotAimlImport
 			else if ($in_name == 'topic')
 			{
 				$this->state = JxBotAimlImport::STATE_CATEGORY_TOPIC;
+			}
+			else if ($in_name == 'category')
+			{
+				/* error in AIML; print a notice and end the category improperly */
+				$this->state = JxBotAimlImport::STATE_AIML;
+				$this->notice('Malformed category - missing closing </category> - load of previous category incomplete');
 			}
 			else $this->unrecognised[$in_name] = true;
 			break;
@@ -504,32 +514,32 @@ class JxBotAimlImport
 		/* prepare additional notices */
 		if (count($this->unrecognised) > 0)
 			$this->notice('The following unrecognised tags were ignored: '.
-				implode(', ', array_keys($this->unrecognised)));
+				implode(', ', array_keys($this->unrecognised)), true);
 		
 		if ($this->has_aiml1_learn)
-			$this->notice('This AIML file expects the AIML 1.0 semantics of the learn tag, which are not supported by JxBot.');
+			$this->notice('This AIML file expects the AIML 1.0 semantics of the learn tag, which are not supported by JxBot.', true);
 		if ($this->has_aiml1_gossip)
-			$this->notice('This AIML file utilises the old AIML 1.0 gossip tag, which is not supported by JxBot.');
+			$this->notice('This AIML file utilises the old AIML 1.0 gossip tag, which is not supported by JxBot.', true);
 		
 		if ($this->has_aiml2_learn)
-			$this->notice('This AIML file utilises the AIML 2.0 learn feature which is not yet supported by JxBot.');
+			$this->notice('This AIML file utilises the AIML 2.0 learn feature which is not yet supported by JxBot.', true);
 		if ($this->has_aiml2_sraix)
-			$this->notice('This AIML file utilises the AIML 2.0 sraix feature which is not yet supported by JxBot.');
+			$this->notice('This AIML file utilises the AIML 2.0 sraix feature which is not yet supported by JxBot.', true);
 		if ($this->has_aiml2_loop)
-			$this->notice('This AIML file utilises the AIML 2.0 loop feature which is not yet supported by JxBot.');
+			$this->notice('This AIML file utilises the AIML 2.0 loop feature which is not yet supported by JxBot.', true);
 		if ($this->has_aiml2_interval)
-			$this->notice('This AIML file utilises the AIML 2.0 interval tag which is not yet supported by JxBot.');
+			$this->notice('This AIML file utilises the AIML 2.0 interval tag which is not yet supported by JxBot.', true);
 		
 		if ($this->has_aiml_javascript)
-			$this->notice('This AIML file utilises the AIML server-side javascript feature, which is not supported by JxBot.');
+			$this->notice('This AIML file utilises the AIML server-side javascript feature, which is not supported by JxBot.', true);
 		if ($this->has_aiml_system)
-			$this->notice('This AIML file utilises the AIML system call feature, which is not yet supported by JxBot.');
+			$this->notice('This AIML file utilises the AIML system call feature, which is not yet supported by JxBot.', true);
 			
 		if ($this->has_multi_pattern_cats)
-			$this->notice('This AIML file utilises the JxBot consolidated category representation, which may not be compatible with other AIML interpreters.');
+			$this->notice('This AIML file utilises the JxBot consolidated category representation, which may not be compatible with other AIML interpreters.', true);
 		
 		if ($this->has_tag)
-			$this->notice('This AIML file utilises the JxBot tag feature, which may not be compatible with other AIML interpreters.');
+			$this->notice('This AIML file utilises the JxBot tag feature, which may not be compatible with other AIML interpreters.', true);
 		
 		/* return the result */
 		return $this->notices;

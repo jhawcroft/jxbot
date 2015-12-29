@@ -68,7 +68,7 @@ function do_handle_upload()
 			print '<p>AIML imported successfully.';
 			foreach ($result as $notice)
 			{
-				print '<br>'.$notice;
+				print '<br>'.htmlentities($notice);
 			}
 			print '</p>';
 		}
