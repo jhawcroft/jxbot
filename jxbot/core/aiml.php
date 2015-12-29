@@ -44,7 +44,9 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 class JxBotAimlPattern
 {
 	private $xml_parser;
+	private $error;
 	private $state;
+	
 	private $pattern;
 	private $unnested_info;
 	
@@ -75,7 +77,7 @@ class JxBotAimlPattern
 				$this->state = JxBotAimlPattern::STATE_PAT_TXT;
 				$this->pattern = '';
 			}
-			else $this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			else $this->set_error('Illegal tag in pattern: '.$in_name);
 			break;
 		
 		case JxBotAimlPattern::STATE_PAT_TXT:
@@ -93,13 +95,13 @@ class JxBotAimlPattern
 				if (array_key_exists('name', $in_attrs))
 					$this->unnested_info = $in_attrs['name'].':';
 			}
-			else $this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			else $this->set_error('Illegal tag in pattern: '.$in_name);
 			break;
 		case JxBotAimlPattern::STATE_PAT_BOT:
-			$this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			$this->set_error('Illegal tag in pattern: '.$in_name);
 			break;
 		case JxBotAimlPattern::STATE_PAT_SET:
-			$this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+			$this->set_error('Illegal tag in pattern: '.$in_name);
 			break;
 		}
 	}
@@ -112,7 +114,7 @@ class JxBotAimlPattern
 		{	
 		case JxBotAimlPattern::STATE_PAT_TXT:
 			if ($in_name != 'pattern')
-				$this->set_error($in_parser, 'Illegal tag in pattern: '.$in_name);
+				$this->set_error('Illegal tag in pattern: '.$in_name);
 			break;
 		case JxBotAimlPattern::STATE_PAT_BOT:
 			$this->state = JxBotAimlPattern::STATE_PAT_TXT;
@@ -173,6 +175,297 @@ class JxBotAimlPattern
 		$in_pattern = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><pattern>" . $in_pattern . '</pattern>';
 		xml_parse($this->xml_parser, $in_pattern, true);
 		return $this->pattern;
+	}
+}
+
+
+
+class JxBotAimlImport
+{
+	private $xml_parser;
+	private $_error;
+	private $notices;
+	private $state;
+	
+	private $aiml_version;
+	private $aiml_topic;
+	private $cat_topic;
+	private $cat_that;
+	private $cat_patterns;
+	private $cat_templates;
+	private $content;
+	
+	private $unrecognised;
+	
+	const STATE_FILE = 1;
+	const STATE_AIML = 2;
+	const STATE_AIML_TOPIC = 3;
+	const STATE_CATEGORY = 4;
+	const STATE_PATTERN = 5;
+	const STATE_THAT = 6;
+	const STATE_CATEGORY_TOPIC = 7;
+	const STATE_TEMPLATE = 8;
+	
+	const IMPORT_TIMEOUT_EXTEND = 60; /* 1-minute extension to PHP script timeout */
+	
+	
+	private function error($in_error)
+	{
+		if ($this->_error !== '') return;
+		$this->_error = 'AIML Error: Line '.
+			xml_get_current_line_number($this->xml_parser).': '.$in_error;
+	}
+	
+	
+	private function notice($in_notice)
+	{
+		$this->notices[] = $in_notice;
+	}
+	
+
+	public function _element_start($in_parser, $in_name, $in_attrs)
+	{
+		set_time_limit( JxBotAimlImport::IMPORT_TIMEOUT_EXTEND );
+		//print '< '.$in_name.'<br>';
+		switch ($this->state)
+		{	
+		case JxBotAimlImport::STATE_FILE:
+			if ($in_name == 'aiml')
+			{
+				$this->state = JxBotAimlImport::STATE_AIML;
+				if (isset($in_attrs['version']))
+					$this->aiml_version = trim($in_attrs['version']);
+				else $this->aiml_version = '1.0';
+				
+				$this->aiml_topic = '*';
+			}
+			else $this->error('Not an AIML file.');
+			break;
+		case JxBotAimlImport::STATE_AIML:
+			if ($in_name == 'topic')
+			{
+				$this->state = JxBotAimlImport::STATE_AIML_TOPIC;
+			}
+			else if ($in_name == 'category')
+			{
+				$this->state = JxBotAimlImport::STATE_CATEGORY;
+				$this->cat_topic = null; // overrides aiml_topic if not NULL
+				$this->cat_that = '*';
+				$this->cat_patterns = array();
+				$this->cat_templates = array();
+			}
+			else $this->unrecognised[$in_name] = true;
+			break;
+		case JxBotAimlImport::STATE_CATEGORY:
+			if ($in_name == 'pattern')
+			{
+				$this->state = JxBotAimlImport::STATE_PATTERN;
+				$this->content = '';
+			}
+			else if ($in_name == 'template')
+			{
+				$this->state = JxBotAimlImport::STATE_TEMPLATE;
+				$this->content = '';
+			}
+			else if ($in_name == 'that')
+			{
+				$this->state = JxBotAimlImport::STATE_THAT;
+			}
+			else if ($in_name == 'topic')
+			{
+				$this->state = JxBotAimlImport::STATE_CATEGORY_TOPIC;
+			}
+			else $this->unrecognised[$in_name] = true;
+			break;
+		case JxBotAimlImport::STATE_PATTERN:
+			if (($in_name != 'bot') && ($in_name != 'set') && ($in_name != 'name'))
+				$this->unrecognised[$in_name] = true;
+			else
+			{
+				$this->content .= '<'.$in_name;
+				foreach ($in_attrs as $name => $value)
+					$this->content .= ' '.$name.'="'.$value.'"';
+				$this->content .= '>';
+			}
+			break;
+		case JxBotAimlImport::STATE_TEMPLATE:
+			if (!in_array($in_name, $this->recognised_template_tags))
+				$this->unrecognised[$in_name] = true;
+			$this->content .= '<'.$in_name;
+			foreach ($in_attrs as $name => $value)
+				$this->content .= ' '.$name.'="'.$value.'"';
+			$this->content .= '>';
+			break;
+		}
+	}
+	
+	
+	public function _element_end($in_parser, $in_name)
+	{
+		set_time_limit( JxBotAimlImport::IMPORT_TIMEOUT_EXTEND );
+		//print '/ '.$in_name.'  '.JxBotAiml::$state.'<br>';
+		switch ($this->state)
+		{	
+		case JxBotAimlImport::STATE_CATEGORY:
+			if ($in_name == 'category')
+			{
+				$this->state = JxBotAimlImport::STATE_AIML;
+				$topic = trim(($this->cat_topic === null ? $this->aiml_topic : $this->cat_topic));
+				$that = trim($this->cat_that);
+				$category_id = JxBotNLData::category_new($that, $topic);
+				foreach ($this->cat_patterns as $pattern)
+				{
+					JxBotNLData::pattern_add($category_id, trim($pattern), $that, $topic);
+				}
+				foreach ($this->cat_templates as $template)
+				{
+					JxBotNLData::template_add($category_id, $template);
+				}
+			}
+			break;
+		case JxBotAimlImport::STATE_AIML_TOPIC:
+			if ($in_name == 'topic')
+				$this->state = JxBotAimlImport::STATE_AIML;
+			break;
+		case JxBotAimlImport::STATE_CATEGORY_TOPIC:
+			if ($in_name == 'topic')
+				$this->state = JxBotAimlImport::STATE_CATEGORY;
+			break;
+		case JxBotAimlImport::STATE_THAT:
+			if ($in_name == 'that')
+				$this->state = JxBotAimlImport::STATE_CATEGORY;
+			break;
+		case JxBotAimlImport::STATE_PATTERN:
+			if ($in_name == 'pattern')
+			{
+				$this->cat_patterns[] = $this->content;
+				$this->state = JxBotAimlImport::STATE_CATEGORY;
+			}
+			else if (($in_name == 'bot') || ($in_name == 'set') || ($in_name == 'name'))
+				$this->content .= '</'.$in_name.'>';
+			break;
+		case JxBotAimlImport::STATE_TEMPLATE:
+			if ($in_name == 'template')
+			{
+				$this->cat_templates[] = $this->content;
+				$this->state = JxBotAimlImport::STATE_CATEGORY;
+			}
+			else $this->content .= '</'.$in_name.'>';
+			break;
+		}
+	}
+	
+	
+	public function _element_data($in_parser, $in_data)
+	{
+		set_time_limit( JxBotAimlImport::IMPORT_TIMEOUT_EXTEND );
+		//print '=>'.$in_data.'<br>';
+		switch ($this->state)
+		{
+		case JxBotAimlImport::STATE_AIML_TOPIC:
+			$in_data = trim($in_data);
+			if ($in_data == '') $in_data = '*';
+			$this->aiml_topic = $in_data;
+			break;
+		case JxBotAimlImport::STATE_CATEGORY_TOPIC:
+			$in_data = trim($in_data);
+			if ($in_data == '') $in_data = '*';
+			$this->cat_topic = $in_data;
+			break;
+		case JxBotAimlImport::STATE_THAT:
+			$this->cat_that = $in_data;
+			break;
+		case JxBotAimlImport::STATE_PATTERN:
+			$this->content .= $in_data;
+			break;
+		case JxBotAimlImport::STATE_TEMPLATE:
+			$this->content .= $in_data;
+			break;
+		}
+	}
+	
+	
+	public function __construct()
+	{
+		$this->xml_parser = xml_parser_create();
+		xml_parser_set_option($this->xml_parser, XML_OPTION_CASE_FOLDING, 0);
+		xml_parser_set_option($this->xml_parser, XML_OPTION_TARGET_ENCODING, 'UTF-8');
+		
+		xml_set_object($this->xml_parser, $this);
+		
+		xml_set_element_handler($this->xml_parser, '_element_start', '_element_end');
+		xml_set_character_data_handler($this->xml_parser, '_element_data');
+		
+		$this->recognised_template_tags = array(
+			'bot', 'get', 'set', 'tag', 'name', 'index', 'srai', 'sraix',
+			'learn', 'learnf', 'eval', 'gossip', 'javascript', 'condition', 'li',
+			'random', 'system', 'date', 'star', 'thatstar', 'topicstar',
+			'input', 'that', 'response', 'request', 'map', 'sr', 'id', 'size',
+			'version', 'program', 'uppercase', 'lowercase', 'formal', 'sentence',
+			'think', 'gender', 'person', 'person2', 'loop', 'interval', 'explode',
+			'normalize', 'denormalize', 'vocabulary'
+		);
+	}
+	
+	
+	public function __destruct()
+	{
+		if ($this->xml_parser) xml_parser_free($this->xml_parser);
+		$this->xml_parser = null;
+	}
+	
+	
+	private function reset()
+	{
+		$this->error = '';
+		$this->notices = array();
+		
+		$this->state = JxBotAimlImport::STATE_FILE;
+		
+		/* unrecognised (ignored) tags: */
+		$this->unrecognised = array();
+		
+		/* unsupported AIML 1 features: */
+		$this->has_aiml1_learn = false;
+		$this->has_aiml1_gossip = false;
+		
+		/* unsupported AIML 2 features: */
+		$this->has_aiml2_learn = false;
+		$this->has_aiml2_sraix = false;
+		$this->has_aiml2_loop = false;
+		$this->has_aiml2_interval = false;
+		
+		/* unsupported AIML features: */
+		$this->has_aiml_javascript = false;
+		$this->has_aiml_system = false;
+		
+		/* JxBot features: */
+		$this->has_multi_pattern_cats = false;
+		$this->has_tag = false;
+	}
+	
+	
+	public function import($in_filename)
+	{
+		$this->reset();
+		
+		$fh = fopen($in_filename, 'r');
+		if (!$fh) return "Server Error: Couldn't open AIML file.";
+		
+		while ($data = fread($fh, 4096))
+		{
+			if (! xml_parse($this->xml_parser, $data, feof($fh)) )
+			{
+				$this->error( xml_error_string(xml_get_error_code($parser)) );
+				break;
+			}
+		}
+		xml_parse($this->xml_parser, '', true);
+		
+		fclose($fh);
+		
+		if ($this->_error != '') return $this->_error;
+		return $this->notices;
 	}
 }
 

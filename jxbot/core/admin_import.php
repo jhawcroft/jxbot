@@ -61,11 +61,19 @@ function do_handle_upload()
 	if ($_FILES['data_file']['error'] === UPLOAD_ERR_OK)
 	{
 		$filename = $_FILES['data_file']['tmp_name'];
-		$error = JxBotAiml::import($filename);
-		if ($error === true)
-			print '<p>AIML imported successfully.</p>';
-		else
-			print '<p>'.$error.'</p>';
+		$importer = new JxBotAimlImport();
+		$result = $importer->import($filename);
+		if (is_array($result))
+		{
+			print '<p>AIML imported successfully.';
+			foreach ($result as $notice)
+			{
+				print '<br>'.$notice;
+			}
+			print '</p>';
+		}
+		else // error
+			print '<p>'.$result.'</p>';
 	}
 	else
 		print '<p>Error uploading file.</p>';
