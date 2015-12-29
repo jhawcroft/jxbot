@@ -497,6 +497,9 @@ class JxBotAimlImport
 		if (!$fh) return "Server Error: Couldn't open AIML file.";
 		
 		/* parse the file */
+		$size = filesize($in_filename);
+		$bytes = 0;
+		
 		while ($data = fread($fh, 4096))
 		{
 			if (! xml_parse($this->xml_parser, $data, feof($fh)) )
@@ -504,6 +507,11 @@ class JxBotAimlImport
 				$this->error( xml_error_string(xml_get_error_code($parser)) );
 				break;
 			}
+			
+			$bytes += 4096;
+			if ($bytes > $size) $bytes = $size;
+			$percent = number_format($bytes / $size * 100, 1);
+			JxBotNLData::set_file_status( basename($in_filename) , 'Loading '.$percent.'%' );
 		}
 		xml_parse($this->xml_parser, '', true);
 		fclose($fh);

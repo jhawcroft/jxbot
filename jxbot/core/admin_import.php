@@ -34,8 +34,6 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
 
-
-
 if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge-do'))
 	JxBotNLData::purge_categories();
 
@@ -172,8 +170,20 @@ function server_file_list()
 
 function show_server_files()
 {
+	$inputs = JxBotUtil::inputs('action');
+	
+	if ($inputs['action'] == 'bulk-auto')
+	{
+		$stmt = JxBotDB::$db->prepare('UPDATE file SET status=\'Scheduled\'
+			WHERE status NOT IN (\'Loaded\', \'Needs Reload\')');
+		$stmt->execute();
+	}
+
 	$list = server_file_list();
 	$next_file = null;
+	$dont_request_another = false;
+	$request_load = false;
+	
 ?><table style="width: auto; min-width: 30em;">
 <tr>
 	<th>File</th>
@@ -196,18 +206,25 @@ function show_server_files()
 		print '</a></td>';
 		print '</tr>';
 		
-		if (($file[2] == 'Not Loaded') ||
-			($file[2] == 'Has Update'))
+		if ($file[2] == 'Scheduled')
 		{
 			if ($next_file === null) $next_file = $file[1];
+			$request_load = true;
 		}
+		else if (substr($file[2], 0, 7) == 'Loading')
+			$dont_request_another = true;
 	}
 ?></table><?php
 
+	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM file WHERE last_update > DATE_SUB(NOW(), INTERVAL 10 SECOND)');
+	$stmt->execute();
+	$recent_status_changes = ($stmt->fetchAll(PDO::FETCH_NUM)[0][0] != 0);
+
+
 	/* if the user has requested automatic load,
 	include a javascript which will use AJAX to request the next import */
-	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'bulk-auto') &&
-		$next_file !== null)
+	//$request_load = (($inputs['action'] == 'bulk-auto') || ($inputs['action'] == 'bulk-load'));
+	if ($request_load && ($next_file !== null) && (!$dont_request_another))
 	{
 ?><script type="text/javascript">
 
@@ -215,10 +232,21 @@ var req = new XMLHttpRequest();
 req.onreadystatechange = function() 
 {
 	if (req.readyState == 4)
-		window.location = '?page=import&action=bulk-auto';
+		window.location = '?page=import&action=bulk-load';
 };
 req.open('GET', '?ajax=load&file=<?php print $next_file; ?>', true);
 req.send();
+
+</script><?php
+	}
+	
+	if ( $recent_status_changes )
+	{
+?><script type="text/javascript">
+
+window.setTimeout(function() {
+	window.location = '?page=import';
+}, 5000);
 
 </script><?php
 	}

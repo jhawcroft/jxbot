@@ -40,19 +40,6 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 class JxBotAjax
 {
 
-	private static function set_file_status($in_name, $in_status)
-	{
-		try
-		{
-			$stmt = JxBotDB::$db->prepare('INSERT INTO file (name, status) VALUES (?, ?)');
-			$stmt->execute(array( $in_name, $in_status ));
-		}
-		catch (Exception $err) {} // already in the table
-		
-		$stmt = JxBotDB::$db->prepare('UPDATE file SET status=? WHERE name=?');
-		$stmt->execute(array( $in_status, $in_name ));
-	}
-
 
 	public static function load()
 	{
@@ -62,7 +49,7 @@ class JxBotAjax
 		if (!file_exists($file))
 		{
 			print 'DONE';
-			JxBotAjax::set_file_status($inputs['file'], 'Not Available');
+			JxBotNLData::set_file_status($inputs['file'], 'Not Available');
 			return;
 		}
 		
@@ -72,12 +59,13 @@ class JxBotAjax
 		header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 		header("Content-type: text/plain; charset=utf-8");
 
+		JxBotNLData::set_file_status($inputs['file'], 'Loading...');
 	
 		$importer = new JxBotAimlImport();
 		$result = $importer->import($file);
 		if (is_array($result)) // success
 		{
-			JxBotAjax::set_file_status($inputs['file'], 'Loaded');
+			JxBotNLData::set_file_status($inputs['file'], 'Loaded');
 			
 			print "DONE\n";
 			foreach ($result as $notice)
@@ -87,7 +75,7 @@ class JxBotAjax
 		}
 		else // error
 		{
-			JxBotAjax::set_file_status($inputs['file'], 'Load Error');
+			JxBotNLData::set_file_status($inputs['file'], 'Load Error');
 			
 			print 'ERROR '.$result."\n";
 		}

@@ -39,6 +39,21 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 class JxBotNLData
 {
 
+
+	public static function set_file_status($in_name, $in_status)
+	{
+		try
+		{
+			$stmt = JxBotDB::$db->prepare('INSERT INTO file (name, status) VALUES (?, ?)');
+			$stmt->execute(array( $in_name, $in_status ));
+		}
+		catch (Exception $err) {} // already in the table
+		
+		$stmt = JxBotDB::$db->prepare('UPDATE file SET status=? WHERE name=?');
+		$stmt->execute(array( $in_status, $in_name ));
+	}
+	
+
 /********************************************************************************
 Dictionary
 */
