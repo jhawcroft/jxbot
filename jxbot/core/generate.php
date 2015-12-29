@@ -181,7 +181,7 @@ class JxBotElement
 		else
 			$value = $in_context->topic_capture($in_index - 1);
 		if ($value === null) return ''; // ** should be an error somewhere.... ?
-		return $value;
+		return JxBotNL::lower($value);
 	}
 	
 	
