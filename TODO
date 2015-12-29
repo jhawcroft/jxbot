@@ -5,6 +5,7 @@ Essentials (toward a version 1.0)
 ----------
 
 * bulk import & replace from server folder feature?
+
 * Implement error handling and check for common data malformations
   * recursion is an issue with the default AIML sets - too much sraing -
     could adopt an alternative /optional mechanism wherein the same category can't
@@ -25,6 +26,7 @@ Essentials (toward a version 1.0)
 
 ---
 
+* could use a log purge feature; old conversations or beyond a certain date [DONE]
 * have age and birthday special bot predicates, with age auto-calculated [DONE]
 * Substitution maintenance [maps, DONE] - use whitespace prefixed & postfix'd content, prior to punctuation norm
 * Finish set functionality [DONE]

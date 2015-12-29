@@ -94,7 +94,6 @@ div#nav-top h1
 	margin: 0;
 	font-family: 'Oswald', sans-serif;
 	font-size: 24pt;
-	font-weight: bold;
 }
 
 
@@ -172,7 +171,6 @@ div#container h1
 {
 	font-family: 'Oswald', sans-serif;
 	font-size: 24pt;
-	font-weight: bold;
 	margin: 0;
 	margin-bottom: 1em;
 }
@@ -403,7 +401,6 @@ div#install-container h1
 	margin-bottom: 1em;
 	font-family: 'Oswald', sans-serif;
 	font-size: 24pt;
-	font-weight: bold;
 	
 }
 
@@ -451,7 +448,6 @@ div#login-container h1
 	margin-bottom: 1em;
 	font-family: 'Oswald', sans-serif;
 	font-size: 24pt;
-	font-weight: bold;
 	
 }
 

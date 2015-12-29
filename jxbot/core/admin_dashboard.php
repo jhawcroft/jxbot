@@ -33,6 +33,12 @@
 if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
+function purge_old_logs()
+{
+	JxBotDB::$db->exec('DELETE FROM log WHERE stamp < DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+}
+
+
 function compute_metrics()
 {
 	$metrics = array();
@@ -310,8 +316,14 @@ $metrics = compute_metrics();
 <div class="clear"></div>
 
 
+<h2>Maintenance</h2>
 
+<?php
+if (isset($_REQUEST['purge-old']))
+	purge_old_logs();
+?>
 
+<p><button type="submit" name="purge-old" value="month">Purge Old Log Entries</button></p>
 
 
 <!--
