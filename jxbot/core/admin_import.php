@@ -107,45 +107,6 @@ function do_handle_upload()
 }
 
 
-function page_import_form()
-{
-?>
-
-<?php 
-if (isset($_FILES['data_file']) && ($_POST['action'] == 'upload')) do_handle_upload(); 
-if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'delete-file')) do_delete_file();
-?>
-
-<h2>Bulk Reload</h2>
-
-<?php
-show_server_files();
-?>
-
-<?php
-
-if (isset($_POST['action']) && ($_POST['action'] == 'bulk-reload'))
-	bulk_reload();
-
-?>
-
-<p><button type="submit" name="action" value="bulk-auto">Bulk Load</button> <button type="submit" name="action" value="purge">Unload All</button></p>
-
-
-<h2>Upload File</h2>
-
-<p><label for="data_file">File:</label>
-<input type="file" name="data_file" id="data_file" size="50"></p>
-
-<p><button type="submit" name="action" value="upload">Upload File</button></p>
-
-
-
-
-
-<?php
-}
-
 
 function server_file_list()
 {
@@ -173,7 +134,12 @@ function server_file_list()
 		if ($ext != 'aiml') continue;
 		
 		if (!isset($index[$file]))
+		{
 			$list[] = array(null, $file, 'Not Loaded');
+			
+			$stmt = JxBotDB::$db->prepare('INSERT INTO file (name, status) VALUES (?, ?)');
+			$stmt->execute(array( $file, 'Not Loaded' ));
+		}
 	}
 	closedir($dh);
 	
@@ -182,21 +148,85 @@ function server_file_list()
 
 
 
+
+function page_import_form()
+{
+
+	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'bulk-load'))
+		JxBotAsyncLoader::schedule_all();
+		
+		
+?>
+
+<?php 
+if (isset($_FILES['data_file']) && ($_POST['action'] == 'upload')) do_handle_upload(); 
+if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'delete-file')) do_delete_file();
+?>
+
+
+<?php
+show_server_files();
+?>
+
+
+<?php
+//if (isset($_POST['action']) && ($_POST['action'] == 'bulk-reload'))
+//	bulk_reload();
+?>
+
+<p><button type="submit" name="action" value="bulk-load">Bulk Load</button> <button type="submit" name="action" value="purge">Unload All</button></p>
+
+
+<h2>Upload File</h2>
+
+<p><label for="data_file">File:</label>
+<input type="file" name="data_file" id="data_file" size="50"></p>
+
+<p><button type="submit" name="action" value="upload">Upload File</button></p>
+
+
+
+
+
+<?php
+
+
+	/* if the user has requested a load operation,
+	include a call to the asyncronous loader here */
+	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'bulk-load'))
+	{
+		JxBotAsyncLoader::schedule_all();
+		invoke_asyncronous_loader();
+	}
+}
+
+
+
+function invoke_asyncronous_loader()
+{
+// ! TODO:  To be sure, should really compute the full URL here
+?><iframe src="?async-load" style="width: 650px; height: 400px; overflow-y: scroll; border: 1px solid red;"></iframe><?php
+}
+
+
+
+
+
 function show_server_files()
 {
-	$inputs = JxBotUtil::inputs('action');
+	/*$inputs = JxBotUtil::inputs('action');
 	
 	if ($inputs['action'] == 'bulk-auto')
 	{
 		$stmt = JxBotDB::$db->prepare('UPDATE file SET status=\'Scheduled\'
 			WHERE status NOT IN (\'Loaded\', \'Needs Reload\')');
 		$stmt->execute();
-	}
+	}*/
 
 	$list = server_file_list();
-	$next_file = null;
+	/*$next_file = null;
 	$dont_request_another = false;
-	$request_load = false;
+	$request_load = false;*/
 	
 ?><table style="width: auto; min-width: 30em;">
 <tr>
@@ -207,7 +237,7 @@ function show_server_files()
 <?php
 	foreach ($list as $file)
 	{
-		if ($inputs['action'] == 'bulk-auto')
+		/*if ($inputs['action'] == 'bulk-auto')
 		{
 			try
 			{
@@ -215,7 +245,7 @@ function show_server_files()
 				$stmt->execute(array($file[1], 'Scheduled'));
 			}
 			catch (Exception $err) {}
-		}
+		}*/
 	
 		print '<tr>';
 		print '<td>'.$file[1].'</td>';
@@ -230,25 +260,37 @@ function show_server_files()
 		print '</a></td>';
 		print '</tr>';
 		
+		/*
 		if ($file[2] == 'Scheduled')
 		{
 			if ($next_file === null) $next_file = $file[1];
 			$request_load = true;
 		}
 		else if (substr($file[2], 0, 7) == 'Loading')
-			$dont_request_another = true;
+			$dont_request_another = true;*/
 	}
 ?></table><?php
 
 	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM file WHERE last_update > DATE_SUB(NOW(), INTERVAL 10 SECOND)');
 	$stmt->execute();
 	$recent_status_changes = ($stmt->fetchAll(PDO::FETCH_NUM)[0][0] != 0);
+	$recent_status_changes = false;
+	if ( $recent_status_changes )
+	{
+?><script type="text/javascript">
 
+window.setTimeout(function() {
+	window.location = '?page=import';
+}, 10000);
+
+</script><?php
+	}
+	
 
 	/* if the user has requested automatic load,
 	include a javascript which will use AJAX to request the next import */
 	//$request_load = (($inputs['action'] == 'bulk-auto') || ($inputs['action'] == 'bulk-load'));
-	if ($request_load && ($next_file !== null) && (!$dont_request_another))
+	/*if ($request_load && ($next_file !== null) && (!$dont_request_another))
 	{
 ?><script type="text/javascript">
 
@@ -263,17 +305,7 @@ req.send();
 
 </script><?php
 	}
-	
-	if ( $recent_status_changes )
-	{
-?><script type="text/javascript">
-
-window.setTimeout(function() {
-	window.location = '?page=import';
-}, 5000);
-
-</script><?php
-	}
+	*/
 	
 }
 

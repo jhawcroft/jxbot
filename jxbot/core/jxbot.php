@@ -47,6 +47,8 @@ require_once(dirname(__FILE__).'/engine.php');
 require_once(dirname(__FILE__).'/converse.php');
 require_once(dirname(__FILE__).'/aiml.php');
 require_once(dirname(__FILE__).'/widget.php');
+require_once(dirname(__FILE__).'/async_loader.php');
+require_once(dirname(__FILE__).'/exclusion.php');
 
 
 

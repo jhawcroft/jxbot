@@ -30,77 +30,56 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-/* the bot administration pages */
+/* utilities to prevent the same script from running twice simultaneously;
+used by the asyncronous AIML loader */
 
 if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 
-
-
-class JxBotAjax
+class JxBotExclusion
 {
 
 
-	public static function load()
+	public static function get_exclusive()
+	/* returns true if this script is the only current invocation to call get_exclusive,
+	or false otherwise.  if there's a problem, this will throw an exception, which
+	should be logged. */
 	{
-		/* send no content and close remote client connection */
-		/*ignore_user_abort(true);
-		session_write_close();
-		header("Content-Encoding: none");
-		header("Content-Length: ".ob_get_length());
-		header("Connection: close");
-		ob_end_flush();
-		flush();*/
-		
-		/* grab the request */
-		$inputs = JxBotUtil::inputs('file');
-		$file = JxBotConfig::aiml_dir() . str_replace(array('/', './', '../'), '', $inputs['file']);
-	
-		/* check if we can action it */
-		if (!file_exists($file))
-		{
-			//print 'DONE';
-			JxBotNLData::set_file_status($inputs['file'], 'Not Available');
-			return;
-		}
-		
-		
-		/* start loading the AIML */
-		JxBotNLData::set_file_status($inputs['file'], 'Loading...');
-	
-		$importer = new JxBotAimlImport();
-		$result = $importer->import($file);
-		if (is_array($result)) // success
-		{
-			JxBotNLData::set_file_status($inputs['file'], 'Loaded');
-			
-			$stmt = JxBotDB::$db->prepare('INSERT INTO aiml_log (file, message) VALUES (?, ?)');
-			$stmt->execute(array( $inputs['file'], 'Loaded.' ));
-				
-			/* log the results */
-			foreach($result as $notice)
-			{
-				$stmt = JxBotDB::$db->prepare('INSERT INTO aiml_log (file, message) VALUES (?, ?)');
-				$stmt->execute(array( $inputs['file'], substr($notice, 0, 255) ));
-			}
-			
-		}
-		else // error
-		{
-			JxBotNLData::set_file_status($inputs['file'], 'Load Error');
-			
-			/* log the result */
-			$stmt = JxBotDB::$db->prepare('INSERT INTO aiml_log (file, message) VALUES (?, ?)');
-			$stmt->execute(array( $inputs['file'], substr($result, 0, 255) ));
-			
-			
-		}
+		return true;
 	}
-	
-	
+}
 
+/*
+Two viable mechanisms:
+
+Semaphores
+----------
+
+if ($theSemaphore = sem_get("123456",1)) { // this "1" ensures that there is nothing parallel
+  if (sem_acquire($theSemaphore)) {  // this blocks the execution until other processes or threads are finished
+    <put your code to serialize here>
+  }
+  sem_release($theSemaphore);
 }
 
 
+Sockets
+-------
+
+$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+if (false === $socket) {
+    throw new Exception("can't create socket: ".socket_last_error($socket));
+}
+## set $port to something like 10000
+## hide warning, because error will be checked manually
+if (false === @socket_bind($socket, '127.0.0.1', $port)) {
+    ## some instanse of the script is running
+    return false;
+} else {
+    ## let's do your job
+    return $socket;
+}
+
+*/
 
 
