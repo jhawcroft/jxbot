@@ -86,7 +86,7 @@ class JxBotAimlPattern
 				$this->state = JxBotAimlPattern::STATE_PAT_BOT;
 				$this->unnested_info = '';
 				if (array_key_exists('name', $in_attrs))
-					JxBotAiml::$unnested_info = ':'.$in_attrs['name'];
+					$this->unnested_info = ':'.$in_attrs['name'];
 			}
 			else if ($in_name == 'set')
 			{
