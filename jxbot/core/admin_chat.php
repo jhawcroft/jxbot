@@ -33,6 +33,23 @@
 if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
+JxWidget::tabs(array(
+	array('Talk', '?page=chat', 'subpage', ''),
+	array('Defaults', '?page=chat&subpage=defaults', 'subpage', 'defaults'),
+	array('Logs', '?page=chat&subpage=logs', 'subpage', 'logs'),
+));
+
+$subpage = JxBotUtil::inputs('subpage');
+if ($subpage['subpage'] == 'defaults')
+	require_once('admin_client.php');
+
+else if ($subpage['subpage'] == 'logs')
+	require_once('admin_logs.php');
+
+else
+{
+
+
 $inputs = JxBotUtil::inputs('input');
 if (trim($inputs['input']) != '') 
 {
@@ -85,5 +102,6 @@ print '<pre>'.JxBotConverse::history_response(0).'</pre>'; // should be this res
 print '<pre>'.JxBotConverse::history_response(1).'</pre>';
 
 */
+}
 ?>
 

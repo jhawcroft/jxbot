@@ -33,6 +33,24 @@
 if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
+JxWidget::tabs(array(
+	array('Settings', '?page=system', 'subpage', ''),
+	/*array('Logs', '?page=system&subpage=logs', 'subpage', 'logs'),*/
+	array('About', '?page=system&subpage=about', 'subpage', 'about'),
+));
+
+$subpage = JxBotUtil::inputs('subpage');
+if ($subpage['subpage'] == 'logs')
+	;	//require_once('admin_client.php'); // todo
+
+else if ($subpage['subpage'] == 'about')
+	require_once('admin_about.php');
+
+else
+{
+
+
+
 
 if (isset($_POST['bot_tz']))
 {
@@ -87,3 +105,9 @@ if (isset($_POST['bot_tz']))
 
 
 <p class="left" id="buttons"><input type="submit" value="Save" class="blue"></p>
+
+
+
+<?php
+}
+?>

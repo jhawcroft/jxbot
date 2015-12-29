@@ -34,6 +34,14 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
 
+JxWidget::tabs(array(
+	array('AIML', '?page=import', 'subpage', ''),
+	array('Logs', '?page=import&subpage=logs', 'subpage', 'logs'),
+));
+
+
+
+
 if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge-do'))
 	JxBotNLData::purge_categories();
 

@@ -33,6 +33,12 @@
 if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
+JxWidget::tabs(array(
+	array('Settings', '?page=bot', 'subpage', '')
+));
+
+
+
 if (isset($_POST['new-name']) && trim($_POST['new-name']) !== '')
 	JxBotConfig::bot_add_prop($_POST['new-name'], '');
 

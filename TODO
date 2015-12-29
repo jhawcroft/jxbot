@@ -4,7 +4,10 @@ TODO
 Essentials (toward a version 1.0)
 ----------
 
-* handle duplicate pattern error more gracefully
+* configure so easiest settings are on first tab of each section
+* provide online help?
+* improve the import mechanism to allow background operation, entirely independant
+  of javascript once triggered (potentially via iframe/ajax)
 
 
 * Write documentation
@@ -27,6 +30,7 @@ Ongoing
 
 ---
 
+* handle duplicate pattern error more gracefully [DONE]
 * could use a log purge feature; old conversations or beyond a certain date [DONE]
 * have age and birthday special bot predicates, with age auto-calculated [DONE]
 * Substitution maintenance [maps, DONE] - use whitespace prefixed & postfix'd content, prior to punctuation norm

@@ -43,7 +43,7 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 $sessions = JxBotConverse::latest_sessions();
 JxWidget::grid(array(
 	array('id'=>0, 'visible'=>false, 'key'=>true),
-	array('id'=>1, 'label'=>'Client', 'link'=>'?page=logs&convo=$$')
+	array('id'=>1, 'label'=>'Client', 'link'=>'?page=chat&subpage=logs&convo=$$')
 ), $sessions);
 ?>
 

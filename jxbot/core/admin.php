@@ -54,17 +54,14 @@ class JxBotAdmin
 	
 	private static $all_pages = array(
 		array('dashboard', 'Dashboard'),
-		array('chat', 'Talk to the Bot'),
-		array('logs', 'Logs'),
-		array('client', 'Client Defaults'),
+		array('chat', 'Chat'),
 		array('database', 'Database'),
-		/*array('sets', 'Sets'), // should consider putting these as tabs under Database to minimise admin clutter*/
-		/*array('subs', 'Substitutions'),*/
-		array('import', 'Import'),
-		array('bot', 'Bot Personality'),
-		array('settings', 'System Settings'),
-		/*array('export', 'Export / Backup'),*/
-		array('about', 'About JxBot'),
+		
+		array('import', 'Import / Export'),
+		array('bot', 'Bot'),
+		array('system', 'System'),
+	
+		
 		array('logout', 'Logout')
 	);
 	

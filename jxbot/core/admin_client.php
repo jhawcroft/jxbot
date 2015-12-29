@@ -75,13 +75,15 @@ function editable_section(&$properties, $row_count)
 		print '<tr>';
 		print '<td style="width: 10em;">'.$prop[1].'</td>';
 		print '<td><input type="text" name="'.$prop[0].'" size="20" value="'.$prop[2].'" style="width:95%"></td>';
-		print '<td style="width: 1.5em;"><a href="?del-name='.$prop[0].'&page=client">';
+		print '<td style="width: 1.5em;"><a href="?del-name='.$prop[0].'&page=chat&subpage=defaults">';
 		JxWidget::small_delete_icon();
 		print '</a></td>';
 		print '</tr>';
 	}
 	print '</table>';
 }
+
+JxWidget::hidden('subpage', 'defaults');
 
 ?>
 
