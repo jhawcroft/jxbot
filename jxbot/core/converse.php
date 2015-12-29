@@ -56,9 +56,14 @@ Conversaton Specific Properties
 	                                     to prevent infinite recursion */
 	                                     
 	private static $iq_score = 0.0;   /* total IQ score for top-level activated patterns */
+	
+	private static $category_stack;   /* stack of activated categories;
+	                                     helps to track & prevent excessive recursion */
 	                                     
 	
 	const MAX_SRAI_RECURSION = 15;
+	const MAX_CATEGORY_NESTING = 2; /* a category cannot be recursively invoked 
+                                       beyond this limit; will return no output */
 	
 
 /********************************************************************************
@@ -260,6 +265,7 @@ Conversation
 	
 	private static function sentence_respond(&$in_input)
 	{
+		/* find a category for the input */
 		$start_time = microtime(true);
 		
 		$match = JxBotEngine::match($in_input, 
@@ -269,13 +275,26 @@ Conversation
 		$end_time = microtime(true);
 		JxBotConverse::$match_time += ($end_time - $start_time);
 		
+		/* check recursion */
+		$category = ($match === false ? -1 : $match->matched_category());
+		$count = 0;
+		foreach (JxBotConverse::$category_stack as $nested_category)
+			if ($nested_category == $category) $count++;
+		if ($count >= JxBotConverse::MAX_CATEGORY_NESTING) 
+		{
+			print 'CATEGORY LIMIT<br>';
+			return '';
+		}
+		JxBotConverse::$category_stack[] = $category;
+		
 		if ($match === false)
 		/* no match was found; the input was not understood
 		and no default category is available */
 			$output = '???';
 		else
 		{
-			$template = JxBotNLData::fetch_templates( $match->matched_category() );
+			/* select a template */
+			$template = JxBotNLData::fetch_templates( $category );
 			// implement random
 			$output = $template[0][1];
 			
@@ -283,9 +302,14 @@ Conversation
 				JxBotConverse::$iq_score += $match->iq_score();
 		}
 		
+		/* generate the template */
 		$template = JxBotAiml::parse_template($output);
+		$output = $template->generate( $match );
 		
-		return $template->generate( $match );
+		/* track recursion */
+		array_pop(JxBotConverse::$category_stack);
+		
+		return $output;
 	}
 	
 	
@@ -335,9 +359,12 @@ Conversation
 	
 		/* start timer */
 		$start_time = microtime(true);
+		
+		/* initalize tracking variables */
 		JxBotConverse::$match_time = 0.0;
 		JxBotConverse::$service_time = 0.0;
 		JxBotConverse::$iq_score = 0.0;
+		JxBotConverse::$category_stack = array();
 		
 		/* run the bot */
 		$output = JxBotConverse::srai($in_input);
