@@ -5,7 +5,7 @@ Essentials (toward a version 1.0)
 ----------
 
 * handle duplicate pattern error more gracefully
-* bulk import & replace from server folder feature?
+
 
 * Write documentation
 * Write sample AIML, possibly to be preloaded with new bots
@@ -31,6 +31,7 @@ Ongoing
 * have age and birthday special bot predicates, with age auto-calculated [DONE]
 * Substitution maintenance [maps, DONE] - use whitespace prefixed & postfix'd content, prior to punctuation norm
 * Finish set functionality [DONE]
+* bulk import & replace from server folder feature? [DONE]
 * implement substitutions in normalisation [DONE]
 * Registration of THAT and TOPIC; which currently require category UPDATEs
     and for example, during AIML loading, are not working correctly. [DONE]
