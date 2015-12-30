@@ -72,13 +72,39 @@ class JxBotAsyncLoader
 	
 	public static function schedule_all()
 	{
-		$stmt = JxBotDB::$db->exec('UPDATE file SET status=\'Scheduled\' WHERE status != \'Loaded\'');
+		$stmt = JxBotDB::$db->exec('UPDATE file SET status=\'Scheduled\' 
+			WHERE status != \'Loaded\' AND status NOT LIKE \'Loading%\'');
 	}
 	
 	
 	public static function stop_loading()
 	{
-		$stmt = JxBotDB::$db->exec('UPDATE file SET status=\'Load Aborted\' WHERE status = \'Scheduled\'');
+		$stmt = JxBotDB::$db->exec('UPDATE file SET status=\'Load Aborted\' 
+			WHERE status = \'Scheduled\'');
+	}
+	
+	
+	public static function toggle_file($in_file)
+	{
+		$stmt = JxBotDB::$db->prepare('SELECT status FROM file WHERE name=?');
+		$stmt->execute(array($in_file));
+		$row = $stmt->fetchAll(PDO::FETCH_NUM);
+		if (count($row) == 0) return;
+		$status = $row[0][0];
+		
+		if ($status == 'Scheduled')
+		{
+			$stmt = JxBotDB::$db->prepare('UPDATE file SET status=\'Load Aborted\' 
+			WHERE name=? AND status = \'Scheduled\'');
+			$stmt->execute(array($in_file));
+		}
+		else
+		{
+			$stmt = JxBotDB::$db->prepare('UPDATE file SET status=\'Scheduled\' 
+				WHERE name=? AND status != \'Loaded\' AND status NOT LIKE \'Loading%\'');
+			$stmt->execute(array($in_file));
+		
+		}
 	}
 
 

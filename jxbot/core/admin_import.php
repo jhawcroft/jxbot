@@ -35,7 +35,7 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
 JxWidget::tabs(array(
-	array('AIML', '?page=import', 'subpage', ''),
+	array('Import AIML', '?page=import', 'subpage', ''),
 	array('Logs', '?page=import&subpage=logs', 'subpage', 'logs'),
 ));
 
@@ -163,7 +163,11 @@ function page_import_form()
 	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'load-abort'))
 		JxBotAsyncLoader::stop_loading();
 		
-		
+	if (isset($_REQUEST['action']) && (substr($_REQUEST['action'], 0, 12) == 'file-toggle-'))
+	{
+		//print 'Toggle '.substr($_REQUEST['action'], 12);
+		JxBotAsyncLoader::toggle_file(substr($_REQUEST['action'], 12));
+	}
 ?>
 
 <?php 
@@ -201,9 +205,9 @@ if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'delete-file')) do_del
 
 	/* if the user has requested a load operation,
 	include a call to the asyncronous loader here */
-	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'bulk-load'))
+	if ( (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'bulk-load')) ||
+	    (isset($_REQUEST['action']) && (substr($_REQUEST['action'], 0, 12) == 'file-toggle-')) )
 	{
-		JxBotAsyncLoader::schedule_all();
 		invoke_asyncronous_loader();
 	}
 }
@@ -224,17 +228,18 @@ function show_server_files()
 {
 	$list = server_file_list();
 	
-?><table style="width: auto; min-width: 23em;">
+?><table style="width: auto; min-width: 27em;">
 <tr>
 	<th>File</th>
 	<th style="width: 7em;">Status</th>
 	<th style="width: 1.5em;"></th>
+	<th style=""></th>
 </tr>
 <?php
 	foreach ($list as $file)
 	{
 		print '<tr>';
-		print '<td>'.$file[1].'</td>';
+		print '<td>'. basename($file[1], '.aiml').'</td>';
 		
 		if ($file[2] == 'Loaded') $color = ' class="green"';
 		else if ($file[2] == 'Load Error') $color = ' class="red"';
@@ -244,6 +249,17 @@ function show_server_files()
 		print '<td><a href="?page=import&action=delete-file&file='.$file[1].'">';
 		JxWidget::small_delete_icon();
 		print '</a></td>';
+		
+		print '<td>';
+		if (substr($file[2], 0, 7) != 'Loading')
+		{
+			print '<button type="submit" name="action" value="file-toggle-'. $file[1] . '">';
+			if ($file[2] == 'Loaded') print 'Unload';
+			else print 'Load';
+			print '</button>';
+		}
+		print '</td>';
+		
 		print '</tr>';
 	}
 ?>
