@@ -4,9 +4,10 @@
 //error_reporting(E_ALL);
 //ini_set('display_errors', 1);
 
-require_once(dirname(__FILE__) . '/jxbot/core/jxbot.php');
+require_once(dirname(__FILE__) . '/jxbot/core/client.php');
 
-JxBot::init_client();
+JxBotClient::init();
+JxBotClient::resume_conversation();
 
 
 // will need to be careful about sessions if this ends up being a plug-in on wordpress
@@ -22,19 +23,22 @@ JxBot::init_client();
 </head>
 <body>
 
-<?php if (JxBotConverse::bot_available()) { ?>
+<?php if (JxBotClient::is_available()) { ?>
 
 <form method="post" action="">
 
 <div id="bot-output"><?php
-JxBotConverse::resume_conversation( JxBot::start_session() );
+
+
+
 if (isset($_REQUEST['input']))
-	print JxBotConverse::get_response($_REQUEST['input']);
+	print JxBotClient::respond($_REQUEST['input']);
 else
-	print JxBotConverse::get_greeting();
+	print JxBotClient::respond(null);
+	
 ?></div>
 
-<p><input type="text" name="input" id="user-input" size="100"></p>
+<p><input type="text" name="input" id="user-input" size="100" autofocus></p>
 
 <p><input type="submit" id="user-submit" value="Say"></p>
 

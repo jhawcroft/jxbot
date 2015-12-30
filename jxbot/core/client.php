@@ -30,74 +30,57 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-/* main include for JxBot;
-there are two principal entry modes: i) client chat, ii) administration */
+/* client include for JxBot */
 
-define('JXBOT', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-
-require_once(dirname(__FILE__).'/config.php');
-require_once(dirname(__FILE__).'/util.php');
-require_once(dirname(__FILE__).'/db.php');
-require_once(dirname(__FILE__).'/nl.php');
-require_once(dirname(__FILE__).'/sentence-en.php');
-require_once(dirname(__FILE__).'/catman.php');
-require_once(dirname(__FILE__).'/generate.php');
-require_once(dirname(__FILE__).'/engine.php');
-require_once(dirname(__FILE__).'/converse.php');
-require_once(dirname(__FILE__).'/aiml.php');
-require_once(dirname(__FILE__).'/widget.php');
-require_once(dirname(__FILE__).'/async_loader.php');
-require_once(dirname(__FILE__).'/exclusion.php');
+require_once(dirname(__FILE__).'/jxbot.php');
 
 
-
-class JxBot
+class JxBotClient
 {
-	const VERSION = '0.91';
-	const PROGRAM = 'JxBot';
+	public static function init()
+	{
+		JxBot::init_client();
+	}
 
-	private $config = array();
 	
-	
-	public static function fatal_error($in_error)
+	public static function is_available()
 	{
-		print $in_error; // should be improved **
-		exit;
-	}
-	
-
-	public static function run_admin()
-	{
-		JxBotConfig::setup_environment();
-		
-		require_once(dirname(__FILE__).'/admin.php');
-		
-		session_name(JxBotConfig::SESSION_NAME);
-		session_start();
-		
-		JxBotAdmin::admin_generate();
-		
+		return JxBotConverse::bot_available();
 	}
 	
 	
-	public static function start_session()
+	public static function resume_conversation($in_id = null)
 	{
-		session_name(JxBotConfig::SESSION_NAME);
-		session_start();
+		if (!JxBotConverse::bot_available()) return $in_id;
+	
+		if ($in_id === null)
+		{
+			if (isset($_COOKIE['jxbot-client']))
+				$in_id = $_COOKIE['jxbot-client'];
+		}
+	
+		$out_id = JxBotConverse::resume_conversation( $in_id );
 		
-		return session_id();
+		if (($in_id === null) || ($in_id != $out_id))
+		{
+			setcookie('jxbot-client', $out_id, 0);
+		}
+		
+		return $out_id;
 	}
 	
 	
-	public static function init_client()
+	public static function respond($in_input)
 	{
-		JxBotConfig::setup_environment();
+		if (trim($in_input) == '')
+			return JxBotConverse::get_greeting();
+		else
+			return JxBotConverse::get_response($in_input);
 	}
 }
-
-
-
 
 
 

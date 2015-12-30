@@ -114,7 +114,7 @@ Logging
 		foreach ($rows as $row)
 		{
 			if (trim($row[1]) === '')
-				$convos[] = array($row[0], 'Client '.$row[0]);
+				$convos[] = array($row[0], 'Anonymous '.$row[0]);
 			else
 				$convos[] = array($row[0], $row[1]);
 		}
@@ -197,10 +197,22 @@ Conversation
 	/* begins/resumes a conversation; requires a unique conversation ID which ordinarily
 	should be the session ID used by any cookie in use with the client HTTP browser */
 	{
+		/* generate a conversation ID if required */
+		if (($in_convo_id === null) || ($in_convo_id === ''))
+			$in_convo_id = hash('sha256', time());
+	
 		/* check if the conversation is registered */
-		$stmt = JxBotDB::$db->prepare('SELECT id,name FROM session WHERE convo_id=?');
+		$stmt = JxBotDB::$db->prepare('SELECT id, name, accessed >= DATE_SUB(NOW(), INTERVAL 15 MINUTE) 
+			FROM session WHERE convo_id=?');
 		$stmt->execute(array($in_convo_id));
 		$session_id = $stmt->fetchAll(PDO::FETCH_NUM);
+		
+		/* change the conversation ID if required */
+		if (($in_convo_id != 'admin') && (count($session_id) == 1) && ($session_id[0][2] == 0))
+		{
+			$in_convo_id = hash('sha256', time());
+			$session_id = array();
+		}
 		
 		/* register the conversation */
 		if (count($session_id) == 0)
@@ -225,6 +237,8 @@ Conversation
 		JxBotConverse::$convo_id = $in_convo_id;
 		JxBotConverse::$session_id = $session_id;
 		JxBotConverse::$predicates['name'] = $name;
+		
+		return $in_convo_id;
 	}
 	
 	

@@ -6,14 +6,9 @@ Essentials (toward a version 1.0)
 
 
 * provide online help?
-
-
-
 * Write documentation
 * Write sample AIML, possibly to be preloaded with new bots
-* provide historical stats & dash information
-  * will need to expire conversations forcibly after 15-minutes inactivity on the session side,
-    and reissue the cookie/issue new session ID
+
 
 
 Ongoing
@@ -30,6 +25,10 @@ Ongoing
 
 
 ---
+USE COOKIES ON CLIENT - NOT SESSIONS - DELETE OLD SESSIONS: [DONE]
+* will need to expire conversations forcibly after 15-minutes inactivity on the session side,
+    and reissue the cookie/issue new session ID
+* provide historical stats & dash information [DONE]
 * configure so easiest settings are on first tab of each section[DONE]
 * improve the import mechanism to allow background operation, entirely independant [DONE]
   of javascript once triggered (potentially via iframe/ajax)

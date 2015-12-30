@@ -36,6 +36,9 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 function purge_old_logs()
 {
 	JxBotDB::$db->exec('DELETE FROM log WHERE stamp < DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+	
+	JxBotDB::$db->exec('DELETE FROM session 
+		WHERE accessed < DATE_SUB(NOW(), INTERVAL 1 MONTH) AND convo_id != \'admin\';');
 }
 
 

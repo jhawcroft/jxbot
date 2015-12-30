@@ -37,7 +37,7 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 class JxBotConfig
 {
-	const SESSION_NAME = 'JoshixBot';
+	const SESSION_NAME = 'JoshixBotAdmin';
 	
 
 	private static $config = array();
