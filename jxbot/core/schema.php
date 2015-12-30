@@ -343,7 +343,7 @@ INSERT INTO opt (opt_key, opt_value) VALUES ('def_species', 'human');
 // age and birthday ought to be set & calculated from bot settings!
 
 JxBotDB::$db->exec("
-INSERT INTO opt (opt_key, opt_value) VALUES ('bot_birthday', '1 January, 2016');
+INSERT INTO opt (opt_key, opt_value) VALUES ('bot_birthday', '2016/01/01');
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_age', '1');
 
 INSERT INTO opt (opt_key, opt_value) VALUES ('bot_kingdom', '');
