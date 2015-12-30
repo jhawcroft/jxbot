@@ -4,7 +4,7 @@ TODO
 Essentials (toward a version 1.0)
 ----------
 
-* configure so easiest settings are on first tab of each section
+
 * provide online help?
 
 
@@ -28,6 +28,7 @@ Ongoing
 
 
 ---
+* configure so easiest settings are on first tab of each section[DONE]
 * improve the import mechanism to allow background operation, entirely independant [DONE]
   of javascript once triggered (potentially via iframe/ajax)
 * handle duplicate pattern error more gracefully [DONE]
