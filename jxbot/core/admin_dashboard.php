@@ -125,7 +125,9 @@ Active Load and Performance
 		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)');
 	$stmt->execute();
 	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
-	$score = $raw / ($max_score * $percent_best_is_good);
+	$divisor = ($max_score * $percent_best_is_good);
+	if ($divisor == 0) $score = 100;
+	else $score = $raw / $divisor;
 	// a score of 1.0 is good
 	// a score of 0.5 is ordinary
 	// a score of less is mediocre
@@ -194,8 +196,11 @@ GROUP BY session) AS int_data;');
 	$stmt = JxBotDB::$db->prepare('SELECT AVG(intel_score) FROM log');
 	$stmt->execute();
 	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
-	$score = $raw / ($max_score * $percent_best_is_good);
+	$divisor = ($max_score * $percent_best_is_good);
+	if ($divisor == 0) $score = 100;
+	else $score = $raw / $divisor;
 	$metrics['hist_iq_response'] = $score * 100;
+	
 
 /*
 Load
