@@ -105,7 +105,6 @@ Active Load and Performance
 	if ($raw === null) $raw = 0;
 	$load = $raw / ($max_sys_time * 0.8);
 	$metrics['active_load'] = $load;
-	unset($raw);
 	
 	/* active performance:
 	   How well is the chat system performing at the present moment;
@@ -160,7 +159,64 @@ Historical and Trends
 // are users returning, and how many separate conversations are they having?
 // (conversation breaks are defined to be >= 15-minutes)
 
+/*
+Performance
+*/
 
+	/* average client interactions */
+	$stmt = JxBotDB::$db->prepare('SELECT AVG(intr) FROM 
+		(SELECT log.session, count(log.id) AS intr 
+		FROM log JOIN session ON log.session=session.id 
+		WHERE session.convo_id != \'admin\' 
+		GROUP BY session) AS int_data;');
+	$stmt->execute();
+	$metrics['hist_avg_client_intr'] = intval( $stmt->fetchAll(PDO::FETCH_NUM)[0][0] );
+
+	/* average response time */
+	$stmt = JxBotDB::$db->prepare('SELECT AVG(time_respond) FROM log');
+	$stmt->execute();
+	$metrics['hist_avg_response'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	/* worst response time */
+	$stmt = JxBotDB::$db->prepare('SELECT MAX(time_respond) FROM log');
+	$stmt->execute();
+	$metrics['hist_max_response'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	
+	/* average response IQ */
+	// turn this into a function, as it's complicated and used twice in variation ** ! TODO
+	$stmt = JxBotDB::$db->prepare('SELECT MAX(intel_score) FROM log');
+	$stmt->execute();
+	$max_score = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	$stmt = JxBotDB::$db->prepare('SELECT AVG(intel_score) FROM log');
+	$stmt->execute();
+	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	$score = $raw / ($max_score * $percent_best_is_good);
+	$metrics['hist_iq_response'] = $score * 100;
+
+/*
+Load
+*/
+
+	$stmt = JxBotDB::$db->prepare('SELECT AVG(active), MAX(active) FROM (SELECT COUNT(DISTINCT session) AS active FROM log GROUP BY UNIX_TIMESTAMP(stamp) DIV 60) AS act_dat');
+	$stmt->execute();
+	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0];
+	$metrics['hist_avg_clients'] = $raw[0];
+	$metrics['hist_max_clients'] = $raw[1];
+
+
+	$stmt = JxBotDB::$db->prepare('SELECT AVG(time_respond - time_service) FROM log');
+	$stmt->execute();
+	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
+	if ($raw === null) $raw = 0;
+	$load = $raw / ($max_sys_time * 0.8);
+	$metrics['hist_load'] = $load;
+	
+	
+	
+	
+	
+
+/*
 	
 	$stmt = JxBotDB::$db->prepare('SELECT COUNT(DISTINCT session) FROM log
 		WHERE stamp >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
@@ -191,7 +247,7 @@ Historical and Trends
 	$stmt->execute();
 	$metrics['clients_month'] = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	
-	
+	*/
 	
 // find some established guidance on UI response times for
 // websites
@@ -308,93 +364,96 @@ $metrics = compute_metrics();
 </div>
 
 
-<div class="clear"></div>
+<div class="clear" style="height: 2em;"></div>
 
 
+<div class="dashboard-widget">
+<h2>General Performance</h2>
+
+	<table>
+	<tr>
+		<td>Average Client Interactions</td>
+		<td><?php 
+		
+		if ($metrics['hist_avg_client_intr'] > 0)
+			print number_format($metrics['hist_avg_client_intr'], 0); 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	<tr>
+		<td>Average Response Time</td>
+		<td><?php 
+		
+		if ($metrics['hist_avg_response'] > 0)
+			print number_format($metrics['hist_avg_response'], 3).' seconds'; 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	<tr>
+		<td>Worst Response Time</td>
+		<td><?php 
+		
+		if ($metrics['hist_max_response'] > 0)
+			print number_format($metrics['hist_max_response'], 3).' seconds'; 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	<tr>
+		<td>Average Response IQ</td>
+		<td><?php 
+		
+		if ($metrics['hist_iq_response'] > 0)
+			print number_format($metrics['hist_iq_response'], 0); 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	</table>
+</div>
 
 
-
-<!--
-
-Possible performance statistics:
-
-Load:  queries per quanta - maybe 5 seconds?
-	   related to dynamically adjusting assessment of response times on the server
-	   (DB + web server combined)
-	   
-	   have a hard-coded baseline which we compute by trial and error, which is an acceptable
-	   speed of processing probably on a local machine, with no load,
-	   
-	   also a baseline on a machine which is shared, like the netregistry box
-	   
-	   and an arbitrary figure which represents verging on unacceptable response times
-	   
-	   track the average queries per 5-seconds,
-	   and the average queries per 10-seconds, 30-seconds, minute, so as to 
-	   provide some kind of figure when really low
-	   
-	   track the average response time for an interval representing unacceptable resposne time ?
-	   
-	   compare and extrapolate these figures against the various baselines to compute a usage figure
-	
-	   consider looking up load computation algorithms;
-	   also consider what MySQL might be able to give
-	   
-Raw Response Times: simpler!
-
-Cache Hits: <when we have a cache!>; ratio hits vs misses
-		also track cached response times vs non-cached response times
-
-Knowledge base, top hits?
-
-History: graph over last 24 hours
-and last week, with spikes in usage
-
-Status:  is the system online for the public?	   
-
--->
-
-<?php
+<div class="dashboard-widget">
+<h2>Performance Trends</h2>
 
 
-
-//testing
-/*
-JxBotConverse::resume_conversation('admin');
-
-$result = JxBotAiml::parse_template('
-
-<condition name="age">
-	<li value="30">Really?</li>
-	<li value="31">You\'re 31!</li>
-	<li>Default</li>
-</condition>
+</div>
 
 
-');
+<div class="clear" style="height: 2em;"></div>
+
+<div class="dashboard-widget">
+<h2>General Load</h2>
+
+	<table>
+	<tr>
+		<td>Average Clients</td>
+		<td><?php print number_format(round($metrics['hist_avg_clients']), 0); ?></td>
+	</tr>
+	<tr>
+		<td>Most Clients</td>
+		<td><?php print number_format($metrics['hist_max_clients'], 0); ?></td>
+	</tr>
+	<tr>
+		<td>Average Load</td>
+		<td><?php print number_format($metrics['hist_load'], 2); ?> %</td>
+	</tr>
+	</table>
+</div>
+
+<div class="dashboard-widget">
+<h2>Load Trends</h2>
 
 
-print '<pre>';
-print $result->generate(null);
-print '</pre>';*/
+</div>
 
-/*
-<random>
-  <li>My name is <bot><name>botname</name></bot></li>
-  <li>I am <bot name="botname"/></li>
-</random>
-*/
 
-/*
-print '<pre>';
-var_dump($result);
-print '</pre>';*/
-
-//print '<pre>';
-//print $result->generate(5);
-//print '</pre>';
-
-?>
 
 
 <script type="text/javascript">
@@ -404,5 +463,9 @@ window.setTimeout(function() {
 }, 60000);
 */
 </script>
+
+
+
+<!-- WHAT BOT IS SAYING  ? -->
 
 
