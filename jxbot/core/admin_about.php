@@ -38,6 +38,17 @@ by <a href="http://joshhawcroft.org/">Joshua Hawcroft</a></p>
 
 <p><strong>version <?php print JxBot::VERSION; ?></strong></p>
 
+<h2>Acknowledgements</h2>
+
+<p>The author would like to gratefully acknowledge the presence of and contributors to 
+<a href="https://openclipart.org/">Open Clipart</a> - a public domain clipart library - without which the JxBot administration 
+interface would have been extraordinarily dull.</p>
+
+<p>My thanks to the authors of the two fonts used in the administration panel, Christian Robertson and Vernon Adams for making their fonts available under permissive open-source licenses.</p>
+
+<p>Finally, no work of human ingenuity is built in isolation; I'd also like to thank everyone involved in the development of AIML to date, without which this project may not have come about.</p>
+
+
 <div style="height: 10px;"></div>
 
 <?php JxBotUtil::phpinfo(); ?>
