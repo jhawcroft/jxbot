@@ -1,0 +1,41 @@
+/**************************************************************************************
+JxBot Widget
+Copyright (c) 2015 Joshua Hawcroft
+joshhawcroft.org/jxbot/wordpress-plugin/
+
+Distributed under the MIT license.
+**************************************************************************************/
+
+
+div.jxbot-widget
+{
+	box-sizing: border-box;
+	display: block;
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	margin-bottom: 1em;
+}
+
+input.jxbot-widget-input
+{
+	width: 75%;
+	font-size: 12pt;
+	font-family: sans-serif;
+}
+
+div.jxbot-widget-output
+{
+	clear: left;
+	margin-top: 10px;
+	width: 75%;
+	float: right;
+	font-size: 12pt;
+	font-family: sans-serif;
+}
+
+.jxbot-widget-clear
+{
+	clear: both;
+}
+
