@@ -40,15 +40,20 @@ JxWidget::tabs(array(
 ));
 
 
-
-
-if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge-do'))
-	JxBotNLData::purge_categories();
-
-if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge'))
-	page_warn_purge();
+$subpage = JxBotUtil::inputs('subpage');
+if ($subpage['subpage'] == 'logs')
+	require_once('admin_file_log.php');
 else
-	page_import_form();
+{
+
+	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge-do'))
+		JxBotNLData::purge_categories();
+
+	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'purge'))
+		page_warn_purge();
+	else
+		page_import_form();
+}
 
 
 function page_warn_purge()
@@ -155,6 +160,9 @@ function page_import_form()
 	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'bulk-load'))
 		JxBotAsyncLoader::schedule_all();
 		
+	if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'load-abort'))
+		JxBotAsyncLoader::stop_loading();
+		
 		
 ?>
 
@@ -164,27 +172,27 @@ if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'delete-file')) do_del
 ?>
 
 
-<?php
-show_server_files();
-?>
+<div class="left" style="margin-right: 3em;">
+<?php show_server_files(); ?>
+</div>
 
 
-<?php
-//if (isset($_POST['action']) && ($_POST['action'] == 'bulk-reload'))
-//	bulk_reload();
-?>
 
-<p><button type="submit" name="action" value="bulk-load">Bulk Load</button> <button type="submit" name="action" value="purge">Unload All</button></p>
+<div class="left" style="">
+<?php show_process_status(); ?>
+
+<p><button type="submit" name="action" value="bulk-load">Bulk Load</button> <button type="submit" name="action" value="load-abort">Stop Loading</button> <button type="submit" name="action" value="purge">Unload All</button></p>
 
 
 <h2>Upload File</h2>
 
-<p><label for="data_file">File:</label>
-<input type="file" name="data_file" id="data_file" size="50"></p>
+<p><input type="file" name="data_file" id="data_file" size="30"></p>
 
 <p><button type="submit" name="action" value="upload">Upload File</button></p>
 
+</div>
 
+<div class="clear"></div>
 
 
 
@@ -204,8 +212,8 @@ show_server_files();
 
 function invoke_asyncronous_loader()
 {
-// ! TODO:  To be sure, should really compute the full URL here
-?><iframe src="?async-load" style="width: 650px; height: 400px; overflow-y: scroll; border: 1px solid red;"></iframe><?php
+// ! TODO:  To be sure, should really compute the full URL here ?
+?><iframe src="?async-load" style="display: none; width: 650px; height: 400px; overflow-y: scroll; border: 1px solid red;"></iframe><?php
 }
 
 
@@ -214,21 +222,9 @@ function invoke_asyncronous_loader()
 
 function show_server_files()
 {
-	/*$inputs = JxBotUtil::inputs('action');
-	
-	if ($inputs['action'] == 'bulk-auto')
-	{
-		$stmt = JxBotDB::$db->prepare('UPDATE file SET status=\'Scheduled\'
-			WHERE status NOT IN (\'Loaded\', \'Needs Reload\')');
-		$stmt->execute();
-	}*/
-
 	$list = server_file_list();
-	/*$next_file = null;
-	$dont_request_another = false;
-	$request_load = false;*/
 	
-?><table style="width: auto; min-width: 30em;">
+?><table style="width: auto; min-width: 23em;">
 <tr>
 	<th>File</th>
 	<th style="width: 7em;">Status</th>
@@ -237,16 +233,6 @@ function show_server_files()
 <?php
 	foreach ($list as $file)
 	{
-		/*if ($inputs['action'] == 'bulk-auto')
-		{
-			try
-			{
-				$stmt = JxBotDB::$db->prepare('INSERT INTO file (name, status) VALUES (?, ?)');
-				$stmt->execute(array($file[1], 'Scheduled'));
-			}
-			catch (Exception $err) {}
-		}*/
-	
 		print '<tr>';
 		print '<td>'.$file[1].'</td>';
 		
@@ -259,54 +245,49 @@ function show_server_files()
 		JxWidget::small_delete_icon();
 		print '</a></td>';
 		print '</tr>';
-		
-		/*
-		if ($file[2] == 'Scheduled')
-		{
-			if ($next_file === null) $next_file = $file[1];
-			$request_load = true;
-		}
-		else if (substr($file[2], 0, 7) == 'Loading')
-			$dont_request_another = true;*/
 	}
-?></table><?php
+?>
+</table>
+<?php
+}
 
-	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM file WHERE last_update > DATE_SUB(NOW(), INTERVAL 10 SECOND)');
+
+function show_process_status()
+{
+	$stmt = JxBotDB::$db->prepare('SELECT COUNT(*) FROM file WHERE last_update > DATE_SUB(NOW(), INTERVAL 20 SECOND)');
 	$stmt->execute();
 	$recent_status_changes = ($stmt->fetchAll(PDO::FETCH_NUM)[0][0] != 0);
-	$recent_status_changes = false;
-	if ( $recent_status_changes )
-	{
-?><script type="text/javascript">
+	
+?>
+
+<h2>Status</h2>
+
+<?php if ($recent_status_changes == false) { ?>
+Idle.
+<?php } else { ?>
+
+<p style="margin-top: -20px; "><img src="<?php print JxBotConfig::bot_url(); ?>jxbot/core/gfx/43.GIF" style="vertical-align: middle; margin-right: 1.5em"> <?php
+
+	$stmt = JxBotDB::$db->prepare('SELECT status,name FROM file WHERE status LIKE \'Loading%\'');
+	$stmt->execute();
+	$status = $stmt->fetchAll(PDO::FETCH_NUM);
+	if (count($status) == 0) $status = 'Checking...';
+	else $status = $status[0][0] . ', ' . $status[0][1];
+	print $status;
+	
+?></p>
+
+<script type="text/javascript">
+
+// ! TODO:  Can be improved with an AJAX call to avoid reloading the page
 
 window.setTimeout(function() {
 	window.location = '?page=import';
 }, 10000);
 
-</script><?php
+</script>
+<?php
 	}
-	
-
-	/* if the user has requested automatic load,
-	include a javascript which will use AJAX to request the next import */
-	//$request_load = (($inputs['action'] == 'bulk-auto') || ($inputs['action'] == 'bulk-load'));
-	/*if ($request_load && ($next_file !== null) && (!$dont_request_another))
-	{
-?><script type="text/javascript">
-
-var req = new XMLHttpRequest();
-req.onreadystatechange = function() 
-{
-	if (req.readyState == 4)
-		window.location = '?page=import&action=bulk-load';
-};
-req.open('GET', '?ajax=load&file=<?php print $next_file; ?>', true);
-req.send();
-
-</script><?php
-	}
-	*/
-	
 }
 
 

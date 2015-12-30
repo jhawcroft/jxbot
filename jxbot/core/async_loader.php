@@ -74,6 +74,12 @@ class JxBotAsyncLoader
 	{
 		$stmt = JxBotDB::$db->exec('UPDATE file SET status=\'Scheduled\' WHERE status != \'Loaded\'');
 	}
+	
+	
+	public static function stop_loading()
+	{
+		$stmt = JxBotDB::$db->exec('UPDATE file SET status=\'Load Aborted\' WHERE status = \'Scheduled\'');
+	}
 
 
 	public static function process_scheduled()
