@@ -12,6 +12,8 @@ Essentials (toward a version 1.0)
 * Write documentation
 * Write sample AIML, possibly to be preloaded with new bots
 * provide historical stats & dash information
+  * will need to expire conversations forcibly after 15-minutes inactivity on the session side,
+    and reissue the cookie/issue new session ID
 
 
 Ongoing

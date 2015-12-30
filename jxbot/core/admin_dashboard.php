@@ -164,13 +164,17 @@ Performance
 */
 
 	/* average client interactions */
-	$stmt = JxBotDB::$db->prepare('SELECT AVG(intr) FROM 
-		(SELECT log.session, count(log.id) AS intr 
-		FROM log JOIN session ON log.session=session.id 
-		WHERE session.convo_id != \'admin\' 
-		GROUP BY session) AS int_data;');
+	$stmt = JxBotDB::$db->prepare('SELECT AVG(intr), AVG(conv_l), MIN(conv_l), MAX(conv_l) FROM 
+(SELECT log.session, COUNT(log.id) AS intr, (MAX(UNIX_TIMESTAMP(log.stamp)) - MIN(UNIX_TIMESTAMP(log.stamp)))/60 as conv_l
+FROM log JOIN session ON log.session=session.id 
+WHERE session.convo_id != \'admin\' 
+GROUP BY session) AS int_data;');
 	$stmt->execute();
-	$metrics['hist_avg_client_intr'] = intval( $stmt->fetchAll(PDO::FETCH_NUM)[0][0] );
+	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0];
+	$metrics['hist_avg_client_intr'] = intval( $raw[0] );
+	$metrics['hist_avg_convo_time'] = intval( $raw[1] );
+	$metrics['hist_min_convo_time'] = intval( $raw[2] );
+	$metrics['hist_max_convo_time'] = intval( $raw[3] );
 
 	/* average response time */
 	$stmt = JxBotDB::$db->prepare('SELECT AVG(time_respond) FROM log');
@@ -372,11 +376,44 @@ $metrics = compute_metrics();
 
 	<table class="dashboard-stats">
 	<tr>
-		<td>Average Client Interactions</td>
+		<td>Average Interactions</td>
 		<td><?php 
 		
 		if ($metrics['hist_avg_client_intr'] > 0)
 			print number_format($metrics['hist_avg_client_intr'], 0); 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	<tr>
+		<td>Average Conversation</td>
+		<td><?php 
+		
+		if ($metrics['hist_avg_response'] > 0)
+			print number_format($metrics['hist_avg_convo_time'], 1).' minutes'; 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	<tr>
+		<td>Shortest Conversation</td>
+		<td><?php 
+		
+		if ($metrics['hist_avg_response'] > 0)
+			print number_format($metrics['hist_min_convo_time'], 1).' minutes'; 
+		else
+			print '-';
+			
+		?></td>
+	</tr>
+	<tr>
+		<td>Longest Conversation</td>
+		<td><?php 
+		
+		if ($metrics['hist_avg_response'] > 0)
+			print number_format($metrics['hist_max_convo_time'], 1).' minutes'; 
 		else
 			print '-';
 			
@@ -418,7 +455,7 @@ $metrics = compute_metrics();
 	</table>
 </div>
 
-
+<!--
 <div class="dashboard-widget">
 <h2>Performance Trends</h2>
 
@@ -427,6 +464,7 @@ $metrics = compute_metrics();
 
 
 <div class="clear" style="height: 2em;"></div>
+-->
 
 <div class="dashboard-widget">
 <h2>General Load</h2>
@@ -447,13 +485,14 @@ $metrics = compute_metrics();
 	</table>
 </div>
 
+<!--
 <div class="dashboard-widget">
 <h2>Load Trends</h2>
 
 
 </div>
 
-
+-->
 
 
 <script type="text/javascript">
@@ -468,4 +507,7 @@ window.setTimeout(function() {
 
 <!-- WHAT BOT IS SAYING  ? -->
 
-
+<!-- trends: average clients, average load, client interactions, iq, average response time, aveage convo duration -->
+<!-- possible periods:  typical 24 hours, typical week, typical month, typical year
+past 24-hours, past week, past month, past year
+today, yesterday, this week, last week, this month, last month, this year -->
