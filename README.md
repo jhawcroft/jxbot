@@ -163,6 +163,70 @@ Josh
 
 
 
+Frequently Asked Questions
+--------------------------
+
+=== What AIML features and versions does it support? ===
+
+JxBot is currently AIML 1.0 compliant with minor exceptions, and supports most of the draft AIML 2.0 standard with some caveats.  Complete version 2.0 support is intended in future, so long as individual features do not compromise the security, performance or robustness of this implementation.
+
+AIML 1.0 support is complete with these exceptions:
+
+* no learn, system or gossip support (learn is replaced with a better function in AIML 2, system is a security risk that needs careful implementation and gossip was removed in AIML 2 as it isn't particularly useful).
+
+JxBot supports most of the draft AIML 2.0 specification (as at December 2015), including:
+
+* the high-priority word operator: $
+* the new zero+ wildcards, ^ and #
+* sets
+* maps
+* request and response tags
+* unbound predicate checks
+* tag/attribute syntax
+* explode
+* normalize and denormalize
+* program and vocabulary tags
+
+It does not yet support:
+* date formats
+* date and time intervals
+* sraix or system
+* learn and learnf
+
+
+=== Does it support non-English languages? ===
+
+In theory, it should.  Some attempt has been made to properly support the UTF-8 text encoding and handle non-latin characters, including Japanese.  I would welcome feedback on this.
+
+
+=== Is there a Wordpress plugin? ===
+
+Yes, there is a very basic wordpress plugin bundled in the main jxbot directory.
+
+
+=== Does it support multiple bots? ===
+
+Not yet.  If this is something you feel you would like, feel free to write and let me know.  It's certainly on the cards if people want it.
+
+
+=== What access methods does it support? ===
+
+You can use the PHP API or the simple-AJAX API.
+
+Alternatively, you can simply customise the included example HTML file.
+
+
+=== Have you heard of Program O, or Program E? ===
+
+Yes.  Program E doesn't appear to have been updated or supported since 2005.  On inspection I found Program O to be too much like spaghetti behind the cute interface.  Hats off to the efforts of the developers to produce a working product, but it isn't my cup of tea.  Although the engineering in JxBot has substantial room for improvement, it is overall a much neater system.
+
+
+
+
+
+
+
+
 
 
 

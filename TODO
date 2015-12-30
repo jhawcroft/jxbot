@@ -18,7 +18,9 @@ Ongoing
 * Get installer to ask for admin username & any other pertinent settings
 * Continue cleaning up [PROGRESSING]
 * Improvements to database admin; pandora-bots as a model UI
-
+  * pandora-bots style training interface
+  * include facility to see what inputs triggered a default (or low-IQ) response
+  * obviously AIML export!
 ---
 
 
