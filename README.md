@@ -218,8 +218,7 @@ Alternatively, you can simply customise the included example HTML file.
 
 === Have you heard of Program O, or Program E? ===
 
-Yes.  Program E doesn't appear to have been updated or supported since 2005.  On inspection I found Program O to be too much like spaghetti behind the cute interface.  Hats off to the efforts of the developers to produce a working product, but it isn't my cup of tea.  Although the engineering in JxBot has substantial room for improvement, it is overall a much neater system.
-
+Yes.  Program E doesn't appear to have been updated or supported since 2005.  On inspection I found Program O to be a little bit too much like spaghetti behind the cute interface.  Obviously substantial effort has gone into the program, however, but the engineering just wasn't going to end up being what I had in mind without a complete rewrite.  Although the engineering in JxBot has substantial room for improvement at this early stage, it has the makings of a much cleaner system.
 
 
 
