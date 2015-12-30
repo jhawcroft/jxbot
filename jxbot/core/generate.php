@@ -164,7 +164,7 @@ class JxBotElement
 	{
 		if ($in_pattern === '*') /* Pandorabots and AIML 2.0 bound/unbound check */
 		{
-			if ($in_value === null) return false;
+			if (($in_value === null) || ($in_value === '')) return false;
 			else return true;
 		}
 		return JxBotNL::strings_equal($in_value, $in_pattern);
