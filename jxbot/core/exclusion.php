@@ -38,14 +38,48 @@ if (!defined('JXBOT')) die('Direct script access not permitted.');
 
 class JxBotExclusion
 {
-
-
+	private static $sem = null;
+	private static $socket = null;
+	
+	
 	public static function get_exclusive()
+	{
+		return JxBotExclusion::get_exclusive_by_socket();
+	}
+	
+	
+	private static function get_exclusive_by_socket()
+	{
+		JxBotExclusion::$socket = @socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+		if (JxBotExclusion::$socket === false)
+			throw new Exception("Can't create exclusion socket: ".socket_last_error($socket));
+		
+		if (@socket_bind(JxBotExclusion::$socket, '127.0.0.1', 10000) === false) 
+			return false;
+		else
+			return true;
+	}
+	
+
+	private static function get_exclusive_by_semaphore()
 	/* returns true if this script is the only current invocation to call get_exclusive,
 	or false otherwise.  if there's a problem, this will throw an exception, which
 	should be logged. */
 	{
-		return true;
+		if (JxBotExclusion::$sem = sem_get( ftok(__FILE__, "j") , 1)) 
+		{
+			if (!sem_acquire(JxBotExclusion::$sem, true)) return false;
+			return true;
+		}
+		throw new Exception("Couldn't acquire System V semaphore.");
+		return false;
+	}
+	
+	
+	public static function release_exclusive()
+	{
+		 // this should be called automatically anyway by PHP or the OS :
+		sem_release(JxBotExclusion::$sem);
 	}
 }
 
@@ -54,6 +88,9 @@ Two viable mechanisms:
 
 Semaphores
 ----------
+
+// no wait doesn't work until very new versions of PHP.
+
 
 if ($theSemaphore = sem_get("123456",1)) { // this "1" ensures that there is nothing parallel
   if (sem_acquire($theSemaphore)) {  // this blocks the execution until other processes or threads are finished

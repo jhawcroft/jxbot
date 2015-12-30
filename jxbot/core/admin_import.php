@@ -217,7 +217,7 @@ if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'delete-file')) do_del
 function invoke_asyncronous_loader()
 {
 // ! TODO:  To be sure, should really compute the full URL here ?
-?><iframe src="?async-load" style="display: none; width: 650px; height: 400px; overflow-y: scroll; border: 1px solid red;"></iframe><?php
+?><iframe src="?async-load" style="display: block; width: 650px; height: 400px; overflow-y: scroll; border: 1px solid red;"></iframe><?php
 }
 
 
