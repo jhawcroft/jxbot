@@ -36,7 +36,7 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 JxWidget::tabs(array(
 	array('Import AIML', '?page=import', 'subpage', ''),
-	array('Logs', '?page=import&subpage=logs', 'subpage', 'logs'),
+	array('Log', '?page=import&subpage=logs', 'subpage', 'logs'),
 ));
 
 

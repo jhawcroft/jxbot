@@ -36,7 +36,7 @@ if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 JxWidget::tabs(array(
 	array('General', '?page=system', 'subpage', ''),
 	array('Settings', '?page=system&subpage=opts', 'subpage', 'opts'),
-	array('Logs', '?page=system&subpage=logs', 'subpage', 'logs'),
+	array('Log', '?page=system&subpage=logs', 'subpage', 'logs'),
 	array('About', '?page=system&subpage=about', 'subpage', 'about'),
 ));
 
