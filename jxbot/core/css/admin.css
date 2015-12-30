@@ -537,18 +537,18 @@ div.dashboard-widget h2
 	margin-top: 0;
 }
 
-table#dashboard-general
+table.dashboard-stats
 {
 	width: auto;
 }
 
-table#dashboard-general td:first-child
+table.dashboard-stats td:first-child
 {
 	text-align: right;
 	padding: 0.2em 1em 0.2em 1em;
 }
 
-table#dashboard-general td:last-child
+table.dashboard-stats td:last-child
 {
 	padding: 0.2em 1em 0.2em 0;
 }

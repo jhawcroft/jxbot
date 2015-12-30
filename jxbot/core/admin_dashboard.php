@@ -280,7 +280,7 @@ $metrics = compute_metrics();
 <div class="dashboard-widget">
 <h2>Bot Statistics</h2>
 
-	<table id="dashboard-general">
+	<table class="dashboard-stats">
 	<tr>
 		<td>Interaction Categories</td>
 		<td><?php print $metrics['category_count']; ?></td>
@@ -310,7 +310,7 @@ $metrics = compute_metrics();
 
 <p><?php JxWidget::dynamic_meter(200, $metrics['active_load']); ?></p>
 
-	<table>
+	<table class="dashboard-stats">
 	<tr>
 		<td>Current Clients</td>
 		<td><?php print $metrics['active_clients']; ?></td>
@@ -337,7 +337,7 @@ $metrics = compute_metrics();
 <div class="dashboard-widget">
 <h2>Active Performance</h2>
 
-	<table>
+	<table class="dashboard-stats">
 	<tr>
 		<td>Worst Response Time</td>
 		<td><?php 
@@ -370,7 +370,7 @@ $metrics = compute_metrics();
 <div class="dashboard-widget">
 <h2>General Performance</h2>
 
-	<table>
+	<table class="dashboard-stats">
 	<tr>
 		<td>Average Client Interactions</td>
 		<td><?php 
@@ -431,7 +431,7 @@ $metrics = compute_metrics();
 <div class="dashboard-widget">
 <h2>General Load</h2>
 
-	<table>
+	<table class="dashboard-stats">
 	<tr>
 		<td>Average Clients</td>
 		<td><?php print number_format(round($metrics['hist_avg_clients']), 0); ?></td>
