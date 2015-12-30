@@ -1,18 +1,17 @@
 <?php
+/*******************************************************************************
+An example HTML interface to the JxBot programmers API
+Customise this webpage or make your own.
+*******************************************************************************/
 
-
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
-
+/* include the JxBot client API */
 require_once(dirname(__FILE__) . '/jxbot/core/client.php');
 
+/* initalize the client API */
 JxBotClient::init();
+
+/* start/resume a conversation using a cookie */
 JxBotClient::resume_conversation();
-
-
-// will need to be careful about sessions if this ends up being a plug-in on wordpress
-// for example, will need the ability to use the wordpress session to store relevant data
-// or some other means, and not start a session automatically
 
 
 ?><!DOCTYPE html>
@@ -23,14 +22,18 @@ JxBotClient::resume_conversation();
 </head>
 <body>
 
-<?php if (JxBotClient::is_available()) { ?>
+<?php  /* check if the bot is actually online and not down for maintenance */
+if (JxBotClient::is_available()) { 
+?>
 
 <form method="post" action="">
 
+
+<!-- BOT OUTPUT: -->
 <div id="bot-output"><?php
 
-
-
+/* generate the bot response to the user-input;
+or an appropriate greeting if the page has just loaded */
 if (isset($_REQUEST['input']))
 	print JxBotClient::respond($_REQUEST['input']);
 else
@@ -38,13 +41,20 @@ else
 	
 ?></div>
 
-<p><input type="text" name="input" id="user-input" size="100" autofocus></p>
 
+<!-- USER INPUT: -->
+<p><input type="text" name="input" id="user-input" size="100" autofocus></p>
 <p><input type="submit" id="user-submit" value="Say"></p>
+
 
 </form>
 
-<?php } else { ?>
+<?php 
+} else {  /* the bot is offline for maintenance: */
+?>
+
+
+<!-- MAINTENANCE MESSAGE -->
 
 <h1>Bot Not Available</h1>
 
@@ -52,8 +62,9 @@ else
 
 <p>Please check back again later!</p>
 
-<?php } ?>
 
+
+<?php } ?>
 
 </body>
 </html>
