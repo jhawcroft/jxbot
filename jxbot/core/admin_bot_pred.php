@@ -33,86 +33,66 @@
 if (!defined('JXBOT_ADMIN')) die('Direct script access not permitted.');
 
 
-function purge_old_logs()
+
+if (isset($_POST['new-name']) && trim($_POST['new-name']) !== '')
 {
-	JxBotDB::$db->exec('DELETE FROM log WHERE stamp < DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+	JxBotConfig::bot_add_prop($_POST['new-name'], '');
+	JxBotConfig::save_configuration();
 }
 
-
-?>
-
-<div class="right" id="right-nav">
-
-<h2>Recent Conversations</h2>
-
-<?php
-if (isset($_REQUEST['purge-old']))
-	purge_old_logs();
-?>
-<p><button type="submit" name="purge-old" value="month">Purge Old Log Entries</button></p>
-
-
-<?php
-$sessions = JxBotConverse::latest_sessions();
-JxWidget::grid(array(
-	array('id'=>0, 'visible'=>false, 'key'=>true),
-	array('id'=>1, 'label'=>'Client', 'link'=>'?page=chat&subpage=logs&convo=$$')
-), $sessions);
-?>
-
-
-</div>
-
-<div id="centre-content">
-<h2>Transcript</h2>
-
-<style type="text/css">
-.log
+if (isset($_REQUEST['del-name']) && trim($_REQUEST['del-name']) !== '')
 {
-	line-height: 1.7em;
+	JxBotConfig::bot_delete_prop($_REQUEST['del-name']);
+	JxBotConfig::save_configuration();
 }
-.log-cl
+
+if (isset($_POST['action']) && ($_POST['action'] == 'Save'))
 {
-	display: inline-block;
-	width: 5em;
-}
-.log-bl
-{
-	display: inline-block;
-	width: 5em;
-}
-</style>
-
-<?php
-if (!isset($_REQUEST['convo'])) {
-?>
-<p>Select a recent conversation on the right to view the transcript.</p>
-<?php
-} else {
-
-	$stmt = JxBotDB::$db->prepare('SELECT stamp,input,output FROM log WHERE session=? ORDER BY id DESC');
-	$stmt->execute(array($_REQUEST['convo']));
-	$rows = $stmt->fetchAll(PDO::FETCH_NUM);
-
-	if (count($rows) == 0) print '<p>No data to display.</p>';
-	else
+	//JxBotConfig::set_option('bot_name', $_POST['bot_name']);
+	foreach ($_POST as $key => $value)
 	{
-		print '<div class="log">';
-		foreach ($rows as $row)
-		{
-			//print $row[0].'<br>';
-			
-			print '<strong><span class="log-bl">Bot:</span> '.$row[2].'</strong><br>';
-			if ($row[1] !== '') 
-				print '<span class="log-cl">Client:</span> '.$row[1].'<br>';
-		}
-		print '</div>';
+		if (substr($key, 0, 4) == 'bot_')
+			JxBotConfig::set_option($key, $value);
 	}
-
+	
+	JxBotConfig::save_configuration();
 }
+
+
+
+$bot_properties = JxBotConfig::bot_properties();
+$rows_per_col = ceil(count($bot_properties) / 2.0);
+
+function editable_section(&$properties, $row_count)
+{
+	if (count($properties) == 0) return;
+	print '<table>';
+	for ($i = 0; $i < $row_count; $i++)
+	{
+		$prop = array_shift($properties);
+		if ($prop === null) break;
+		print '<tr>';
+		print '<td style="width: 10em;">'.$prop[1].'</td>';
+		print '<td><input type="text" name="'.$prop[0].'" size="20" value="'.$prop[2].'" style="width:95%"></td>';
+		print '<td style="width: 1.5em;"><a href="?del-name='.$prop[0].'&page=bot&subpage=pred">';
+		JxWidget::small_delete_icon();
+		print '</a></td>';
+		print '</tr>';
+	}
+	print '</table>';
+}
+
 ?>
 
+<div class="col-left"><?php editable_section($bot_properties, $rows_per_col); ?></div>
+<div class="col-right"><?php editable_section($bot_properties, $rows_per_col); ?></div>
+<div class="clear"></div>
+
+<p>
+
+<div class="field"><label for="new-name">New Property: </label>
+<input type="text" id="new-name" name="new-name" size="30"> <button type="submit" name="action" value="Add">Add</button></div>
+</p>
 
 
-
-</div>
+<p><button type="submit" name="action" value="Save">Save</button></p>
