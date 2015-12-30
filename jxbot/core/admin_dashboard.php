@@ -126,7 +126,7 @@ Active Load and Performance
 	$stmt->execute();
 	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	$divisor = ($max_score * $percent_best_is_good);
-	if ($divisor == 0) $score = 100;
+	if ($divisor == 0) $score = 1;
 	else $score = $raw / $divisor;
 	// a score of 1.0 is good
 	// a score of 0.5 is ordinary
@@ -197,7 +197,7 @@ GROUP BY session) AS int_data;');
 	$stmt->execute();
 	$raw = $stmt->fetchAll(PDO::FETCH_NUM)[0][0];
 	$divisor = ($max_score * $percent_best_is_good);
-	if ($divisor == 0) $score = 100;
+	if ($divisor == 0) $score = 1;
 	else $score = $raw / $divisor;
 	$metrics['hist_iq_response'] = $score * 100;
 	
