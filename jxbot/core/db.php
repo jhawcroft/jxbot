@@ -62,20 +62,20 @@ class JxBotDB
 	{
 		/* define the connection parameters */
 		$dsn = 'mysql:host='.$host.';dbname='.$name;
-		$options = array(
-			PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-		); 
 	
 		try
 		{
 			/* inititate the connection */
-			JxBotDB::$db = new PDO($dsn, $user, $password, $options);	
+			JxBotDB::$db = new PDO($dsn, $user, $password);	
 			if (JxBotDB::$db === false) 
 				throw new Exception("Couldn't connect to database.");
 			
 			/* ensure all further accesses throw an exception 
 			in the event of an error */
 			JxBotDB::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+			/* set character set */
+			JxBotDB::$db->exec('SET NAMES utf8');
 		}
 		catch (Exception $err)
 		{
