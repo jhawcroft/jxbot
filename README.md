@@ -194,6 +194,21 @@ It does not yet support:
 * learn and learnf
 
 
+=== What is the philosophy of JxBot? ===
+
+The philosophy of JxBot is in keeping with [my principles for software in general](http://joshhawcroft.org/2015/11/essential-criteria-for-good-software/); the user interface shall be minimalist and clean, and the engineering robust, clean and elegant.  The feature-set will be adequate but not bloated.  After 1.0 release, releases will be infrequent, except when security is impacted.
+
+If the project becomes bloated I will willingly sacrifice functionality for clarity.
+
+
+=== How do I pronounce the name? ===
+
+It’s up to you – the two most common pronunciations are:
+
+* JAY-EX-BOT
+* JEX-BOT
+
+
 === Does it support non-English languages? ===
 
 In theory, it should.  Some attempt has been made to properly support the UTF-8 text encoding and handle non-latin characters, including Japanese.  I would welcome feedback on this.
