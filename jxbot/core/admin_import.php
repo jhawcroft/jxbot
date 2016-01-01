@@ -122,7 +122,17 @@ function server_file_list()
 	foreach ($rows as $row)
 	{
 		$index[$row[1]] = count($list);
-		$list[] = array($row[0], $row[1], $row[2]);
+		
+		$path = JxBotConfig::aiml_dir() . $row[1];
+		if (file_exists($path))
+		{
+			$list[] = array($row[0], $row[1], $row[2]);
+		}
+		else
+		{
+			$stmt = JxBotDB::$db->prepare('DELETE FROM file WHERE id=?');
+			$stmt->execute(array($row[0]));
+		}
 	}
 
 	$dh = opendir($dir);
