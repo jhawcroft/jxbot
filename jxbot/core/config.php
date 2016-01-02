@@ -294,6 +294,7 @@ class JxBotConfig
 	
 	public static function default_predicate($in_name)
 	{
+	//print 'Get default predicate: '.$in_name.'<br>';
 		return JxBotConfig::option('def_'.$in_name);
 	}
 	

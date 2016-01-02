@@ -5,6 +5,9 @@ Essentials (toward a version 1.0)
 ----------
 
 
+* pickup missing tags and provide error message on load AIML, eg. missing closing /template
+
+
 * provide online help?
 * Write documentation
 * Write sample AIML, possibly to be preloaded with new bots

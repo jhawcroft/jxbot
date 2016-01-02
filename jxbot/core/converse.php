@@ -168,6 +168,7 @@ Client Predicates
 	if a value is used multiple times within a template, the value will be cached
 	to minimise database queries */
 	{
+	//print 'Get predicate: '.$in_name.'<br>';
 		if ($in_name == 'id')
 			return JxBotConverse::$session_id;
 	
@@ -177,7 +178,9 @@ Client Predicates
 			$stmt->execute(array(JxBotConverse::$session_id, $in_name));
 			$row = $stmt->fetchAll(PDO::FETCH_NUM);
 			if (count($row) == 0) 
+			{
 				JxBotConverse::$predicates[$in_name] = JxBotConfig::default_predicate($in_name);
+			}
 			else
 				JxBotConverse::$predicates[$in_name] = $row[0][0];
 		}
