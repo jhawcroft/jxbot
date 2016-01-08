@@ -307,6 +307,7 @@ Conversation
 		else
 		{
 			/* select a template at random */
+			//print 'MATCHED CATEGORY '.$category.'<br>';
 			$template = JxBotNLData::fetch_templates( $category );
 			$count = count($template);
 			if ($count == 0) $output = '???';
@@ -335,6 +336,7 @@ Conversation
 	/* evaluate the input within the current context and generate output,
 	without logging the output or updating the history */
 	{
+		//print 'SRAI '.$in_input. '<br>';
 		/* check recursion level */
 		JxBotConverse::$srai_level ++;
 		if (JxBotConverse::$srai_level > JxBotConverse::MAX_SRAI_RECURSION)

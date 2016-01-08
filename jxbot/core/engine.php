@@ -67,17 +67,17 @@ class JxBotEngine
 	private function accumulate_wild_values(&$in_values)
 	/* registers the specified value in the appropriate array for later use in
 	the output template (eg. AIML <star/> value) */
-	{
-		/*  ** these arrays may be back-to-front when multiple values exist ?
-		probably need to insert at the front not the end TODO */
-	
+	{	
 		$in_value = implode(' ', $in_values);
 		if ($this->unwind_stage == 2)
-			$this->wild_topic_values[] = $in_value;
+			array_unshift($this->wild_topic_values, $in_value);
+			//$this->wild_topic_values[] = $in_value;
 		else if ($this->unwind_stage == 1)
-			$this->wild_that_values[] = $in_value;
+			array_unshift($this->wild_that_values, $in_value);
+			//$this->wild_that_values[] = $in_value;
 		else
-			$this->wild_values[] = $in_value;
+			array_unshift($this->wild_values, $in_value);
+			//$this->wild_values[] = $in_value;
 	}
 	
 	
