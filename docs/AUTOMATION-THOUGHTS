@@ -1,0 +1,39 @@
+Reasons for AI work on better learning algorithms for grammar:
+===
+
+* Maintenance burden; maintaining AIML is quite time consuming,
+such a system would relegate most direct maintenance to the automated system
+and allow indirect manipulation through training interactions only.
+
+* Faster to get started; initial development and training can be significantly
+less than what would be required with AIML, since patterns are already 
+generalised, and generalisations can be automatically tagged and downloaded
+for turn-key startup of future blank systems.
+
+
+
+Similarity & grammar analysis / public-guided training
+===
+
+-	word similarity index on a set of common descriptions and common nouns and actions
+	in particular opposites and also inappropriate language, such that if a user
+	suggests a better way of saying something, it can be checked there and then to
+	see that it is believable.
+	
+-	statistical determinations of metrics
+
+-	words automatically identified as primarily conjunctive
+
+-	identification of syntax parameters in parameterised syntax
+
+-	identification of 'flags' such as inverters, like NOT, that have a significant
+	impact on the meaning
+
+-	possibly parse in stages, left to right, as fragments generally involving 
+	a verb, subject and object, and possible adornments, such as adverbs and
+	adjectives.
+
+-	connective words would actually build connective meaning structures potentially
+
+-	moving more toward syntactic parsing, with exceptions for common but 
+	non-complete statements, such HOW ARE YOU?
