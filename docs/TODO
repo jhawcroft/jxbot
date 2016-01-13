@@ -1,3 +1,14 @@
+BUGS
+====
+
+AIML 2 pattern-side set has no attributes.  I think it may being parsed with a name attribute.
+Fix this.
+
+
+
+
+
+
 TODO
 ====
 
